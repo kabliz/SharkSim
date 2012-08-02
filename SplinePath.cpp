@@ -161,7 +161,6 @@ double SplinePath::HmInt(float U[4], const float M[16], float B[4])
  * * The arc length u is converted into the spline's true u while interpolating*/
 Vector3f SplinePath::splineLocation(float curLocation, int startPoint)
 {
-	//TODO renable to convert spline
 	if(tabSet) {  //the very first runs of this function creates the table. So the u should not be converted
 		curLocation = StoU(curLocation, startPoint); //convert arcLength based u into the spline's true u.
 	}
@@ -407,13 +406,15 @@ Vector3f SplinePath::getNearbyPoint(double distanceAhead, int startPoint, double
 			nearbyPoint = splineLocation(1, i-1);
 		}
 	}
+	//TODO investigate backwards anomoly when hitting the 1.000 table index on a point
 	else if(distanceAhead < 0) { //looking backward 
 		int i = 0;
 		for(i = startPoint; i > 0 ; i--) {
-			result = paramTable[curPoint]->getBehindU(curU, distanceAhead);
+			result = paramTable[curPoint]->getBehindU(curU, -distanceAhead);
+			//printf("backwards %f %f (%f)\n", curU, result, distanceAhead);
 			if(result <= 0) {  //didn't find point yet, keep going
-				curU = 1; //start at the beginning of the point from now on.
-				distanceAhead = distanceAhead + result;  //this subtracts(!) the distance already traveled
+				curU = 1; //start at the end of the point from now on.
+				distanceAhead = distanceAhead - result;  //this subtracts(!) the distance already traveled. both nums negative
 				nearbyPoint = splineLocation(0, curPoint);
 				curPoint--; 
 			}

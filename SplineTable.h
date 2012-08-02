@@ -80,6 +80,9 @@ class SplineTable
 			int i = 0;
 			int foundIndex = -1;
 			bool startFound = false;
+			if(targetCoordDist < 0) {
+				//printf("target distance down path is negative\n");
+			}
 
 			for(i = 0; i < sTable.size(); i++) {
 				if(!startFound && start1 < getLength(i) ) {
@@ -110,9 +113,13 @@ class SplineTable
 		double getBehindU(double start1, double targetCoordDist)
 		{
 			double distanceTraveled = 0;
-			int i;  
+			int i = 0;  
 			int foundIndex = -1;
 			bool startFound = false;
+
+			if(targetCoordDist < 0) {
+				//printf("target distance down path is negative\n");
+			}
 
 			for(i = sTable.size()-1; i >= 0; i--) {
 				if(!startFound && start1 > getLength(i) ) {
