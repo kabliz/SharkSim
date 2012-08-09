@@ -9,6 +9,8 @@ void KeyframeSystem::initFrames()
 		sequences[0].frames.push_back(initialFrame); //First three frames are pushed in.
 		sequences[0].frames.push_back(initialFrame);
 		sequences[0].frames.push_back(initialFrame);
+		lastFrame = sequences[0].frames[0];
+		nextFrame = sequences[0].frames[1];
 	}
 	else
 	{
@@ -58,7 +60,8 @@ void KeyframeSystem::update()
 void KeyframeSystem::updateDynamicMode()
 {
 	curFrame++;
-	//printf("frame %d\n", curFrame);
+	//printf("frame %d ... btwn %d\n", curFrame, sequences[0].numInBetweens);
+	
 	//Next Keyframe Reached, update keyframe pointers to the next keyframe
 	if((curFrame >= sequences[0].numInBetweens) && (sMesh->hasNewTransform)) 
 	{
@@ -70,8 +73,10 @@ void KeyframeSystem::updateDynamicMode()
 		//Move Queued Frame to Current Frame
 		//Signal next Queued frame to be created.
 		sequences[0].dynamicAdvancement(&(sMesh->sVertices), &(sMesh->sFaces));
-		sMesh->newUpdateApproved = true;
-		sMesh->hasNewTransform = false;
+		lastFrame = sequences[0].frames[0];
+		nextFrame = sequences[0].frames[1];
+		sMesh->newUpdateApproved = true; 
+		sMesh->hasNewTransform = false; //tell mesh to ready next transform
 		curFrame = 0;
 		
 	}
@@ -131,11 +136,11 @@ void KeyframeSystem::updateStaticMode()
 void KeyframeSystem::draw()
 {
 
-	if(isDynamicMode)
+	//if(isDynamicMode)
 	{
-		sequences[0].drawDynamicFrame(curFrame);
+	//	sequences[0].drawDynamicFrame(curFrame);
 	}
-	else
+	//else
 	{
 		lastFrame.drawInBetween(nextFrame, curFrame, sequences[curSequence].numInBetweens);
 	}
