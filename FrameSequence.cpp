@@ -60,12 +60,12 @@ void FrameSequence::dynamicAdvancement(map<Vector3f, SharkVertex*, compareVect3>
 		frames.push_back(newQueueFrame);
 		
 
-		printf("dd %f,%f \n11 %f,%f \n22 %f,%f \n\n", frames[0].faces[0]->verts[0]->transformed.x, 
-						frames[0].faces[0]->verts[0]->transformed.z,
-						frames[1].faces[0]->verts[0]->transformed.x,
-						frames[1].faces[0]->verts[0]->transformed.z,
-						frames[2].faces[0]->verts[0]->transformed.x,
-						frames[2].faces[0]->verts[0]->transformed.z);
+		//printf("dd %f,%f \n11 %f,%f \n22 %f,%f \n\n", frames[0].faces[0]->verts[0]->transformed.x, 
+		//				frames[0].faces[0]->verts[0]->transformed.z,
+		//				frames[1].faces[0]->verts[0]->transformed.x,
+		//				frames[1].faces[0]->verts[0]->transformed.z,
+		//				frames[2].faces[0]->verts[0]->transformed.x,
+		//				frames[2].faces[0]->verts[0]->transformed.z);
 		//TODO. figure out this problem. buggy. frames appear to NOT cascade down the list. they are equal. queue always size 3
 		//TODO. reorganize objects to self contain themselves. no more dot trainwrecks
 	}

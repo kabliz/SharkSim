@@ -20,13 +20,18 @@ class SharkBone
 		SharkBone(SharkMesh *nmesh, int bon){ sMesh = nmesh; boneNo = bon;}
 		~SharkBone(){}
 		void buildBone(Mesh *mesh, float start, float end, MyMat matrixMultiplier); //takes in mesh input and records them in 
-	
 		void transformBone(MyMat* stackmatri, int isDownstream);
 		//Quad and SharkVertex form
 		void changeAngle(int newAngle, bool isAheadRoot); //changes the quaternion and associted angle
 		//void draw(); //draws quads to screen 
 		void printToFrame();
+
+		//lowerclass management
+		Quad* gQuad(int index){return quads[index];}
+		void sQuad(Quad* q){return quads.push_back(q);}
 		
+
+	//private:		
 		vector<Quad*> quads; //Quads are organized into rows, and each row has a list of quads in it
 		SharkMesh *sMesh;  //pointer to the main shark mesh.
 		MyMat rotationMatrix;

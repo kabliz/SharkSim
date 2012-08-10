@@ -70,6 +70,7 @@ class Vector3f {
       float Magnitude();
       Vector3f Normalize();
       Vector3f Interpolate(Vector3f other, float percentage);
+      bool fEquals(Vector3f oth, float epsilon);
 
       void Print();
    public:

@@ -295,6 +295,12 @@ Vector3f Vector3f::Interpolate(Vector3f other, float percentage)
 	return fin;
 }
 
+bool Vector3f::fEquals(Vector3f oth, float epsilon) {
+	return (x <= oth.x + epsilon && x >= oth.x - epsilon) && 
+		 (y <= oth.y + epsilon && y >= oth.y - epsilon) && 
+		 (z <= oth.z + epsilon && z >= oth.z - epsilon);  
+}
+
 void Vector3f::Print() {
    cout << "< " << x << ", " << y << ", " << z << " >" << endl;
 }

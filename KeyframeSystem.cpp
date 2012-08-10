@@ -4,7 +4,7 @@ void KeyframeSystem::initFrames()
 {
 	if(isDynamicMode)
 	{
-		Keyframe initialFrame = Keyframe(&(sMesh->sVertices), &(sMesh->sFaces));
+		Keyframe initialFrame = Keyframe(&(sMesh->vertices), &(sMesh->faces));
 		sequences.push_back(FrameSequence(isDynamicMode)); //initial (and only) sequence of frames	
 		sequences[0].frames.push_back(initialFrame); //First three frames are pushed in.
 		sequences[0].frames.push_back(initialFrame);
@@ -72,7 +72,7 @@ void KeyframeSystem::updateDynamicMode()
 		//Move Current Frame to Last Frame
 		//Move Queued Frame to Current Frame
 		//Signal next Queued frame to be created.
-		sequences[0].dynamicAdvancement(&(sMesh->sVertices), &(sMesh->sFaces));
+		sequences[0].dynamicAdvancement(&(sMesh->vertices), &(sMesh->faces));
 		lastFrame = sequences[0].frames[0];
 		nextFrame = sequences[0].frames[1];
 		sMesh->newUpdateApproved = true; 

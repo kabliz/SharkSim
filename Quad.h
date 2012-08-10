@@ -37,7 +37,32 @@ class Quad
 		bool compareBack(Quad oth);
 		Vector3f calcNormal();	
 		static double attenuate(int numedges, int iteration, int k);		
+
+		//inside class manipulation
+		SharkVertex *gVert(int index){return verts[index];}   //index is the vertex number on the quad
+		Vector3f gLocalVert(int index){return verts[index]->gLocal();}
+		Vector3f gTransformedVert(int index){return verts[index]->gTransformed();}
+		Vector3f gNormalVert(int index){return verts[index]->gNormal();}
+		void sNormalVert(int index, Vector3f vert){verts[index]->sNormal(vert);}
+		void sTransformedVert(int index, Vector3f vert){verts[index]->sTransformed(vert);}
+		void sLocalVert(int index, Vector3f vert){verts[index]->sLocal(vert);}
 		
+		Vector3f gNormal(){return faceNormal;}	
+		void sNormal(Vector3f newNormal){faceNormal = newNormal;}
+
+		int gBoneNo(){return boneNo;}
+		void sBoneNo(int bone){boneNo = bone;}
+
+		Quad* gFront(){return front;}	
+		Quad* gBack(){return back;}	
+		Quad* gLeft(){return left;}	
+		Quad* gRight(){return right;}	
+		void sFront(Quad* n){front = n;}	
+		void sBack(Quad* n){back = n;}	
+		void sLeft(Quad* n){left = n;}	
+		void sRight(Quad* n){right = n;}	
+
+	//private:		
 		//Vector3f* verts[4];
 		//Vector3f* rawVerts[4];
 		//Vector3f normal[4];

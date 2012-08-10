@@ -24,11 +24,11 @@ void SharkBone::buildBone(Mesh *mesh, float start, float end, MyMat multiplier)
 				curVert->transformed = Vector3f(0,0,0); //Vector3f(Matrix.multVec(mesh->vertList[in+corn], true)); not transformed yet here
 				curVert->normal = Vector3f(0,0,0); //normal is initially set to zero until it can be compared later. 
 				map<Vector3f, SharkVertex*, compareVect3>::iterator findTest
-					= sMesh->sVertices.find(mesh->vertList[in+corn]);
-				if(findTest == sMesh->sVertices.end())  //this vertex isn't in the smart Mesh yet.
+					= sMesh->vertices.find(mesh->vertList[in+corn]);
+				if(findTest == sMesh->vertices.end())  //this vertex isn't in the smart Mesh yet.
 				{
 					//uVertices.insert(pair<Vector3f, SharkVertex*>(mesh->vertList[in+corn]
-					sMesh->sVertices.insert(pair<Vector3f, SharkVertex*>(mesh->vertList[in+corn]
+					sMesh->vertices.insert(pair<Vector3f, SharkVertex*>(mesh->vertList[in+corn]
 								, curVert));
 					curQuad->verts[corn] = curVert;
 				}
@@ -44,10 +44,9 @@ void SharkBone::buildBone(Mesh *mesh, float start, float end, MyMat multiplier)
 			curQuad->boneNo = boneNo; //curSegment;
 			//faces.push_back(curQuad);
 			quads.push_back(curQuad); //push to Bone
-			sMesh->sFaces.push_back(curQuad); //push to Smart Mesh
+			sMesh->pushFace(curQuad); //push to Smart Mesh
 		}//end if
 	}//end quads
-	printf("newfaces: %d. Start %f, End %f \n", sMesh->sFaces.size(), start, end);
 }
 
 /*This changes the angles for this bone */

@@ -1,10 +1,10 @@
 #include "SharkMesh.h"
 
-//TODO
+//TODO delete Heap properly.
 void SharkMesh::deleteHeap()
 {
 	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
-	for(im = sVertices.begin(); im != sVertices.end(); im++ )
+	for(im = vertices.begin(); im != vertices.end(); im++ )
 	{
 		//delete each element
 		delete im->second;

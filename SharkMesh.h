@@ -40,8 +40,25 @@ class SharkMesh
 		~SharkMesh(){}
 		void deleteHeap(); 
 
-		map<Vector3f, SharkVertex*, compareVect3> sVertices;
-		vector<Quad*> sFaces;
+		SharkVertex *gVertex(Vector3f key){return vertices.find(key)->second;}	
+		map<Vector3f, SharkVertex*, compareVect3>::iterator gVertices(){return vertices.begin();}
+		map<Vector3f, SharkVertex*, compareVect3>::iterator gVerticesEnd(){return vertices.end();}
+		void insertVec (pair< Vector3f, SharkVertex*> u ){vertices.insert(u);}
+
+		Quad* gFace(int index){return faces[index];}
+		//vector<Quad*> gFaces(){return faces;}
+		void pushFace(Quad* f){faces.push_back(f);}
+		vector<Quad*>::iterator gFaceBegin(){return faces.begin();}
+		vector<Quad*>::iterator gFaceEnd(){return faces.end();}
+
+		bool isTransformReady(){return hasNewTransform;}
+		bool isUpdateApproved(){return newUpdateApproved;}
+		void sNewTransform(bool n){hasNewTransform = n;}
+		void sUpdateApproved(bool n){newUpdateApproved = n;}
+
+	//private:
+		map<Vector3f, SharkVertex*, compareVect3> vertices;
+		vector<Quad*> faces;
 		bool hasNewTransform;
 		bool newUpdateApproved;
 };
