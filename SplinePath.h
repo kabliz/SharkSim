@@ -33,12 +33,15 @@ class SplinePath
 		Vector3f splineLocation(float u, int startpoint);	
 		Vector3f getNearbyPoint(double distanceAhead, int startPoint, double startU);
 		
-
 		//displayFunctions
-		
 		//void drawPoints(float** frustum);
 
-	//private:	
+		//points
+		Vector3f gPoint(int index){return points[index];}
+		void parseDataFile(const char* filename){mreader.parseFile(filename);}	
+		double gDTS(int index){return dts[index];} //time delta distance between two points
+
+	private:	
 
 		//data
 		vector<SplineTable*> paramTable;
@@ -58,7 +61,7 @@ class SplinePath
 
 
 
-	private:
+	//private:
 		void isLargerPoint(Vector3f cur);
 		void isSmallerPoint(Vector3f cur);
 		double doubleLerp(double input, double minx, double maxx, double miny, double maxy);

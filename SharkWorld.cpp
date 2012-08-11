@@ -21,7 +21,7 @@ Vector3f SharkWorld::interpolateVertices(Vector3f first, Vector3f second, int st
 * */
 void SharkWorld::initSpline()
 {
-	path.mreader.parseFile("xytData.mat");
+	path.parseDataFile("xytData.mat");
 	path.gatherDTPoints();
 	path.paramaterizeSpline(); 
 }
@@ -114,13 +114,13 @@ Vector3f SharkWorld::upCurrentLocation()
 {
 	//frame checks
 	//hit next point. Update curPoint.
-	if(totalSteps <= steps && curPoint < path.points.size())	
+	if(totalSteps <= steps && curPoint < path.size())	
 	{
 		//set next variables
 		steps = 0;
 		curPoint = nextPoint;
 		nextPoint++;
-		totalSteps = path.dts[curPoint] * updateRate; 
+		totalSteps = path.gDTS(curPoint) * updateRate; 
 		updateAnimationFlag = true;
 		animationLoop = string("no change"); //tell shark to stop turning
 	
@@ -168,7 +168,7 @@ Vector3f SharkWorld::upCurrentLocation()
 	//position
 	Vector3f newLoc;
 	Vector3f aheadTarget; //shark looks a bit ahead of itself
-	if(curPoint < path.points.size()-1)
+	if(curPoint < path.size()-1)
 	{
 		//printf("\n%f ___ ", ((float)steps)/((float)totalSteps));
 		newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
@@ -188,7 +188,7 @@ Vector3f SharkWorld::upCurrentLocation()
 	}
 	else
 	{
-		newLoc =  path.points[curPoint];
+		newLoc =  path.gPoint(curPoint);
 	}
 
 	//auto-calculate rotation
@@ -203,11 +203,11 @@ int SharkWorld::interpolateSpeed()
 	int Qstep = steps - totalSteps*.9;
 	if(Qstep > 0)
 	{
-		int Sthis = path.dts[curPoint] * updateRate;
-		int Snext = path.dts[nextPoint] * updateRate;
+		int Sthis = path.gDTS(curPoint) * updateRate;
+		int Snext = path.gDTS(nextPoint) * updateRate;
 		return doubleLerp( Qstep, 0,  Qtotal, Sthis, Snext);
 	}
-	return path.dts[curPoint] * updateRate;
+	return path.gDTS(curPoint) * updateRate;
 }
 
 /*gradually rotates shark from the current (aka desired) rotation and the future rotation */
@@ -227,8 +227,8 @@ Vector3f SharkWorld::interpolateRotation()
 Vector3f SharkWorld::calcRotation()
 {
 	return calcRotation(
-			path.points[curPoint],
-			path.points[nextPoint]
+			path.gPoint(curPoint),
+			path.gPoint(nextPoint)
 			);
 }
 
@@ -533,14 +533,14 @@ void SharkWorld::drawSkybox()
 {
 	glPushMatrix();
 	{
-		glTranslatef(path.points[i].x, path.points[i].y, path.points[i].z);
-		if(pointInFrustum(path.points[i])){
+		glTranslatef(path.gPoint(i).x, path.gPoint(i).y, path.gPoint(i).z);
+		if(pointInFrustum(path.gPoint(i))){
 		       	glutSolidSphere(.1, 3, 2);
 		}
 	}glPopMatrix();
 	if(i > 0)
 	{
-		if(pointInFrustum(path.points[i]) || pointInFrustum(path.points[i-1]))
+		if(pointInFrustum(path.gPoint(i)) || pointInFrustum(path.gPoint(i-1)))
 		{
 			//splined points
 			Vector3f p1 = path.splineLocation(.1, i-1);
@@ -554,7 +554,7 @@ void SharkWorld::drawSkybox()
 			Vector3f p9 = path.splineLocation(.9, i-1);
 	
 			glBegin(GL_LINES);
-			glVertex3f(path.points[i-1].x, path.points[i-1].y, path.points[i-1].z);
+			glVertex3f(path.gPoint(i-1).x, path.gPoint(i-1).y, path.gPoint(i-1).z);
 			glVertex3f(p1.x, p1.y, p1.z);
 			
 			glVertex3f(p1.x, p1.y, p1.z);
@@ -582,7 +582,7 @@ void SharkWorld::drawSkybox()
 			glVertex3f(p9.x, p9.y, p9.z);
 	
 			glVertex3f(p9.x, p9.y, p9.z);
-			glVertex3f(path.points[i].x, path.points[i].y, path.points[i].z);
+			glVertex3f(path.gPoint(i).x, path.gPoint(i).y, path.gPoint(i).z);
 			glEnd();
 		}
 	}
@@ -597,7 +597,7 @@ void SharkWorld::drawPoints()
 	float red = 1.0;
 	float green = 1.0;
 	int i;
-	int chunk = path.points.size()*.1 / 4;
+	int chunk = path.size()*.1 / 4;
 	ExtractFrustum();
 
 	//TODO: delete these testing spheres. 
@@ -633,7 +633,7 @@ void SharkWorld::drawPoints()
 	}glPopMatrix();
 
 	//Close future points are drawn in a gradient going from white to yellow to green to black
-	for(i = curPoint+1; i < (curPoint+(path.points.size()*.1)); i += step)
+	for(i = curPoint+1; i < (curPoint+(path.size()*.1)); i += step)
 	{
 		glColor3f(red,green,blue);
 		drawPointLine(i);
@@ -653,7 +653,7 @@ void SharkWorld::drawPoints()
 
 	//Far future points drawn in black
 	glColor3f(0,0,0);
-	for(i = (curPoint+(path.points.size()*.1)) ;i < path.points.size(); i ++)
+	for(i = (curPoint+(path.size()*.1)) ;i < path.size(); i ++)
 	{
 		drawPointLine(i);	
 	}

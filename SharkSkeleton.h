@@ -14,7 +14,8 @@ class SharkSkeleton
 		//initializations
 		SharkSkeleton(){SharkSkeleton(NULL); locomotionMode = SUBCARANGIFORM;} //please set mesh 
 		SharkSkeleton(SharkMesh *bmesh){nmesh = bmesh; rootNode = 4; finalAngles = vector<int>(); curveAngles = vector<int>(); 
-						animatedAngles = vector<vector<int> >(); bones = vector<SharkBone>(); nextFrameNo = 0; locomotionMode = SUBCARANGIFORM;
+						animatedAngles = vector<vector<int> >(); bones = vector<SharkBone>(); nextFrameNo = 0; 
+						locomotionMode = SUBCARANGIFORM;
 						swimFrequency = 8; propellingAmplitude = .15;  turningAngle = 0; elapsedTime = 0;}
 		void buildSkeleton(Mesh *mesh, int numSegs, float* segLengths); //given a set of mesh segments, it creates the bones. 
 		void uCalibration();  //calibrates the separation between bones in terms of the spline value U.
@@ -33,6 +34,8 @@ class SharkSkeleton
 		//transformation related functions
 		void applyTransformation();//export sketon to the smart SharkMesh  so it can be drawn by the Keyframe
 		void transformHeirarchy(int isDownstream , int curNode, MyMat stackMatrix);	
+
+	//private:
 	
 		//objs
 		vector<SharkBone> bones; //List of Bones in the shark. They are each made up of Quads

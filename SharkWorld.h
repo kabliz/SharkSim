@@ -28,21 +28,21 @@ class SharkWorld
 
 		//lowerclass management
 		void deleteHeap(){path.deleteHeap();} //delete's SplinePath heap
-		Vector3f gPathPoint(int index){return path.points[index];}
-		Vector3f gCurrentPoint(){return path.points[curPoint];} 
+		Vector3f gPathPoint(int index){return path.gPoint(index);}
+		Vector3f gCurrentPoint(){return path.gPoint(curPoint);} 
 		Vector3f gNextPoint(){if(curPoint < path.size()){ 
-						return path.points[curPoint+1]; }
+						return path.gPoint(curPoint+1); }
 					else {
-						return path.points[0];}}
+						return path.gPoint(0);}}
 		Vector3f gPrevPoint(){if(curPoint == 0){
-						return path.points[path.size()-1]; }
+						return path.gPoint(path.size()-1); }
 				     else {	
-						return path.points[curPoint-1];}}
+						return path.gPoint(curPoint-1);}}
 		Vector3f gRotationDegrees(){return rotation * 180/3.14159265 ;}
 		Vector3f gRotationRadians(){return rotation;}
 		
-		double gDTS(int index){return path.dts[index];} //time difference between points		
-		double gCurrentDTS(){return path.dts[curPoint];}
+		double gDTS(int index){return path.gDTS(index);} //time difference between points		
+		double gCurrentDTS(){return path.gDTS(curPoint);}
 		
 		string gAnimationLoop(){return animationLoop;}
 
