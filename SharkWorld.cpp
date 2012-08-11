@@ -21,9 +21,9 @@ Vector3f SharkWorld::interpolateVertices(Vector3f first, Vector3f second, int st
 * */
 void SharkWorld::initSpline()
 {
-	sPath.mreader.parseFile("xytData.mat");
-	sPath.gatherDTPoints();
-	sPath.paramaterizeSpline(); 
+	path.mreader.parseFile("xytData.mat");
+	path.gatherDTPoints();
+	path.paramaterizeSpline(); 
 }
 
 /*Looks at the curvature of the rail path, and return an angle representing the current angle */
@@ -39,9 +39,9 @@ int SharkWorld::deriveRailAngle()
 		 pu+lookAhead; 
 	}
 	
-	Vector3f pastpoint = sPath.getNearbyPoint(-.3, aheadPoint, pu);
-	Vector3f futurepoint = sPath.getNearbyPoint(.3, aheadPoint, pu);
-	Vector3f thispoint = sPath.splineLocation (pu,  aheadPoint);
+	Vector3f pastpoint = path.getNearbyPoint(-.3, aheadPoint, pu);
+	Vector3f futurepoint = path.getNearbyPoint(.3, aheadPoint, pu);
+	Vector3f thispoint = path.splineLocation (pu,  aheadPoint);
 
 	Vector3f firstBranch = (thispoint - pastpoint).Normalize();
 	Vector3f secondBranch = (futurepoint - thispoint).Normalize();
@@ -114,13 +114,13 @@ Vector3f SharkWorld::upCurrentLocation()
 {
 	//frame checks
 	//hit next point. Update curPoint.
-	if(totalSteps <= steps && curPoint < sPath.points.size())	
+	if(totalSteps <= steps && curPoint < path.points.size())	
 	{
 		//set next variables
 		steps = 0;
 		curPoint = nextPoint;
 		nextPoint++;
-		totalSteps = sPath.dts[curPoint] * updateRate; 
+		totalSteps = path.dts[curPoint] * updateRate; 
 		updateAnimationFlag = true;
 		animationLoop = string("no change"); //tell shark to stop turning
 	
@@ -168,27 +168,27 @@ Vector3f SharkWorld::upCurrentLocation()
 	//position
 	Vector3f newLoc;
 	Vector3f aheadTarget; //shark looks a bit ahead of itself
-	if(curPoint < sPath.points.size()-1)
+	if(curPoint < path.points.size()-1)
 	{
 		//printf("\n%f ___ ", ((float)steps)/((float)totalSteps));
-		newLoc = sPath.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
+		newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
 		
 		//this is the look-ahead for the shark
 		if(((float)steps)+(totalSteps*.3) > (float)totalSteps) 
 		{
 			//in the case where the lookahead is past the next point
 			float difference = (((float)steps)+(totalSteps*.3)-((float)totalSteps));
-			aheadTarget = sPath.splineLocation(difference/((float)totalSteps), nextPoint);
+			aheadTarget = path.splineLocation(difference/((float)totalSteps), nextPoint);
 		}
 		else
 		{
 			//in the case where the lookahead is within the next point
-			aheadTarget = sPath.splineLocation(((((float)steps)+(totalSteps*.3)))/((float)totalSteps), curPoint);
+			aheadTarget = path.splineLocation(((((float)steps)+(totalSteps*.3)))/((float)totalSteps), curPoint);
 		}
 	}
 	else
 	{
-		newLoc =  sPath.points[curPoint];
+		newLoc =  path.points[curPoint];
 	}
 
 	//auto-calculate rotation
@@ -203,11 +203,11 @@ int SharkWorld::interpolateSpeed()
 	int Qstep = steps - totalSteps*.9;
 	if(Qstep > 0)
 	{
-		int Sthis = sPath.dts[curPoint] * updateRate;
-		int Snext = sPath.dts[nextPoint] * updateRate;
+		int Sthis = path.dts[curPoint] * updateRate;
+		int Snext = path.dts[nextPoint] * updateRate;
 		return doubleLerp( Qstep, 0,  Qtotal, Sthis, Snext);
 	}
-	return sPath.dts[curPoint] * updateRate;
+	return path.dts[curPoint] * updateRate;
 }
 
 /*gradually rotates shark from the current (aka desired) rotation and the future rotation */
@@ -227,8 +227,8 @@ Vector3f SharkWorld::interpolateRotation()
 Vector3f SharkWorld::calcRotation()
 {
 	return calcRotation(
-			sPath.points[curPoint],
-			sPath.points[nextPoint]
+			path.points[curPoint],
+			path.points[nextPoint]
 			);
 }
 
@@ -533,28 +533,28 @@ void SharkWorld::drawSkybox()
 {
 	glPushMatrix();
 	{
-		glTranslatef(sPath.points[i].x, sPath.points[i].y, sPath.points[i].z);
-		if(pointInFrustum(sPath.points[i])){
+		glTranslatef(path.points[i].x, path.points[i].y, path.points[i].z);
+		if(pointInFrustum(path.points[i])){
 		       	glutSolidSphere(.1, 3, 2);
 		}
 	}glPopMatrix();
 	if(i > 0)
 	{
-		if(pointInFrustum(sPath.points[i]) || pointInFrustum(sPath.points[i-1]))
+		if(pointInFrustum(path.points[i]) || pointInFrustum(path.points[i-1]))
 		{
 			//splined points
-			Vector3f p1 = sPath.splineLocation(.1, i-1);
-			Vector3f p2 = sPath.splineLocation(.2, i-1);
-			Vector3f p3 = sPath.splineLocation(.3, i-1);
-			Vector3f p4 = sPath.splineLocation(.4, i-1);
-			Vector3f p5 = sPath.splineLocation(.5, i-1);
-			Vector3f p6 = sPath.splineLocation(.6, i-1);
-			Vector3f p7 = sPath.splineLocation(.7, i-1);
-			Vector3f p8 = sPath.splineLocation(.8, i-1);
-			Vector3f p9 = sPath.splineLocation(.9, i-1);
+			Vector3f p1 = path.splineLocation(.1, i-1);
+			Vector3f p2 = path.splineLocation(.2, i-1);
+			Vector3f p3 = path.splineLocation(.3, i-1);
+			Vector3f p4 = path.splineLocation(.4, i-1);
+			Vector3f p5 = path.splineLocation(.5, i-1);
+			Vector3f p6 = path.splineLocation(.6, i-1);
+			Vector3f p7 = path.splineLocation(.7, i-1);
+			Vector3f p8 = path.splineLocation(.8, i-1);
+			Vector3f p9 = path.splineLocation(.9, i-1);
 	
 			glBegin(GL_LINES);
-			glVertex3f(sPath.points[i-1].x, sPath.points[i-1].y, sPath.points[i-1].z);
+			glVertex3f(path.points[i-1].x, path.points[i-1].y, path.points[i-1].z);
 			glVertex3f(p1.x, p1.y, p1.z);
 			
 			glVertex3f(p1.x, p1.y, p1.z);
@@ -582,7 +582,7 @@ void SharkWorld::drawSkybox()
 			glVertex3f(p9.x, p9.y, p9.z);
 	
 			glVertex3f(p9.x, p9.y, p9.z);
-			glVertex3f(sPath.points[i].x, sPath.points[i].y, sPath.points[i].z);
+			glVertex3f(path.points[i].x, path.points[i].y, path.points[i].z);
 			glEnd();
 		}
 	}
@@ -597,7 +597,7 @@ void SharkWorld::drawPoints()
 	float red = 1.0;
 	float green = 1.0;
 	int i;
-	int chunk = sPath.points.size()*.1 / 4;
+	int chunk = path.points.size()*.1 / 4;
 	ExtractFrustum();
 
 	//TODO: delete these testing spheres. 
@@ -607,7 +607,7 @@ void SharkWorld::drawPoints()
 		float u;
 		if(curPoint == 0){ u = 0;}
 		else { u = (float)steps/(float)totalSteps; }
-		Vector3f testAhead = sPath.getNearbyPoint(-.3 , curPoint, u );
+		Vector3f testAhead = path.getNearbyPoint(-.3 , curPoint, u );
 		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
 		glutSolidSphere(.1, 3, 2);
 	}glPopMatrix();
@@ -617,7 +617,7 @@ void SharkWorld::drawPoints()
 		float u;
 		if(curPoint == 0){ u = 0;}
 		else { u = (float)steps/(float)totalSteps; }
-		Vector3f testAhead = sPath.getNearbyPoint(.3 , curPoint, u );
+		Vector3f testAhead = path.getNearbyPoint(.3 , curPoint, u );
 		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
 		glutSolidSphere(.1, 3, 2);
 	}glPopMatrix();
@@ -627,13 +627,13 @@ void SharkWorld::drawPoints()
 		float u;
 		if(curPoint == 0){ u = 0;}
 		else { u = (float)steps/(float)totalSteps; }
-		Vector3f testAhead = sPath.getNearbyPoint(.01 , curPoint, u );
+		Vector3f testAhead = path.getNearbyPoint(.01 , curPoint, u );
 		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
 		glutSolidSphere(.1, 3, 2);
 	}glPopMatrix();
 
 	//Close future points are drawn in a gradient going from white to yellow to green to black
-	for(i = curPoint+1; i < (curPoint+(sPath.points.size()*.1)); i += step)
+	for(i = curPoint+1; i < (curPoint+(path.points.size()*.1)); i += step)
 	{
 		glColor3f(red,green,blue);
 		drawPointLine(i);
@@ -653,7 +653,7 @@ void SharkWorld::drawPoints()
 
 	//Far future points drawn in black
 	glColor3f(0,0,0);
-	for(i = (curPoint+(sPath.points.size()*.1)) ;i < sPath.points.size(); i ++)
+	for(i = (curPoint+(path.points.size()*.1)) ;i < path.points.size(); i ++)
 	{
 		drawPointLine(i);	
 	}

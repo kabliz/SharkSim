@@ -204,7 +204,7 @@ void Deinitialize (void)// Any Application DeInitialization Goes Here
 	gluDeleteQuadric(quadratic);
 	Shark.deinitialize();	
 	universalMesh.deleteHeap();
-	world1.sPath.deleteHeap();
+	world1.deleteHeap();
 }
 
 void keyboard(unsigned char key, int x, int y)
@@ -343,9 +343,9 @@ void TUpdate(int timed)
 		if(showWorld) 
 		{ 
 			world1.updateWorld(); 
-			Shark.updateVelocity(world1.sPath.points[world1.curPoint], world1.sPath.points[world1.curPoint+1], 
-						world1.sPath.dts[world1.curPoint]);
-			Shark.kfSys.prepareNextSeq(world1.animationLoop);
+			Shark.updateVelocity(world1.gCurrentPoint(), world1.gNextPoint(), 
+						world1.gCurrentDTS());
+			Shark.kfSys.prepareNextSeq(world1.gAnimationLoop());  
 		}
 	}
 		
@@ -379,7 +379,7 @@ void Draw ()
 		{	
 			//yaw rotation										
 			glQuaternion Quat;
-			Quat.CreateFromAxisAngle(0, 1, 0, world1.rotation.x*180/3.14159265);
+			Quat.CreateFromAxisAngle(0, 1, 0, world1.gRotationDegrees().x);
 			GLfloat Matrix[16];
 			Quat.CreateMatrix(Matrix);
 			glMultMatrixf(Matrix);

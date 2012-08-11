@@ -26,15 +26,19 @@ class SplinePath
 		void initTangents();
 		void calcRadius();
 		void deleteHeap();
+		int size(){return points.size();}
 
 		//interpolation functions
 		double StoU(double, int);
 		Vector3f splineLocation(float u, int startpoint);	
 		Vector3f getNearbyPoint(double distanceAhead, int startPoint, double startU);
+		
 
 		//displayFunctions
 		
-		void drawPoints(float** frustum);
+		//void drawPoints(float** frustum);
+
+	//private:	
 
 		//data
 		vector<SplineTable*> paramTable;

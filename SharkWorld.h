@@ -26,8 +26,31 @@ class SharkWorld
 		void initSpline();
 		int deriveRailAngle();
 
+		//lowerclass management
+		void deleteHeap(){path.deleteHeap();} //delete's SplinePath heap
+		Vector3f gPathPoint(int index){return path.points[index];}
+		Vector3f gCurrentPoint(){return path.points[curPoint];} 
+		Vector3f gNextPoint(){if(curPoint < path.size()){ 
+						return path.points[curPoint+1]; }
+					else {
+						return path.points[0];}}
+		Vector3f gPrevPoint(){if(curPoint == 0){
+						return path.points[path.size()-1]; }
+				     else {	
+						return path.points[curPoint-1];}}
+		Vector3f gRotationDegrees(){return rotation * 180/3.14159265 ;}
+		Vector3f gRotationRadians(){return rotation;}
+		
+		double gDTS(int index){return path.dts[index];} //time difference between points		
+		double gCurrentDTS(){return path.dts[curPoint];}
+		
+		string gAnimationLoop(){return animationLoop;}
+
+
+	private:
+
 		//world data info
-		SplinePath sPath;
+		SplinePath path;
 		double frustum[6][4];
 		
 		//global animation controls
@@ -35,7 +58,8 @@ class SharkWorld
 		Vector3f location; //current location
 		int curPoint;
 		int steps;  //interpolation progress
-		int totalSteps; //total interpolation needed. Steps and totalSteps help keep track of the time. They get converted to a arc progress value when interpolating.
+		int totalSteps; //total interpolation needed. Steps and totalSteps help keep track of the time. 
+				//They get converted to a arc progress value when interpolating.
 		int nextPoint;
 		int updateRate;  //how much to update each frame by, related to the framerate
 		bool updateAnimationFlag;
@@ -44,8 +68,8 @@ class SharkWorld
 		Vector3f deltaTheta; //difference between desired and future rotation
 		string animationLoop;
 		
-		
-	private:
+		float skyboxrotation;
+
 		void drawSkybox();
 		void drawPoints();
 		void drawPrettyStuff();
@@ -56,7 +80,6 @@ class SharkWorld
 		Vector3f interpolateRotation();
 		int interpolateSpeed();	
 
-		float skyboxrotation;
 };
 
 #endif
