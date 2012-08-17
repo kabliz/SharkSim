@@ -52,12 +52,13 @@ void Mesh::readBlender(const char *file)
 
 void Mesh::init_blender()
 {
-	readBlender("bettershark6.raw");
-	readBlender("bettershark5.raw");
-	readBlender("bettershark4.raw");
-	readBlender("bettershark3.raw");
-	readBlender("bettershark2.raw");
-	readBlender("bettershark1.raw");
+	//TODO cross platform compilation/directories
+	readBlender("Raw/bettershark6.raw");
+	readBlender("Raw/bettershark5.raw");
+	readBlender("Raw/bettershark4.raw");
+	readBlender("Raw/bettershark3.raw");
+	readBlender("Raw/bettershark2.raw");
+	readBlender("Raw/bettershark1.raw");
 	vertCounter -= 1;
 	printf("min len: %lf\n", lengthMin);
 	printf("max len: %lf\n", lengthMax);
