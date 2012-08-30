@@ -117,7 +117,7 @@ KeyframeSystem Shark::genKeyframes(bool dynamicMode, SharkMesh *shm)
 					&mesh, 
 					segs, 
 					&glQuat);
-				curSeq.frames.push_back(curFrame);
+				curSeq.sFrame(curFrame);
 			}
 			kfSys.insertStaticSequence(curSeq);
 		}

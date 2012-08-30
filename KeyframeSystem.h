@@ -27,13 +27,13 @@ class KeyframeSystem
 		void deleteFrameHeaps(); //free this memory before exiting.
 		void initFrames();
 		void adjNumFrames(int newFramerate);  //change velocity of framerate
-		void decreaseFrames(){setFrameSpeed(sequences[0].numInBetweens > 1 ? sequences[0].numInBetweens-1 : 1 );}
-		void increaseFrames(){setFrameSpeed(sequences[0].numInBetweens+1);}
+		void decreaseFrames(){setFrameSpeed(sequences[0].gNumInBetweens() > 1 ? sequences[0].gNumInBetweens()-1 : 1 );}
+		void increaseFrames(){setFrameSpeed(sequences[0].gNumInBetweens()+1);}
 		void update();  //c
 		void draw(); //draws the correct frame
 		void prepareNextSeq(string SeqName); //accepts "fast straight" "slow straight" "left turn" 
 						//"right turn" "hard left" "hard right" "uturn left" "uturn right"
-		int getNumFrames(){return sequences[0].numInBetweens;} //get number of inbetweens for this current frame
+		int getNumFrames(){return sequences[0].gNumInBetweens();} //get number of inbetweens for this current frame
 
 		//animation index keys //TODO deprecated
 		static const int a_stiff = 0;

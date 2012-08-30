@@ -6,16 +6,16 @@ void KeyframeSystem::initFrames()
 	{
 		Keyframe initialFrame = Keyframe(&(sMesh->vertices), &(sMesh->faces));
 		sequences.push_back(FrameSequence(isDynamicMode)); //initial (and only) sequence of frames	
-		sequences[0].frames.push_back(initialFrame); //First three frames are pushed in.
-		sequences[0].frames.push_back(initialFrame);
-		sequences[0].frames.push_back(initialFrame);
-		lastFrame = sequences[0].frames[0];
-		nextFrame = sequences[0].frames[1];
+		sequences[0].sFrame(initialFrame); //First three frames are pushed in.
+		sequences[0].sFrame(initialFrame);
+		sequences[0].sFrame(initialFrame);
+		lastFrame = sequences[0].gFrame(0);
+		nextFrame = sequences[0].gFrame(1);
 	}
 	else
 	{
-		lastFrame = sequences[0].frames[curFrame];
-		nextFrame = sequences[0].frames[nextFrameInd]; 
+		lastFrame = sequences[0].gFrame(curFrame);
+		nextFrame = sequences[0].gFrame(nextFrameInd); 
 	}
 }
 
@@ -30,7 +30,7 @@ void KeyframeSystem::adjNumFrames(int newRate)
 	vector<FrameSequence>::iterator isf;
 	for(isf = sequences.begin(); isf < sequences.end(); isf++)
 	{
-		isf->numInBetweens = newRate;
+		isf->sNumInBetweens(newRate);
 	}
 }
 
@@ -63,7 +63,7 @@ void KeyframeSystem::updateDynamicMode()
 	//printf("frame %d ... btwn %d\n", curFrame, sequences[0].numInBetweens);
 	
 	//Next Keyframe Reached, update keyframe pointers to the next keyframe
-	if((curFrame >= sequences[0].numInBetweens) && (sMesh->hasNewTransform)) 
+	if((curFrame >= sequences[0].gNumInBetweens()) && (sMesh->hasNewTransform)) 
 	{
 		//INtroduce randomness to sequence speed
                 int adjFrameSpeed = accFrameSpeed +  (rand() % 12 - 6);
@@ -73,8 +73,8 @@ void KeyframeSystem::updateDynamicMode()
 		//Move Queued Frame to Current Frame
 		//Signal next Queued frame to be created.
 		sequences[0].dynamicAdvancement(&(sMesh->vertices), &(sMesh->faces));
-		lastFrame = sequences[0].frames[0];
-		nextFrame = sequences[0].frames[1];
+		lastFrame = sequences[0].gFrame(0);
+		nextFrame = sequences[0].gFrame(1);
 		sMesh->newUpdateApproved = true; 
 		sMesh->hasNewTransform = false; //tell mesh to ready next transform
 		curFrame = 0;
@@ -90,7 +90,7 @@ void KeyframeSystem::updateStaticMode()
 	curFrame++;
 	//frame updating sequences
 	//Next Keyframe reached, update keyframe pointers
-	if(curFrame >= sequences[curSequence].numInBetweens-1)
+	if(curFrame >= sequences[curSequence].gNumInBetweens()-1)
 	{
 		//INtroduce randomness to sequence speed
 		int adjFrameSpeed = accFrameSpeed +  (rand() % 12 - 6);
@@ -101,7 +101,7 @@ void KeyframeSystem::updateStaticMode()
 		frameInd = nextFrameInd;
 
 		//accounts for looping back to the beginning of the sequence
-		nextFrameInd = nextFrameInd >= sequences[curSequence].frames.size()-1 ? 0 : nextFrameInd + 1;
+		nextFrameInd = nextFrameInd >= sequences[curSequence].size()-1 ? 0 : nextFrameInd + 1;
 		lastFrame = nextFrame;
 		//printf("goose\n");
 		//shift over sequences if needed
@@ -110,7 +110,7 @@ void KeyframeSystem::updateStaticMode()
 			curSequence = nextSequence;
 			nextFrameInd = 0;	
 		}
-		nextFrame = sequences[curSequence].frames[frameInd];
+		nextFrame = sequences[curSequence].gFrame(frameInd);
 	}
 	//In Between keyframes 
 	else
@@ -119,7 +119,7 @@ void KeyframeSystem::updateStaticMode()
 		if((curSequence == a_left_turn || curSequence == a_right_turn || curSequence == a_hard_left ||
 					curSequence == a_hard_right || curSequence == a_right_uturn || curSequence == a_left_uturn))
 		{
-			if(sequences[curSequence].numInBetweens < 10)
+			if(sequences[curSequence].gNumInBetweens() < 10)
 			{
 				prepareNextSeq(string("fast straight"));
 			}
@@ -142,7 +142,7 @@ void KeyframeSystem::draw()
 	}
 	//else
 	{
-		lastFrame.drawInBetween(nextFrame, curFrame, sequences[curSequence].numInBetweens);
+		lastFrame.drawInBetween(nextFrame, curFrame, sequences[curSequence].gNumInBetweens());
 	}
 
 }
