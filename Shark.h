@@ -64,9 +64,9 @@ class Shark
 		//static mode animation stuff
 		void decreaseFrames(){kfSys.decreaseFrames();}
 		void increaseFrames(){kfSys.increaseFrames();}
-		void sLoopSequence(int index){kfSys.nextSequence = index;}	
-		int gLoopSequence(){return kfSys.nextSequence;}	
-		void nextLoopSequence(){kfSys.nextSequence++;}
+		void sLoopSequence(int index){kfSys.sNextSequence(index);}	
+		int gLoopSequence(){return kfSys.gNextSequence();}	
+		void nextLoopSequence(){kfSys.incrementNextSequence();}
 		void prepareNextSeq(string seqName){kfSys.prepareNextSeq(seqName);}
 
 		//used to draw spine	

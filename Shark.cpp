@@ -87,7 +87,7 @@ KeyframeSystem Shark::genKeyframes(bool dynamicMode, SharkMesh *shm)
 	if(dynamicMode)
 	{
 		kfSys = KeyframeSystem(true);
-		kfSys.sMesh = shm;
+		kfSys.setSharkMesh(shm);
 		//animation sequence #1 is the slow swim. TODO, less magic nubmers
 		int numAngles = segments;
 		skeleton.buildAnimations(numAngles, *(segmentRot[1]), numAngles);
@@ -119,7 +119,7 @@ KeyframeSystem Shark::genKeyframes(bool dynamicMode, SharkMesh *shm)
 					&glQuat);
 				curSeq.frames.push_back(curFrame);
 			}
-			kfSys.sequences.push_back(curSeq); //TODO, handle multiple sequences
+			kfSys.insertStaticSequence(curSeq);
 		}
 	}
 	
@@ -141,7 +141,7 @@ void Shark::drawSkin(int frame)
 		for ( int i = 0; i < segments; i++)
 		{
 			if(ismoving || play)									//if the shark is moving
-				rotate = segmentRot[kfSys.curSequence][i][frame];			//get rotation of current segment
+				rotate = segmentRot[kfSys.gCurrentSequence()][i][frame];			//get rotation of current segment
 			else
 				rotate = 0;
 
@@ -204,7 +204,7 @@ void Shark::drawSpine(int frame, GLUquadricObj *quadratic)
 				materials(RedFlat);
 
 			if(ismoving || play)			//if the shark is moving
-				rotate = segmentRot[kfSys.curSequence][i][frame];	//get rotation of current segment
+				rotate = segmentRot[kfSys.gCurrentSequence()][i][frame];	//get rotation of current segment
 			else
 				rotate = 0;						
 

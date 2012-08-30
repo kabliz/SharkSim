@@ -15,12 +15,12 @@ public:
 	void draw();
 	void drawBetween(float start, float end);
 	void calculateNormals();
+//private:
+
 
 	Vector3f vertList[3000];	
 	Vector3f normals[3000];
 	float blenderTotalLength;
-
-public:  
 
 	int vertCounter;
 	float lengthMax;

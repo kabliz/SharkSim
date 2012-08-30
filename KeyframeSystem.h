@@ -16,10 +16,12 @@
 class KeyframeSystem
 {
 	public:
-		KeyframeSystem(){curFrame = 0; curSequence = 0; nextSequence = 0; frameInd = 0; nextFrameInd = 1; isDynamicMode = true;
+		KeyframeSystem(){curFrame = 0; curSequence = 0; nextSequence = 0; 
+					frameInd = 0; nextFrameInd = 1; isDynamicMode = true;
 					}
-		KeyframeSystem(bool DynamicSystem){isDynamicMode = DynamicSystem; curFrame = 0; curSequence = DynamicSystem ? 0 : 1; nextSequence = curSequence; 
-							frameInd = 0; nextFrameInd = 1;}
+		KeyframeSystem(bool DynamicSystem){isDynamicMode = DynamicSystem; 
+					curFrame = 0; curSequence = DynamicSystem ? 0 : 1; nextSequence = curSequence; 
+					frameInd = 0; nextFrameInd = 1;}
 		~KeyframeSystem(){}
 		void setFrameSpeed(int newFrameRate);
 		void deleteFrameHeaps(); //free this memory before exiting.
@@ -33,8 +35,7 @@ class KeyframeSystem
 						//"right turn" "hard left" "hard right" "uturn left" "uturn right"
 		int getNumFrames(){return sequences[0].numInBetweens;} //get number of inbetweens for this current frame
 
-		//animation index keys
-		//TODO  fixx0r
+		//animation index keys //TODO deprecated
 		static const int a_stiff = 0;
 		static const int a_slow_straight = 1;
 		static const int a_fast_straight = 2;
@@ -45,6 +46,14 @@ class KeyframeSystem
 		static const int a_right_uturn = 5;
 		static const int a_left_uturn = 5;
 
+		void sNextSequence(int ind){nextSequence = ind;}
+		int gNextSequence(){return nextSequence;}
+		int gCurrentSequence(){return curSequence;}
+		void incrementNextSequence(){nextSequence++;}
+		void setSharkMesh(SharkMesh* mesh){sMesh = mesh;}
+		void insertStaticSequence(FrameSequence n){sequences.push_back(n);}  //TODO handle multiple static sequences
+
+	private:
 		//global animation controls
 		bool isDynamicMode;  //determines whether to dynamically compute keyframe during runtime, or use the predefined art assets.
 		int accFrameSpeed;
@@ -60,7 +69,7 @@ class KeyframeSystem
 		vector<FrameSequence> sequences;
 		SharkMesh *sMesh;
 
-	private:
+	//private:
 		void updateStaticMode();
 		void updateDynamicMode();
 };
