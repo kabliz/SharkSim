@@ -2,15 +2,14 @@
 
 Shark::Shark()
 {
-	this->showSkin = 1;
-	this->showSpine = 0;
-	this->moving = 0;
+	this->showSkin = true;
+	this->showSpine = false;
+	this->ismoving = false;
 	this->play = 0;
 
 	this->segPercent = 0;
 	this->totalLength = 4;
 	this->lengthLeft = 4;
-	this->segMin = 6;
 
 	this->tempSegments = 10;
 	this->segNum = 1;
@@ -135,13 +134,13 @@ void Shark::drawSkin(int frame)
 	glPushMatrix();
 
 		
-	if(showSkin && !(moving || play))  //if we are drawing the skin
+	if(showSkin && !(ismoving || play))  //if we are drawing the skin
 	{
 		
 		glTranslatef(segLength[0], 0, 0); //segment drawing moves the whole mesh back a space
 		for ( int i = 0; i < segments; i++)
 		{
-			if(moving || play)									//if the shark is moving
+			if(ismoving || play)									//if the shark is moving
 				rotate = segmentRot[kfSys.curSequence][i][frame];			//get rotation of current segment
 			else
 				rotate = 0;
@@ -160,7 +159,7 @@ void Shark::drawSkin(int frame)
 			glPopMatrix();
 		
 	}
-	else if(showSkin && moving)
+	else if(showSkin && ismoving)
 	{
 		kfSys.draw();
 	}
@@ -204,7 +203,7 @@ void Shark::drawSpine(int frame, GLUquadricObj *quadratic)
 			else
 				materials(RedFlat);
 
-			if(moving || play)			//if the shark is moving
+			if(ismoving || play)			//if the shark is moving
 				rotate = segmentRot[kfSys.curSequence][i][frame];	//get rotation of current segment
 			else
 				rotate = 0;						
@@ -261,6 +260,52 @@ void Shark::updateVelocity(Vector3f start, Vector3f end, double dt)
 	//printf("%f\n", unitTime);
 
 }
+
+/* parses CSV files containing animation data. Not all CSV's are animation. Some of them are world data points. */
+void Shark::readMovementData(const char* file, bool dynaMode)
+{
+        FILE * fp;
+        fp = fopen(file, "r");
+        if(fp == NULL)
+        {
+                printf("can't open file %s\n", file);
+                exit(-1);
+        }
+        printf("opening movement data file: %s\n", file);
+        for(int i = 0; i < segments; i++)
+        {
+                for(int j = 0; j < segments; j++)
+                {
+			float segr;
+                        //read in file. Note that CALShark writes segment data (j value) backwards
+                        if(!dynaMode)
+                        {
+                                fscanf(fp, "%f,", &segmentRot[gParsedSoFar()][i][segments-1-j]);
+                        }
+                        else
+                        {
+                                fscanf(fp, "%f,", &segmentRot[gParsedSoFar()][j][segments-1-i]);
+                        }
+                }
+        }
+        fclose (fp);
+        incrementSequences();
+}
+
+/*default shark animation sequence creator. Makes a shark that stays stiff */
+void Shark::defSequence()
+{
+        for(int i = 0; i < 2; i++)
+        {
+                for(int j = 0; j < segments; j++)
+                {
+                        segmentRot[0][i][j] = 0;
+                }
+        }
+        incrementSequences();
+
+}
+
 
 
 /* Used to update the segments of the shark spine when using the glui interface

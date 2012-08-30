@@ -64,7 +64,9 @@ void chkGlError()
 /* parses CSV files containing animation data. Not all CSV's are animation. Some of them are world data points. */
 void readMovementData(const char* file)
 {
-	FILE * fp;
+	Shark.readMovementData(file, dynaMode);
+	
+	/*FILE * fp;
 	fp = fopen(file, "r");
 	if(fp == NULL)
 	{
@@ -79,30 +81,31 @@ void readMovementData(const char* file)
 			//read in file. Note that CALShark writes segment data (j value) backwards
 			if(!dynaMode)
 			{
-				fscanf(fp, "%f,",&Shark.segmentRot[Shark.sequencesParsed][i][Shark.segments-1-j]);
+				fscanf(fp, "%f,",&Shark.gSegmentRotation(Shark.gParsedSoFar(), i, Shark.segments-1-j));
 			}
 			else
 			{
-				fscanf(fp, "%f,",&Shark.segmentRot[Shark.sequencesParsed][j][Shark.segments-1-i]);
+				fscanf(fp, "%f,",&Shark.gSegmentRotation(Shark.gParsedSoFar(),j,Shark.segments-1-i));
 			}
 		}
 	}
 	fclose (fp);
-	Shark.sequencesParsed++;
+	Shark.incrementSequences();*/
 }
 
 /*default shark animation sequence creator. Makes a shark that stays stiff */
 void defSequence()
 {
-	for(int i = 0; i < 2; i++)
+	Shark.defSequence();
+	/*for(int i = 0; i < 2; i++)
 	{
 		for(int j = 0; j < Shark.segments; j++)
 		{
 			Shark.segmentRot[0][i][j] = 0;
 		}
 	}
-	Shark.sequencesParsed++;
-
+	Shark.incrementSequences();
+	*/
 }
 
 void Initialize ()					// Any GL Init Code & User Initialiazation Goes Here
@@ -121,7 +124,7 @@ void Initialize ()					// Any GL Init Code & User Initialiazation Goes Here
 	//initialize segLength
 	for(int i = 0; i < Shark.segMax; i++)
 	{
-		Shark.segLengthInput[i] = 0;
+		Shark.sSegmentLength(i, 0);
 	}
 	Shark.segUpdate();
 	//put in stiff (defualt case )sequence
@@ -145,12 +148,12 @@ void Initialize ()					// Any GL Init Code & User Initialiazation Goes Here
 	world1.initSpline();
 	universalMesh = SharkMesh();
 	
-	Shark.skeleton = (&universalMesh);
+	Shark.sSkeleton(&universalMesh);
 	int tSegments = Shark.segments;
-	Shark.skeleton.buildSkeleton(&mesh, tSegments, (float*) Shark.segLength);
+	Shark.buildSkeleton(&mesh, tSegments);
 	Shark.genKeyframes(dynaMode, &universalMesh);
 	frameSpeed = frameSpeedSlow;
-	Shark.kfSys.setFrameSpeed(10);
+	Shark.sFrameSpeed(10);
 	
 
 
@@ -223,35 +226,35 @@ void keyboard(unsigned char key, int x, int y)
 		glutPostRedisplay();
 		break;
 	case 's': case 'S':
-		if(Shark.showSpine)
-			Shark.showSpine = 0;
+		if(Shark.isSpine())
+			Shark.toggleSpine(false);
 		else
-			Shark.showSpine = 1;
+			Shark.toggleSpine(true);
 		glutPostRedisplay();
 		break;
 	case 'k': case 'K':
-		if(Shark.showSkin)
-			Shark.showSkin = 0;
+		if(Shark.isSkin())
+			Shark.toggleSkin(false);
 		else
-			Shark.showSkin = 1;
+			Shark.toggleSkin(true);
 		glutPostRedisplay();
 		break;
 	case 'm': case 'M':
-		if(Shark.moving)
+		if(Shark.isMoving())
 		{
-			Shark.moving = 0;
-			Shark.kfSys.prepareNextSeq(string("stiff"));
+			Shark.toggleMoving(false);
+			//Shark.kfSys.prepareNextSeq(string("stiff"));
 		}
 		else
-			Shark.moving = 1;
+			Shark.toggleMoving(true);
 		break;
 	case ',':
 		frameSpeed = frameSpeedSlow;
-		Shark.kfSys.decreaseFrames();
+		Shark.decreaseFrames();
 		break;
 	case '.':
 		frameSpeed = frameSpeedFast;
-		Shark.kfSys.increaseFrames();
+		Shark.increaseFrames();
 		break;
 	case '[':
 		frame++;
@@ -264,19 +267,19 @@ void keyboard(unsigned char key, int x, int y)
 		frame = Shark.segments-1;
 		break;
 	case 'p': case 'P':
-		if(Shark.play)
-			Shark.play = 0;
+		if(Shark.isPlay())
+			Shark.togglePlay(false);
 		else 
-			Shark.play = 1;
+			Shark.togglePlay(true);
 		break;
 	case 'l':case'L':
 		toggleLighting();
 		break;
 	case 'n':case'N':  //cycle through animations
-		if(Shark.kfSys.nextSequence+1 >= Shark.sequencesParsed)
-			Shark.kfSys.nextSequence = 0;
+		if(Shark.gLoopSequence()+1 >= Shark.gParsedSoFar())
+			Shark.sLoopSequence(0);
 		else
-			Shark.kfSys.nextSequence++;
+			Shark.nextLoopSequence();
 		break;
 	case 'z':case'Z':
 		showWorld = !showWorld;	
@@ -333,7 +336,7 @@ void TUpdate(int timed)
 {
 	//FutureFeature: rotate worlds around?
 	Shark.timedUpdate(world1.deriveRailAngle());
-	if(Shark.moving){					//increment movement frame
+	if(Shark.isMoving()){					//increment movement frame
 		//frame += frameSpeed;
 		//Shark.kfSys.curFrame++;
 		//Shark.kfSys.checkLoop();
@@ -345,7 +348,7 @@ void TUpdate(int timed)
 			world1.updateWorld(); 
 			Shark.updateVelocity(world1.gCurrentPoint(), world1.gNextPoint(), 
 						world1.gCurrentDTS());
-			Shark.kfSys.prepareNextSeq(world1.gAnimationLoop());  
+			Shark.prepareNextSeq(world1.gAnimationLoop());  
 		}
 	}
 		
@@ -414,7 +417,7 @@ int main(int argc, char** argv)
    glutKeyboardFunc(keyboard);
 
     //shark init
-    Shark.moving = 1;
+    Shark.toggleMoving(true);
 
    //GLUI Code to make the interface
    /*GLUI *glui = GLUI_Master.create_glui( "Options" );

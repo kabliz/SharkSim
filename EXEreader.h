@@ -14,6 +14,15 @@ class EXEreader
 		~EXEreader(){}
 		void parseFile(const char* argv);
 
+		Vector3f gCoordinate(int index){return latLong[index];}
+		size_t size(){return latLong.size();}
+		double gDTS(int index){return dts[index];}
+		double gMinLatitude(){return minlat;}
+		double gMaxLatitude(){return maxlat;}
+		double gMinLongitude(){return minlong;}
+		double gMaxLongitude(){return maxlong;}
+
+	private:
 		FILE* readFile;
 		vector<Vector3f> latLong;
 		vector<double> dts;

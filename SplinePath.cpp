@@ -25,13 +25,13 @@ void SplinePath::gatherDTPoints()
 {
 	Vector3f p, q;
 	double dt;
-	for(int id = 0; id < mreader.pMatrices[0].size(); id++)
+	for(int id = 0; id < mreader.length(); id++)
 	{
 
-		dt += mreader.pMatrices[0][id];
-		p.x = mreader.pMatrices[1][id];
+		dt += mreader.gElement(0,id);
+		p.x = mreader.gElement(1,id);
 		p.y = 0;
-		p.z = mreader.pMatrices[2][id];
+		p.z = mreader.gElement(2,id);
 		if(!(p.x == q.x && p.z == q.z))
 		{
 			isLargerPoint(p);
@@ -49,19 +49,17 @@ void SplinePath::gatherDTPoints()
 
 void SplinePath::gatherZPoints()
 {
-	for(int id = 0; id < ereader.latLong.size(); id++)
+	for(int id = 0; id < ereader.size(); id++)
 	{
 		Vector3f p;
-		p.x = doubleLerp(ereader.latLong[id].x, ereader.minlat, ereader.maxlat, 0, 100);
-		p.y = doubleLerp(ereader.latLong[id].y, ereader.minlong, ereader.maxlong, 0 , 100) ;
-		p.z = ereader.latLong[id].z;
+		p.x = doubleLerp(ereader.gCoordinate(id).x, ereader.gMinLatitude(), ereader.gMaxLatitude(), 0, 100);
+		p.y = doubleLerp(ereader.gCoordinate(id).y, ereader.gMinLongitude(), ereader.gMinLongitude(), 0 , 100) ;
+		p.z = ereader.gCoordinate(id).z;
 
 		isLargerPoint(p);
 		isSmallerPoint(p);
 		points.push_back(p);
-		dts.push_back(ereader.dts[id]);
-		//printf("%f %f \n", p.x, p.y);
-		//printf("%f %f \n", ereader.minlong, ereader.maxlong);
+		dts.push_back(ereader.gDTS(id));
 	}
 	//TODO clarify EXEreader input
 	calcRadius();

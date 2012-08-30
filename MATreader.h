@@ -25,15 +25,18 @@ class MATreader
 	public:
 		MATreader(){numMatrix = 0;}
 		~MATreader(){}
-		void parseFile(const char* argc);		
-	
+		void parseFile(const char* argc);
+		double gElement(int i1, int i2){return pMatrices[i1][i2];} //gets element from matrix, needs 2D index
+		size_t width(){return pMatrices.size();}	
+		size_t length(){return pMatrices[0].size();}	
+
+      private:	
 		bool lilEndian;
 		bool runninglilEndian;
 		FILE* readfile;
-		vector<vector<double> > pMatrices;
+		vector<vector<double> > pMatrices;  //dependency here
 		int numMatrix;
 
-	private:
 		void checkErr(int chk, bool type_isnonzeroerror);
 		bool checkNull(char *chk);
 		void exitOnNull(char *chk);
