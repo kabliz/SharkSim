@@ -47,6 +47,9 @@ class Keyframe
 		void deleteHeap(void);
 		static void drawInBetween(Keyframe start, Keyframe end, int step, int max) {start.drawInBetween(end, step, max);}	
 		void drawInBetween(Keyframe end, int step, int max);	
+
+
+	private:
 			
 		vector<Quad*> faces;
 		map<Vector3f, SharkVertex*, compareVect3> uVertices;
@@ -55,8 +58,6 @@ class Keyframe
 		int followingBtwns;
 		static int defaultBtwns;
 		
-
-	private:
 		void createQuads(void);
 		void multiBoneAttenuate();	
 		Vector3f interpolateVertices(Vector3f first, Vector3f second, int step,int max);
