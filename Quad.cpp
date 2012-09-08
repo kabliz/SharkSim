@@ -119,3 +119,21 @@ bool Quad::compareRight(Quad oth)
 	*/
 	return topmatch && bottmatch;
 }
+
+/*Multiplies the local value of this quad by a transformation matrix, and sets the transformed value of this quad */
+void Quad::matrixTransform(MyMat matrix)
+{
+	verts[0]->transformed = Vector3f(matrix.multVec(verts[0]->local, true));
+	verts[3]->transformed = Vector3f(matrix.multVec(verts[3]->local, true));
+
+	verts[1]->transformed = Vector3f(matrix.multVec(verts[1]->local, true));
+	verts[2]->transformed = Vector3f(matrix.multVec(verts[2]->local, true));
+}
+
+
+
+
+
+
+
+

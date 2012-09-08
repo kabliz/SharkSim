@@ -5,7 +5,7 @@
 #include <vector>
 #include "Vector.h"
 #include "SharkVertex.h"
-
+#include "MyMat.h"
 
 /*A quad is a set of four points that make a rectangle. The two vertices towards the shark front are numbers zero and three */
 class Quad
@@ -40,13 +40,16 @@ class Quad
 
 		//inside class manipulation
 		SharkVertex *gVert(int index){return verts[index];}   //index is the vertex number on the quad
+		void sVert(int index, SharkVertex* n){verts[index] = n;}   //index is the vertex number on the quad
 		Vector3f gLocalVert(int index){return verts[index]->gLocal();}
 		Vector3f gTransformedVert(int index){return verts[index]->gTransformed();}
 		Vector3f gNormalVert(int index){return verts[index]->gNormal();}
 		void sNormalVert(int index, Vector3f vert){verts[index]->sNormal(vert);}
 		void sTransformedVert(int index, Vector3f vert){verts[index]->sTransformed(vert);}
 		void sLocalVert(int index, Vector3f vert){verts[index]->sLocal(vert);}
-		
+	
+		void matrixTransform(MyMat stackmatri);
+	
 		Vector3f gNormal(){return faceNormal;}	
 		void sNormal(Vector3f newNormal){faceNormal = newNormal;}
 
@@ -62,10 +65,7 @@ class Quad
 		void sLeft(Quad* n){left = n;}	
 		void sRight(Quad* n){right = n;}	
 
-	//private:		
-		//Vector3f* verts[4];
-		//Vector3f* rawVerts[4];
-		//Vector3f normal[4];
+	private:		
 		SharkVertex* verts[4];
 		Vector3f faceNormal;
 		int boneNo;

@@ -20,10 +20,21 @@ void Keyframe::draw(void)
 	int i = 0;
 	for(iq = faces.begin(); iq < faces.end(); iq++)
 	{
-		glColor3f((*iq)->boneNo*.1, 1.0-(((float) (i%3))/10.0), 1.0-((*iq)->boneNo*.1));
-		glNormal3f((*iq)->verts[0]->normal.x, (*iq)->verts[0]->normal.y, (*iq)->verts[0]->normal.z);
-		glVertex3f((*iq)->verts[0]->transformed.x, (*iq)->verts[0]->transformed.y, (*iq)->verts[0]->transformed.z);
+		glColor3f((*iq)->gBoneNo()*.1, 1.0-(((float) (i%3))/10.0), 1.0-((*iq)->gBoneNo()*.1));
 		
+		glNormal3f((*iq)->gNormalVert(0).x, (*iq)->gNormalVert(0).y, (*iq)->gNormalVert(0).z);
+		glVertex3f((*iq)->gTransformedVert(0).x, (*iq)->gTransformedVert(0).y, (*iq)->gTransformedVert(0).z);
+		
+		glNormal3f((*iq)->gNormalVert(1).x, (*iq)->gNormalVert(1).y, (*iq)->gNormalVert(1).z);
+		glVertex3f((*iq)->gTransformedVert(1).x, (*iq)->gTransformedVert(1).y, (*iq)->gTransformedVert(1).z);
+		
+		glNormal3f((*iq)->gNormalVert(2).x, (*iq)->gNormalVert(2).y, (*iq)->gNormalVert(2).z);
+		glVertex3f((*iq)->gTransformedVert(2).x, (*iq)->gTransformedVert(2).y, (*iq)->gTransformedVert(2).z);
+		
+		glNormal3f((*iq)->gNormalVert(3).x, (*iq)->gNormalVert(3).y, (*iq)->gNormalVert(3).z);
+		glVertex3f((*iq)->gTransformedVert(3).x, (*iq)->gTransformedVert(3).y, (*iq)->gTransformedVert(3).z);
+
+		/*	
 		glNormal3f((*iq)->verts[1]->normal.x, (*iq)->verts[1]->normal.y, (*iq)->verts[1]->normal.z);
 		glVertex3f((*iq)->verts[1]->transformed.x, (*iq)->verts[1]->transformed.y, (*iq)->verts[1]->transformed.z);
 		
@@ -32,7 +43,7 @@ void Keyframe::draw(void)
 		
 		glNormal3f((*iq)->verts[3]->normal.x, (*iq)->verts[3]->normal.y, (*iq)->verts[3]->normal.z);
 		glVertex3f((*iq)->verts[3]->transformed.x, (*iq)->verts[3]->transformed.y, (*iq)->verts[3]->transformed.z);
-
+		*/
 		i++;
 	}
 	
@@ -123,7 +134,7 @@ void Keyframe::segmentMatrixMake( GLfloat segmentRot[], GLfloat segLength[], Mes
 		if(center >= start && center <= end )
 		{
 			Quad *curQuad = new Quad();
-			curQuad->faceNormal = Vector3f(0,0,0);
+			curQuad->gNormal() = Vector3f(0,0,0);
 			for(int corn = 0; corn < 4; corn++) //corner iteration
 			{
 				SharkVertex *curVert = new SharkVertex();   //current vertex
@@ -137,18 +148,18 @@ void Keyframe::segmentMatrixMake( GLfloat segmentRot[], GLfloat segLength[], Mes
 					//vertex not in list. Add it to the list and to the quad.
 					uVertices.insert(pair<Vector3f, SharkVertex*>(mesh->vertList[in+corn]
 								, curVert));	
-					curQuad->verts[corn] = curVert;
+					curQuad->sVert(corn, curVert);
 				}
 				else   //vertex is in the list, so it's added to the existing quad.
 				{
 					delete curVert;
-					curQuad->verts[corn] = (*findTest).second;
+					curQuad->sVert(corn, (*findTest).second);
 				}
-				curQuad->faceNormal += Matrix.multVec(mesh->normals[in+corn], false);  //setting normal of the face
+				curQuad->gNormal() += Matrix.multVec(mesh->normals[in+corn], false);  //setting normal of the face
 				
 			}//end corners
-			curQuad->faceNormal /= 4.0; //take average of normals to get the actual normal.
-			curQuad->boneNo = curSegment; //record the bone this quad belongs to the most.
+			curQuad->gNormal() /= 4.0; //take average of normals to get the actual normal.
+			curQuad->sBoneNo(curSegment); //record the bone this quad belongs to the most.
 			faces.push_back(curQuad);
 		}//end if
 	}//end quads 
@@ -228,10 +239,10 @@ void Keyframe::createQuads(void)
 	for(iq = faces.begin(); iq < faces.end(); iq++)
 	{
 		(*iq)->locateAdjacants(faces);
-		(*iq)->verts[0]->normal += (*iq)->faceNormal;
-		(*iq)->verts[1]->normal += (*iq)->faceNormal;
-		(*iq)->verts[2]->normal += (*iq)->faceNormal;
-		(*iq)->verts[3]->normal += (*iq)->faceNormal;
+		(*iq)->sNormalVert(0, (*iq)->gNormalVert(0) + (*iq)->gNormal());
+		(*iq)->sNormalVert(1, (*iq)->gNormalVert(1) + (*iq)->gNormal());
+		(*iq)->sNormalVert(2, (*iq)->gNormalVert(2) + (*iq)->gNormal());
+		(*iq)->sNormalVert(3, (*iq)->gNormalVert(3) + (*iq)->gNormal());
 	}
 
 	for(isv = uVertices.begin(); isv != uVertices.end(); isv++)
@@ -252,11 +263,11 @@ void Keyframe::multiBoneAttenuate(void)
 	//initializing first ring.
 	for(iq = faces.begin(); iq < faces.end(); iq++)
 	{
-		if(*iq != NULL && (*iq)->back != NULL)
+		if(*iq != NULL && (*iq)->gBack() != NULL)
 		{
-			if((*iq)->boneNo < (*iq)->back->boneNo)
+			if((*iq)->gBoneNo() < (*iq)->gBack()->gBoneNo())
 			{
-				quadRing.push_back((*iq)->back);
+				quadRing.push_back((*iq)->gBack());
 			}
 		}
 	}
@@ -269,18 +280,18 @@ void Keyframe::multiBoneAttenuate(void)
 			if((*iq) != NULL)
 			{
 				//move vertices 1 and 2 forward
-				Vector3f diff1 = ((*iq)->verts[0]->transformed) - ((*iq)->verts[1]->transformed);
-				Vector3f diff2 = ((*iq)->verts[3]->transformed) - ((*iq)->verts[2]->transformed);
+				Vector3f diff1 = ((*iq)->gVert(0)->transformed) - ((*iq)->gVert(1)->transformed);
+				Vector3f diff2 = ((*iq)->gVert(3)->transformed) - ((*iq)->gVert(2)->transformed);
 				double attenVal = (*iq)->attenuate(numEdges, i, attenK);	
-				((*iq)->verts[1]->transformed) = ((*iq)->verts[1]->transformed) + (diff1*attenVal);
-				((*iq)->verts[2]->transformed) = ((*iq)->verts[2]->transformed) + (diff2*attenVal);
+				((*iq)->gVert(1)->transformed) = ((*iq)->gVert(1)->transformed) + (diff1*attenVal);
+				((*iq)->gVert(2)->transformed) = ((*iq)->gVert(2)->transformed) + (diff2*attenVal);
 			}
 		}
 		//move to the next ring
 		for(int j = 0; j < quadRing.size(); j++)
 		{
-			if(quadRing[j] != NULL && quadRing[j]->back != NULL)
-				quadRing[j] = quadRing[j]->back;
+			if(quadRing[j] != NULL && quadRing[j]->gBack() != NULL)
+				quadRing[j] = quadRing[j]->gBack();
 		}
 	}
 }
@@ -306,20 +317,23 @@ void Keyframe::drawInBetween(Keyframe end, int step, int max)
 	int i = 0;
 	for(i = 0; i < faces.size(); i++)
 	{
-		newCorn[0] = interpolateVertices((faces[i]->verts[0]->transformed), (end.faces[i]->verts[0]->transformed), step, max);
-		newCorn[1] = interpolateVertices((faces[i]->verts[1]->transformed), (end.faces[i]->verts[1]->transformed), step, max);
-		newCorn[2] = interpolateVertices((faces[i]->verts[2]->transformed), (end.faces[i]->verts[2]->transformed), step, max);
-		newCorn[3] = interpolateVertices((faces[i]->verts[3]->transformed), (end.faces[i]->verts[3]->transformed), step, max);
+		newCorn[0] = interpolateVertices((faces[i]->gTransformedVert(0)), (end.faces[i]->gTransformedVert(0)), step, max);
+		newCorn[1] = interpolateVertices((faces[i]->gTransformedVert(1)), (end.faces[i]->gTransformedVert(1)), step, max);
+		newCorn[2] = interpolateVertices((faces[i]->gTransformedVert(2)), (end.faces[i]->gTransformedVert(2)), step, max);
+		newCorn[3] = interpolateVertices((faces[i]->gTransformedVert(3)), (end.faces[i]->gTransformedVert(3)), step, max);
+		//newCorn[1] = interpolateVertices((faces[i]->verts[1]->transformed), (end.faces[i]->verts[1]->transformed), step, max);
+		//newCorn[2] = interpolateVertices((faces[i]->verts[2]->transformed), (end.faces[i]->verts[2]->transformed), step, max);
+		//newCorn[3] = interpolateVertices((faces[i]->verts[3]->transformed), (end.faces[i]->verts[3]->transformed), step, max);
 		
-		newNorm[0] = interpolateVertices((faces[i]->verts[0]->normal), (end.faces[i]->verts[0]->normal), step, max);
-		newNorm[1] = interpolateVertices((faces[i]->verts[1]->normal), (end.faces[i]->verts[1]->normal), step, max);
-		newNorm[2] = interpolateVertices((faces[i]->verts[2]->normal), (end.faces[i]->verts[2]->normal), step, max);
-		newNorm[3] = interpolateVertices((faces[i]->verts[3]->normal), (end.faces[i]->verts[3]->normal), step, max);
+		newNorm[0] = interpolateVertices((faces[i]->gNormalVert(0)), (end.faces[i]->gNormalVert(0)), step, max);
+		newNorm[1] = interpolateVertices((faces[i]->gNormalVert(1)), (end.faces[i]->gNormalVert(1)), step, max);
+		newNorm[2] = interpolateVertices((faces[i]->gNormalVert(2)), (end.faces[i]->gNormalVert(2)), step, max);
+		newNorm[3] = interpolateVertices((faces[i]->gNormalVert(3)), (end.faces[i]->gNormalVert(3)), step, max);
+		//newNorm[1] = interpolateVertices((faces[i]->verts[1]->normal), (end.faces[i]->verts[1]->normal), step, max);
+		//newNorm[2] = interpolateVertices((faces[i]->verts[2]->normal), (end.faces[i]->verts[2]->normal), step, max);
+		//newNorm[3] = interpolateVertices((faces[i]->verts[3]->normal), (end.faces[i]->verts[3]->normal), step, max);
 
-		//if(i == 0)
-		//	printf("soda %f %f %f\n", newCorn[0].z, faces[i]->verts[0]->transformed.z, end.faces[i]->verts[0]->transformed.z);
-		
-		glColor3f(faces[i]->boneNo*.1, 1.0-(((float) (i%3))/10.0), 1.0-(faces[i]->boneNo*.1));
+		glColor3f(faces[i]->gBoneNo()*.1, 1.0-(((float) (i%3))/10.0), 1.0-(faces[i]->gBoneNo()*.1));
 		
 		glNormal3f(newNorm[0].x, newNorm[0].y, newNorm[0].z);
 		glVertex3f(newCorn[0].x, newCorn[0].y, newCorn[0].z);	

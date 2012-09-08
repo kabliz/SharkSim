@@ -16,7 +16,7 @@ void SharkBone::buildBone(Mesh *mesh, float start, float end, MyMat multiplier)
 		if(center >= start && center <= end )
 		{
 			Quad *curQuad = new Quad();
-			curQuad->faceNormal = Vector3f(0,0,0);
+			curQuad->sNormal(Vector3f(0,0,0));
 			for(int corn = 0; corn < 4; corn++) //corner iteration
 			{
 				SharkVertex *curVert = new SharkVertex();
@@ -30,18 +30,18 @@ void SharkBone::buildBone(Mesh *mesh, float start, float end, MyMat multiplier)
 					//uVertices.insert(pair<Vector3f, SharkVertex*>(mesh->vertList[in+corn]
 					sMesh->vertices.insert(pair<Vector3f, SharkVertex*>(mesh->vertList[in+corn]
 								, curVert));
-					curQuad->verts[corn] = curVert;
+					curQuad->sVert(corn, curVert);
 				}
 				else //vertex is in the smart mesh already, it just needs to be added to this quad.
 				{
 					delete curVert;
-					curQuad->verts[corn] = (*findTest).second;
+					curQuad->sVert(corn, (*findTest).second);
 				}
-				curQuad->faceNormal += multiplier.multVec(mesh->normals[in+corn], false);
+				curQuad->sNormal(curQuad->gNormal() + multiplier.multVec(mesh->normals[in+corn], false));
 
 			}//end corners
-			curQuad->faceNormal /= 4.0;
-			curQuad->boneNo = boneNo; //curSegment;
+			curQuad->sNormal(curQuad->gNormal() / 4.0);
+			curQuad->sBoneNo(boneNo); //curSegment;
 			//faces.push_back(curQuad);
 			quads.push_back(curQuad); //push to Bone
 			sMesh->pushFace(curQuad); //push to Smart Mesh
@@ -86,11 +86,12 @@ void SharkBone::transformBone(MyMat *stackMatrix, int isDownstream)
 
 	for(iq = quads.begin(); iq < quads.end(); iq++)
 	{
-	 	(*iq)->verts[0]->transformed = Vector3f(Matrix.multVec((*iq)->verts[0]->local, true));
+		(*iq)->matrixTransform(Matrix);
+	 	/*(*iq)->verts[0]->transformed = Vector3f(Matrix.multVec((*iq)->verts[0]->local, true));
 	 	(*iq)->verts[3]->transformed = Vector3f(Matrix.multVec((*iq)->verts[3]->local, true));
 	 	
 		(*iq)->verts[1]->transformed = Vector3f(Matrix.multVec((*iq)->verts[1]->local, true));
-	 	(*iq)->verts[2]->transformed = Vector3f(Matrix.multVec((*iq)->verts[2]->local, true));
+	 	(*iq)->verts[2]->transformed = Vector3f(Matrix.multVec((*iq)->verts[2]->local, true));*/
 	}
 
 }
