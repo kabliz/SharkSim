@@ -24,7 +24,7 @@ void SplinePath::deleteHeap()
 void SplinePath::gatherDTPoints()
 {
 	Vector3f p, q;
-	double dt;
+	double dt = 0;
 	for(int id = 0; id < mreader.length(); id++)
 	{
 
@@ -152,7 +152,6 @@ double SplinePath::HmInt(float U[4], const float M[16], float B[4])
 
 
 
-
 /*matrix spline interpolation
  * * returns a vector location 
  * * It is a wrapper around catmullMatrix()
@@ -174,6 +173,17 @@ Vector3f SplinePath::splineLocation(float curLocation, int startPoint)
 	}
 }
 
+double SplinePath::timeLocation(float timer, int startPoint)
+{
+	return 0;
+}
+
+Vector3f SplinePath::catmullTimestamp(float u, int currentLocation )
+{
+	//float Bu[4] = {historyLoc, startLoc, endLoc, futureLoc };
+
+	return Vector3f(0,0,0);
+}
 
 /*igeneralized catmull-rom matrix multiplcation for complex interpolations
  * returns a vector

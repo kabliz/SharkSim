@@ -31,7 +31,7 @@ int SharkWorld::deriveRailAngle()
 {
 	float lookAhead = .15; 
 	int aheadPoint = curPoint;
-	float pu = totalSteps == 0 ? 0 : ((float) steps) /(float) totalSteps;
+	float pu = totalSteps == 0 ? 0 : ((float) steps) /(float) totalSteps;  
 	if(pu+lookAhead > 1) {
 		  pu = pu+lookAhead-1.0;
 		  aheadPoint++; 
@@ -120,7 +120,7 @@ Vector3f SharkWorld::upCurrentLocation()
 		steps = 0;
 		curPoint = nextPoint;
 		nextPoint++;
-		totalSteps = path.gDTS(curPoint) * updateRate; 
+		totalSteps = path.gDTS(curPoint) * updateRate; //TODO change u to some speed value 
 		updateAnimationFlag = true;
 		animationLoop = string("no change"); //tell shark to stop turning
 	
@@ -196,7 +196,7 @@ Vector3f SharkWorld::upCurrentLocation()
 	return newLoc;
 }
 
-
+//TODO deprecate
 int SharkWorld::interpolateSpeed()
 {
 	int Qtotal = totalSteps - totalSteps*.9;

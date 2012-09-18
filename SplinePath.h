@@ -31,6 +31,7 @@ class SplinePath
 		//interpolation functions
 		double StoU(double, int);
 		Vector3f splineLocation(float u, int startpoint);	
+		double timeLocation(float timer, int startpoint);	
 		Vector3f getNearbyPoint(double distanceAhead, int startPoint, double startU);
 		
 		//displayFunctions
@@ -50,23 +51,27 @@ class SplinePath
 		vector<Vector3f> points;   //vector stores x, y, z(where z is water depth, unlike rendering)
 		vector<Vector3f> tangents; //tangents for the curve as it hits each point
 		vector<double> dts; //difference in time between one point and the next
+		//vector<double> totts; //total time between one point and the next
 		Vector3f maxPt; //records the maximum point the shark traveled
 		Vector3f minPt; //minimum point
 		Vector3f midPt;
+
+		//running totals of timestamp for catmull interpolation
+		//double timePast;
+		//double timeCurrent;
+		//double timeNext;
 		
 		MATreader mreader;
 		EXEreader ereader;
 		double radius;
 		ParamFunctions paramfuncs;
 
-
-
-	//private:
 		void isLargerPoint(Vector3f cur);
 		void isSmallerPoint(Vector3f cur);
 		double doubleLerp(double input, double minx, double maxx, double miny, double maxy);
 		Vector3f hermiteMatrix(float u, Vector3f startLocation, Vector3f endLocation, Vector3f startTangent, Vector3f endTangent);
 		Vector3f catmullMatrix(float u, int currentLocation);
+		Vector3f catmullTimestamp(float u, int currentLocation);
 		double HmInt(float U[4], const float M[16], float B[4]);
 		bool tabSet;
 

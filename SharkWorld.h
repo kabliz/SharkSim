@@ -61,7 +61,7 @@ class SharkWorld
 		int totalSteps; //total interpolation needed. Steps and totalSteps help keep track of the time. 
 				//They get converted to a arc progress value when interpolating.
 		int nextPoint;
-		int updateRate;  //how much to update each frame by, related to the framerate
+		int updateRate;  //how much to update each step through between knots by, related to the framerate
 		bool updateAnimationFlag;
 		Vector3f desiredRotation;
 		Vector3f futureRotation;
