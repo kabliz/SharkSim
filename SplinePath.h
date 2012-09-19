@@ -31,8 +31,8 @@ class SplinePath
 		//interpolation functions
 		double StoU(double, int);
 		Vector3f splineLocation(float u, int startpoint);	
-		double timeLocation(float timer, int startpoint);	
 		Vector3f getNearbyPoint(double distanceAhead, int startPoint, double startU);
+		double catmullTimestamp(float u, int currentLocation);
 		
 		//displayFunctions
 		//void drawPoints(float** frustum);
@@ -60,7 +60,8 @@ class SplinePath
 		//double timePast;
 		//double timeCurrent;
 		//double timeNext;
-		
+		double curTimeSpline;
+
 		MATreader mreader;
 		EXEreader ereader;
 		double radius;
@@ -71,7 +72,7 @@ class SplinePath
 		double doubleLerp(double input, double minx, double maxx, double miny, double maxy);
 		Vector3f hermiteMatrix(float u, Vector3f startLocation, Vector3f endLocation, Vector3f startTangent, Vector3f endTangent);
 		Vector3f catmullMatrix(float u, int currentLocation);
-		Vector3f catmullTimestamp(float u, int currentLocation);
+		
 		double HmInt(float U[4], const float M[16], float B[4]);
 		bool tabSet;
 

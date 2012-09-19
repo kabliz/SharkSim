@@ -173,16 +173,60 @@ Vector3f SplinePath::splineLocation(float curLocation, int startPoint)
 	}
 }
 
-double SplinePath::timeLocation(float timer, int startPoint)
+// Catmull interpolation for the time of movement (time-space curve, rather than the space curve of the other function)
+// Returns a double value representing the new U value to input into the space curve
+double SplinePath::catmullTimestamp(float timer, int curKnot )
 {
-	return 0;
-}
+	int endMark = dts.size();
+	int endLocNum; //index to the end point;
+	double historyLocation;
+	double startLocation;
+	double endLocation;
+	double futureLocation;
 
-Vector3f SplinePath::catmullTimestamp(float u, int currentLocation )
-{
-	//float Bu[4] = {historyLoc, startLoc, endLoc, futureLoc };
+	//Need to derive three nighboring points next to the current point (one behind, two ahead). 
+	//Array bounds need to be checked, and they wrap.   
+	if(curKnot > 0) {
+		
+		historyLocation = dts[curKnot-1];  //not at beginning of spline
+	}
+	else {
+		historyLocation = (dts[curKnot+1]*.5) - (dts[curKnot+2]-dts[curKnot+1]) - dts[curKnot]; //initial tangent at beginning of spline
+	}
 
-	return Vector3f(0,0,0);
+	startLocation = dts[curKnot];
+
+	if(curKnot+1 >= endMark) {
+		endLocNum = 0;
+	}
+	else {
+		endLocNum = curKnot+1;
+	}
+
+	endLocation = dts[endLocNum]; //provided it's not at the end of the spline, endLocation is start+1
+	if(endLocNum+1 >= endMark) {
+		futureLocation = dts[0];
+	}
+	else {
+		futureLocation = dts[endLocNum+1];
+	}
+
+
+	//turn the timer value into a u
+	double u = doubleLerp(timer-dts[curKnot], dts[curKnot], dts[endLocNum], 0, 1);
+
+
+	//Prepare the matrices used for catmull interpolation
+	float dU[4] = {u*u*u, u*u, u, 1};
+
+	float Bu[4] = {historyLocation, startLocation, endLocation, futureLocation};
+
+	double res =  HmInt(dU, Mcat, Bu); //this spline does not reflect y axis 
+	curTimeSpline = res;
+
+	return doubleLerp(res, startLocation, endLocation, 0, 1);
+
+	//return res;
 }
 
 /*igeneralized catmull-rom matrix multiplcation for complex interpolations

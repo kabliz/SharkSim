@@ -171,6 +171,7 @@ Vector3f SharkWorld::upCurrentLocation()
 	if(curPoint < path.size()-1)
 	{
 		//printf("\n%f ___ ", ((float)steps)/((float)totalSteps));
+		double uVal = 
 		newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
 		
 		//this is the look-ahead for the shark

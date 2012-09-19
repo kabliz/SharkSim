@@ -57,6 +57,7 @@ class SharkWorld
 		Vector3f rotation; //current rotation
 		Vector3f location; //current location
 		int curPoint;
+		int timer;  //TODO toss around the dt value. Interpolate time into utime. Double check conversion from time into catmull paramaters
 		int steps;  //interpolation progress
 		int totalSteps; //total interpolation needed. Steps and totalSteps help keep track of the time. 
 				//They get converted to a arc progress value when interpolating.
