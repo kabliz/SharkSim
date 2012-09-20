@@ -171,8 +171,10 @@ Vector3f SharkWorld::upCurrentLocation()
 	if(curPoint < path.size()-1)
 	{
 		//printf("\n%f ___ ", ((float)steps)/((float)totalSteps));
-		double uVal = 
+		//TODO this is a test for timestamp. Change to proper dt usage from Main
+		double uVal = path.catmullTimestamp((float)steps/((float)totalSteps), curPoint); 
 		newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
+		//newLoc = path.splineLocation(uVal, curPoint); //this is the location of the shark
 		
 		//this is the look-ahead for the shark
 		if(((float)steps)+(totalSteps*.3) > (float)totalSteps) 
