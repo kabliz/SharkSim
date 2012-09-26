@@ -102,11 +102,8 @@ class Shark
 		KeyframeSystem kfSys;
 		SharkSkeleton skeleton;
 
-	 //private:
 		Mesh	mesh;
 		glQuaternion glQuat;
-		
-        
 };
 
 

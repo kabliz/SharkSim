@@ -1,20 +1,22 @@
 #include "SplineTraveler.h"
 
 /*
-double doubleLerp1(double input, double minx, double maxx, double miny, double maxy)
-{
-	return miny + (input-minx) * ((maxy-miny)/(maxx-minx));
-}*/
+   double doubleLerp1(double input, double minx, double maxx, double miny, double maxy)
+   {
+   return miny + (input-minx) * ((maxy-miny)/(maxx-minx));
+   }*/
 
 //build spline with a frustum and a fileName to spline point data
 SplineTraveler::SplineTraveler(Frustum *frus, string fileName)
 {
 
 	rotation = Vector3f(0,0,0); 
-	nextPoint = 1; 
+	nextPoint = 1;
+        curPoint = 0;	
 	updateRate = 30;
 	initSpline(fileName);
 	frustum = frus;
+	totalSteps = path.gDTS(curPoint) * updateRate;
 }
 
 SplineTraveler::SplineTraveler()
@@ -50,15 +52,9 @@ void SplineTraveler::drawAndMoveCamera()
 	glPushMatrix();
 	{
 		Vector3f center = location;
-		glPushMatrix();
-		{
-			glTranslatef(-center.x, -center.y, -center.z );
-			glPushMatrix();
-			{
-				drawPoints();
-				
-			}glPopMatrix();
-		}glPopMatrix();
+		glTranslatef(-center.x, -center.y, -center.z );
+		drawPoints();
+
 	}glPopMatrix();
 }
 
@@ -67,14 +63,7 @@ void SplineTraveler::drawStatic()
 {
 	glPushMatrix();
 	{
-		Vector3f center = location;
-		glPushMatrix();
-		{
-			glPushMatrix();
-			{
-				drawPoints();
-			}glPopMatrix();
-		}glPopMatrix();
+		drawPoints();
 	}glPopMatrix();
 }
 
@@ -109,11 +98,11 @@ Vector3f SplineTraveler::upCurrentLocation(float dt)
 		//updateAnimationFlag = true;
 		//animationLoop = string("no change"); //tell traveler to stop turning
 	}
-	else if(totalSteps <= steps ) //go back to beginning.
-	{
-		steps = 0;
-		nextPoint = 0;
-	}
+	//else if(totalSteps <= steps ) //go back to beginning.
+	//{
+	//	steps = 0;
+	//	nextPoint = 0;
+	//}
 	else //interpolate
 	{
 		steps++;
@@ -156,6 +145,36 @@ Vector3f SplineTraveler::upCurrentLocation(float dt)
 	//auto-calculate rotation
 	rotation = calcRotation(newLoc, aheadTarget);
 	return newLoc;
+}
+
+/*returns the angle of the curve around the current point, 
+ * takes in the amount (in u paramater) to lookAhead of the current point (for predictive movement)
+ * and then two distances ahead and behind the point to derive the endpoints of the vectors measuring the angle. */
+int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behindBy)
+{
+	int aheadPoint = curPoint;
+	float pu = totalSteps == 0 ? 0 : ((float) steps) /(float) totalSteps;
+	if(pu+lookAhead > 1) {
+		pu = pu+lookAhead-1.0;
+		aheadPoint++;
+	} else {
+		pu+lookAhead;
+	}
+
+	Vector3f pastpoint = path.getNearbyPoint(behindBy, aheadPoint, pu);
+	Vector3f futurepoint = path.getNearbyPoint(frontBy, aheadPoint, pu);
+	Vector3f thispoint = path.splineLocation(pu,  aheadPoint);
+
+	Vector3f firstBranch = (thispoint - pastpoint).Normalize();
+	Vector3f secondBranch = (futurepoint - thispoint).Normalize();
+
+	//arcos dot product/productof magnitudes = angle in radians
+	float railAngle;
+	railAngle = atan2(secondBranch.x, secondBranch.z) - atan2(firstBranch.x, firstBranch.z);
+	if(railAngle > 3.14159265) { railAngle -= 3.14195265; }
+	if(railAngle < -3.14159265) { railAngle += 3.14195265; }
+	railAngle *= 180/3.14159265 ;
+	return (int)railAngle;
 }
 
 /*gradually rotates shark from the current (aka desired) rotation and the future rotation */
@@ -288,18 +307,18 @@ void SplineTraveler::drawPoints()
 	int chunk = path.size()*.1 / 4;
 
 	frustum->extract();
-	
+
 	//TODO: delete these testing spheres. 
 	glPushMatrix();
-	  {
-	  glColor3f(0,.52,.86);
-	  float u;
-	  if(curPoint == 0){ u = 0;}
-	  else { u = (float)steps/(float)totalSteps; }
-	  Vector3f testAhead = path.getNearbyPoint(-.3 , curPoint, u );
-	  glTranslatef(testAhead.x, testAhead.y, testAhead.z);
-	  glutSolidSphere(.1, 3, 2);
-	  }glPopMatrix();
+	{
+		glColor3f(0,.52,.86);
+		float u;
+		if(curPoint == 0){ u = 0;}
+		else { u = (float)steps/(float)totalSteps; }
+		Vector3f testAhead = path.getNearbyPoint(-.3 , curPoint, u );
+		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
+		glutSolidSphere(.1, 3, 2);
+	}glPopMatrix();
 	glPushMatrix();
 	{
 
@@ -311,7 +330,7 @@ void SplineTraveler::drawPoints()
 		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
 		glutSolidSphere(.1, 3, 2);
 	}glPopMatrix();
-	
+
 	glPushMatrix();
 	{
 		glColor3f(1,.52,.86);

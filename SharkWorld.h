@@ -28,7 +28,7 @@ class SharkWorld
 		//Vector3f upCurrentLocation();
 		//string getSharkTurn();
 		//void initialize(string splineFilename);
-		//int deriveRailAngle();
+		int deriveRailAngle();
 
 		//lowerclass management
 		void deleteHeap(){traveler.deleteHeap();} //delete's SplinePath heap
@@ -69,6 +69,10 @@ class SharkWorld
 		string animationLoop;
 		
 		float skyboxrotation;
+
+		static const float lookAhead = .15;
+		static const float frontby = -.3;
+		static const float behindby = .3;
 
 		void drawSkybox();
 		//void drawPoints();

@@ -230,6 +230,7 @@ void Shark::drawShark(int frame, GLUquadricObj *quadratic)
 
 /*The general update function that is to be called regularly and predicitibly.
  * It needs to know what the curvature of the path is. */
+//void Shark::timedUpdate(int railAngle)
 void Shark::timedUpdate(int railAngle)
 {
 	kfSys.update();
@@ -364,3 +365,6 @@ void Shark::segUpdate()
 
 	glutPostRedisplay();
 }
+
+
+

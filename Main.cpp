@@ -221,11 +221,10 @@ void idle( void )
 	prevdt = dt;
 
 	//update calls 	
-	Shark.timedUpdate(0);   //TODO reenable the rail Angle
-	//Shark.timedUpdate(world1.deriveRailAngle());  
+	Shark.timedUpdate(world1.deriveRailAngle());  
 	if(Shark.isMoving()){					//increment movement frame
 		if(showWorld) 
-		{ 
+		{
 			world1.updateWorld(dt); 
 			Shark.updateVelocity(world1.gCurrentPoint(), world1.gNextPoint(),  //TODO ???????? put Shark update in one call w/ dt
 						world1.gCurrentDTS());
@@ -390,8 +389,6 @@ void TUpdate(int timed)
 		//Shark.kfSys.curFrame++;
 		//Shark.kfSys.checkLoop();
 		
-		//if(frame >= Shark.segments) //?? TODO
-		//	frame = 0;
 		if(showWorld) 
 		{ 
 			//world1.updateWorld(); 

@@ -30,7 +30,8 @@ class SplineTraveler
 		void initSplineMAT(string matfilename);     //opens mat files
 		void initSplineEXE(string exefilename);     //opens csv files
 		void setFrustum(Frustum *frust){frustum = frust;}   
-		//int deriveRailAngle();
+		int deriveRailAngle(float lead, float frontBy, float behindBy);
+		
 
 
 		void deleteHeap(){path.deleteHeap();} //delete's SplinePath heap

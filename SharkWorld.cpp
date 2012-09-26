@@ -27,34 +27,11 @@ Vector3f SharkWorld::interpolateVertices(Vector3f first, Vector3f second, int st
 	//path.paramaterizeSpline(); 
 //}
 
-/*Looks at the curvature of the rail path, and return an angle representing the current angle *
+//Looks at the curvature of the rail path, and return an angle (degrees) representing the current angle *
 int SharkWorld::deriveRailAngle()
 {
-	float lookAhead = .15; 
-	int aheadPoint = curPoint;
-	float pu = totalSteps == 0 ? 0 : ((float) steps) /(float) totalSteps;  
-	if(pu+lookAhead > 1) {
-		  pu = pu+lookAhead-1.0;
-		  aheadPoint++; 
-	} else {
-		 pu+lookAhead; 
-	}
-	
-	Vector3f pastpoint = path.getNearbyPoint(-.3, aheadPoint, pu);
-	Vector3f futurepoint = path.getNearbyPoint(.3, aheadPoint, pu);
-	Vector3f thispoint = path.splineLocation (pu,  aheadPoint);
-
-	Vector3f firstBranch = (thispoint - pastpoint).Normalize();
-	Vector3f secondBranch = (futurepoint - thispoint).Normalize();
-
-	//arcos dot product/productof magnitudes = angle in radians
-	float railAngle;
-	railAngle = atan2(secondBranch.x, secondBranch.z) - atan2(firstBranch.x, firstBranch.z);
-	if(railAngle > 3.14159265) { railAngle -= 3.14195265; }
-	if(railAngle < -3.14159265) { railAngle += 3.14195265; }
-	railAngle *= 180/3.14159265 * -1;
-	return (int)railAngle;
-}*/
+	return traveler.deriveRailAngle(lookAhead, frontby, behindby);
+}
 
 /*returns a string based on how wide the next turn is *
 //depreciated
@@ -282,6 +259,7 @@ void SharkWorld::updateWorld(int dt)
 {
 	//location = upCurrentLocation();
 	traveler.update(dt);
+	//traveler.gLocation().Print();
 }
 void SharkWorld::displayWorld()
 {
@@ -292,30 +270,24 @@ void SharkWorld::displayWorld()
 		glPushMatrix();
 		{
 			//glTranslatef(-center.x, -center.y, -center.z );	
-
-			glPushMatrix();
-			{
-				drawSkybox();
-			}glPopMatrix();	
-
-			glPushMatrix();
-			{
-				//drawPoints();
-				traveler.drawAndMoveCamera();
-			}glPopMatrix();
+			drawSkybox();
+			//drawPoints();
+			//traveler.drawStatic();
+			traveler.drawAndMoveCamera();
 		}glPopMatrix();
 	}glPopMatrix();
 }
 
 void SharkWorld::drawSkybox()
 {
+	glPushMatrix();
 	Vector3f location = traveler.gLocation();
-	double xx = location.x + 90; //maxPt.x + 20;
-	double xy = location.y + 90; //maxPt.y + 20;
-	double xz = location.z + 90; //maxPt.z + 20;
-	double nx = location.x - 90; //minPt.x - 20;
-	double ny = location.y - 90; //minPt.y - 20;
-	double nz = location.z - 90; //minPt.z - 20;
+	double xx = 90; //location.x + 90; //maxPt.x + 20;
+	double xy = 90; //location.y + 90; //maxPt.y + 20;
+	double xz = 90; //location.z + 90; //maxPt.z + 20;
+	double nx = -90; //location.x - 90; //minPt.x - 20;
+	double ny = -90; //location.y - 90; //minPt.y - 20;
+	double nz = -90; //location.z - 90; //minPt.z - 20;
 	//double step = ((maxPt.y+10) - (minPt.y-10))/3.0;
 
 	glDisable(GL_LIGHT0);
@@ -407,6 +379,7 @@ void SharkWorld::drawSkybox()
 
 		}glEnd();
 	}glPopMatrix();
+	glPopMatrix();
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
