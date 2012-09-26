@@ -76,10 +76,12 @@ class SplineTraveler
 		Vector3f deltaTheta; 	//difference between desired and future rotation
 
 		
-		int curPoint;
-		int timer;       	//TODO toss around the dt value. Interpolate time into utime. Double check conversion from time into catmull paramaters
-		int steps;  		//interpolation progress
-		int totalSteps; 	//total interpolation needed. Steps and totalSteps help keep track of the time. 
+		int curPoint;           //the most recent point the traveler has passed
+		float curU;        	//how far (between zero and one) the traveler is to the next point
+		float timer;       	//Total time since started. Interpolate time into utime. Double check conversion from time into catmull paramaters
+		float timeSinceKnot;      //the time (miliseconds) since the last knot
+		//int steps;  		//interpolation progress
+		//int totalSteps; 	//total interpolation needed. Steps and totalSteps help keep track of the time. 
 					//They get converted to a arc progress value when interpolating.
 		int nextPoint;
 		int updateRate;  	//how much to update each step through between knots by, related to the framerate

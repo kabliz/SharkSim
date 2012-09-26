@@ -12,11 +12,14 @@ SplineTraveler::SplineTraveler(Frustum *frus, string fileName)
 
 	rotation = Vector3f(0,0,0); 
 	nextPoint = 1;
-        curPoint = 0;	
+        curPoint = 0;
+	curU = 0;
+	timer = 0;
+	timeSinceKnot = 0;	
 	updateRate = 30;
 	initSpline(fileName);
 	frustum = frus;
-	totalSteps = path.gDTS(curPoint) * updateRate;
+	//totalSteps = path.gDTS(curPoint) * updateRate;
 }
 
 SplineTraveler::SplineTraveler()
@@ -83,30 +86,31 @@ void SplineTraveler::initSplineEXE(string filename)
 }
 
 
-/*updates the world, with the traveler's location returned */
+/*updates the world, with the traveler's location returned
+ * receives delta time in miliseconds since the last update */
 Vector3f SplineTraveler::upCurrentLocation(float dt)
 {
+	timer += dt/1000.0;
+	timeSinceKnot += dt/1000.0;
 	//frame checks
+	
 	//hit next point. Update curPoint.
-	if(totalSteps <= steps && curPoint < path.size())
+	if(timer >= path.gDTS(nextPoint))
+	//if(totalSteps <= steps && curPoint < path.size())
 	{
 		//set next variables
-		steps = 0;
+		//steps = 0;
 		curPoint = nextPoint;
 		nextPoint++;
-		totalSteps = path.gDTS(curPoint) * updateRate; //TODO change u to some speed value 
+		timeSinceKnot = 0;
+		//totalSteps = path.gDTS(curPoint) * updateRate; //TODO change u to some speed value 
 		//updateAnimationFlag = true;
 		//animationLoop = string("no change"); //tell traveler to stop turning
 	}
-	//else if(totalSteps <= steps ) //go back to beginning.
-	//{
-	//	steps = 0;
-	//	nextPoint = 0;
-	//}
-	else //interpolate
+	else if(curPoint >= path.size()-1 ) //go back to beginning.
 	{
-		steps++;
-
+		//steps = 0;
+		nextPoint = 0;
 	}
 	//animation changes
 	//if(steps - totalSteps*.9 > 0 && updateAnimationFlag)
@@ -117,30 +121,29 @@ Vector3f SplineTraveler::upCurrentLocation(float dt)
 	//position
 	Vector3f newLoc;
 	Vector3f aheadTarget; //shark looks a bit ahead of itself
-	if(curPoint < path.size()-1)
-	{
-		//TODO this is a test for timestamp. Change to proper dt usage from Main
-		double uVal = path.catmullTimestamp((float)steps/((float)totalSteps), curPoint);
-		newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
-		//newLoc = path.splineLocation(uVal, curPoint); //this is the location of the shark
+	
+	//double uVal = path.catmullTimestamp((float)steps/((float)totalSteps), curPoint);
+	curU = path.catmullTimestamp(timeSinceKnot, curPoint);
+	//newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
+	newLoc = path.splineLocation(curU, curPoint); //this is the location of the shark
 
-		//this is the look-ahead for the shark
-		if(((float)steps)+(totalSteps*.3) > (float)totalSteps)
-		{
-			//in the case where the lookahead is past the next point
-			float difference = (((float)steps)+(totalSteps*.3)-((float)totalSteps));
-			aheadTarget = path.splineLocation(difference/((float)totalSteps), nextPoint);
-		}
-		else
-		{
-			//in the case where the lookahead is within the next point
-			aheadTarget = path.splineLocation(((((float)steps)+(totalSteps*.3)))/((float)totalSteps), curPoint);
-		}
+	aheadTarget = path.getNearbyPoint(.3, curPoint, curU);
+	//this is the look-ahead for the shark
+	/*if(((float)steps)+(totalSteps*.3) > (float)totalSteps)
+	//if(((float)steps)+(totalSteps*.3) > (float)totalSteps)
+	{
+		//in the case where the lookahead is past the next point
+		//float difference = (((float)steps)+(totalSteps*.3)-((float)totalSteps));
+		float difference = (((float)steps)+(totalSteps*.3)-((float)totalSteps));
+		//aheadTarget = path.splineLocation(difference/((float)totalSteps), nextPoint);
+		aheadTarget = path.splineLocation(difference/((float)totalSteps), nextPoint);
 	}
 	else
 	{
-		newLoc =  path.gPoint(curPoint);
-	}
+		//in the case where the lookahead is within the next point
+		//aheadTarget = path.splineLocation(((((float)steps)+(totalSteps*.3)))/((float)totalSteps), curPoint);
+		aheadTarget = path.splineLocation(((((float)steps)+(totalSteps*.3)))/((float)totalSteps), curPoint);
+	}*/
 
 	//auto-calculate rotation
 	rotation = calcRotation(newLoc, aheadTarget);
@@ -153,7 +156,8 @@ Vector3f SplineTraveler::upCurrentLocation(float dt)
 int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behindBy)
 {
 	int aheadPoint = curPoint;
-	float pu = totalSteps == 0 ? 0 : ((float) steps) /(float) totalSteps;
+	//float pu = totalSteps == 0 ? 0 : ((float) steps) /(float) totalSteps;
+	float pu = curU; 
 	if(pu+lookAhead > 1) {
 		pu = pu+lookAhead-1.0;
 		aheadPoint++;
@@ -180,11 +184,12 @@ int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behind
 /*gradually rotates shark from the current (aka desired) rotation and the future rotation */
 Vector3f SplineTraveler::interpolateRotation()
 {
-	int Qtotal = totalSteps - totalSteps*.9;
-	int Qstep = steps - totalSteps*.9;
-	if(Qstep > 0)
+	//TODO check this function for usage amounts. It may be deprecated.
+	//int Qtotal = .9; //totalSteps - totalSteps*.9;
+	//int Qstep = curU; //steps - totalSteps*.9;
+	//if(Qstep > 0)
 	{
-		return desiredRotation.Interpolate( desiredRotation+deltaTheta, Qstep/ Qtotal);
+	//	return desiredRotation.Interpolate( desiredRotation+deltaTheta, Qstep/ Qtotal);
 	}
 	return desiredRotation;
 }
@@ -314,7 +319,7 @@ void SplineTraveler::drawPoints()
 		glColor3f(0,.52,.86);
 		float u;
 		if(curPoint == 0){ u = 0;}
-		else { u = (float)steps/(float)totalSteps; }
+		else { u = curU;}//(float)steps/(float)totalSteps; }
 		Vector3f testAhead = path.getNearbyPoint(-.3 , curPoint, u );
 		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
 		glutSolidSphere(.1, 3, 2);
@@ -325,7 +330,7 @@ void SplineTraveler::drawPoints()
 		glColor3f(0,.52,.86);
 		float u;
 		if(curPoint == 0){ u = 0;}
-		else { u = (float)steps/(float)totalSteps; }
+		else { u = curU;}//(float)steps/(float)totalSteps; }
 		Vector3f testAhead = path.getNearbyPoint(.3 , curPoint, u );
 		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
 		glutSolidSphere(.1, 3, 2);
@@ -336,7 +341,7 @@ void SplineTraveler::drawPoints()
 		glColor3f(1,.52,.86);
 		float u;
 		if(curPoint == 0){ u = 0;}
-		else { u = (float)steps/(float)totalSteps; }
+		else { u = curU;}//(float)steps/(float)totalSteps; }
 		Vector3f testAhead = path.getNearbyPoint(.01 , curPoint, u );
 		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
 		glutSolidSphere(.1, 3, 2);

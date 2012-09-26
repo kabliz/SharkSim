@@ -388,7 +388,7 @@ void MATreader::parseFile(const char* argc)
 				break;
 
 			case(15):
-				printf("Compressed data D:\n");
+				printf("Compressed data:\n");
 				mat = uncompressMatrix(dataSize);
 				//free(mat);
 				break;
