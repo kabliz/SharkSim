@@ -7,6 +7,7 @@
 #include <vector>
 #include <float.h>
 
+/*reads excel files with points in them */
 class EXEreader
 {
 	public:

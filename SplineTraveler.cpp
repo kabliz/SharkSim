@@ -1,0 +1,362 @@
+#include "SplineTraveler.h"
+
+/*
+double doubleLerp1(double input, double minx, double maxx, double miny, double maxy)
+{
+	return miny + (input-minx) * ((maxy-miny)/(maxx-minx));
+}*/
+
+//build spline with a frustum and a fileName to spline point data
+SplineTraveler::SplineTraveler(Frustum *frus, string fileName)
+{
+
+	rotation = Vector3f(0,0,0); 
+	nextPoint = 1; 
+	updateRate = 30;
+	initSpline(fileName);
+	frustum = frus;
+}
+
+SplineTraveler::SplineTraveler()
+{ 
+	rotation = Vector3f(0,0,0); 
+	nextPoint = 1; 
+	updateRate = 30;
+}
+
+void SplineTraveler::initSpline(string filename){    //reads .mat or .csv data sheets
+	char end = filename.at(filename.size()-1);
+	if(end == 't' || end == 'T' ) { 
+		initSplineMAT(filename); 
+	}
+	else if (end == 'v' || end == 'V'){ 
+		initSplineEXE(filename);
+	}
+	else {
+		printf("Spline file does not correspond to data file type\n");
+	}
+}
+
+
+/*Update each frame with the amount of time elapsed */
+void SplineTraveler::update(float dt)
+{
+	location = upCurrentLocation(dt);
+}
+
+/*Draws the Spline with the center set to the current location */
+void SplineTraveler::drawAndMoveCamera()
+{
+	glPushMatrix();
+	{
+		Vector3f center = location;
+		glPushMatrix();
+		{
+			glTranslatef(-center.x, -center.y, -center.z );
+			glPushMatrix();
+			{
+				drawPoints();
+				
+			}glPopMatrix();
+		}glPopMatrix();
+	}glPopMatrix();
+}
+
+/*Just draws the spline points within the frustum */
+void SplineTraveler::drawStatic()
+{
+	glPushMatrix();
+	{
+		Vector3f center = location;
+		glPushMatrix();
+		{
+			glPushMatrix();
+			{
+				drawPoints();
+			}glPopMatrix();
+		}glPopMatrix();
+	}glPopMatrix();
+}
+
+/*These functions will initialize the Spline Path given a filename to a file */
+void SplineTraveler::initSplineMAT(string filename)
+{
+	path.parseDataFile(filename.c_str());
+	path.gatherDTPoints();
+	path.paramaterizeSpline();
+}
+
+void SplineTraveler::initSplineEXE(string filename)
+{
+	path.parseDataFile(filename.c_str());
+	path.gatherZPoints();
+	path.paramaterizeSpline();
+}
+
+
+/*updates the world, with the traveler's location returned */
+Vector3f SplineTraveler::upCurrentLocation(float dt)
+{
+	//frame checks
+	//hit next point. Update curPoint.
+	if(totalSteps <= steps && curPoint < path.size())
+	{
+		//set next variables
+		steps = 0;
+		curPoint = nextPoint;
+		nextPoint++;
+		totalSteps = path.gDTS(curPoint) * updateRate; //TODO change u to some speed value 
+		//updateAnimationFlag = true;
+		//animationLoop = string("no change"); //tell traveler to stop turning
+	}
+	else if(totalSteps <= steps ) //go back to beginning.
+	{
+		steps = 0;
+		nextPoint = 0;
+	}
+	else //interpolate
+	{
+		steps++;
+
+	}
+	//animation changes
+	//if(steps - totalSteps*.9 > 0 && updateAnimationFlag)
+	//{
+	//animationLoop = getSharkTurn();
+	//}
+
+	//position
+	Vector3f newLoc;
+	Vector3f aheadTarget; //shark looks a bit ahead of itself
+	if(curPoint < path.size()-1)
+	{
+		//TODO this is a test for timestamp. Change to proper dt usage from Main
+		double uVal = path.catmullTimestamp((float)steps/((float)totalSteps), curPoint);
+		newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
+		//newLoc = path.splineLocation(uVal, curPoint); //this is the location of the shark
+
+		//this is the look-ahead for the shark
+		if(((float)steps)+(totalSteps*.3) > (float)totalSteps)
+		{
+			//in the case where the lookahead is past the next point
+			float difference = (((float)steps)+(totalSteps*.3)-((float)totalSteps));
+			aheadTarget = path.splineLocation(difference/((float)totalSteps), nextPoint);
+		}
+		else
+		{
+			//in the case where the lookahead is within the next point
+			aheadTarget = path.splineLocation(((((float)steps)+(totalSteps*.3)))/((float)totalSteps), curPoint);
+		}
+	}
+	else
+	{
+		newLoc =  path.gPoint(curPoint);
+	}
+
+	//auto-calculate rotation
+	rotation = calcRotation(newLoc, aheadTarget);
+	return newLoc;
+}
+
+/*gradually rotates shark from the current (aka desired) rotation and the future rotation */
+Vector3f SplineTraveler::interpolateRotation()
+{
+	int Qtotal = totalSteps - totalSteps*.9;
+	int Qstep = steps - totalSteps*.9;
+	if(Qstep > 0)
+	{
+		return desiredRotation.Interpolate( desiredRotation+deltaTheta, Qstep/ Qtotal);
+	}
+	return desiredRotation;
+}
+
+/*wrapper calling rotation based on the current point */
+Vector3f SplineTraveler::calcRotation()
+{
+	return calcRotation(
+			path.gPoint(curPoint),
+			path.gPoint(nextPoint)
+			);
+}
+
+/* Calculates the GLOBAL rotation of the world, not relative to the world's current rotation
+ * * pFrom, the first point,
+ * * pDest, the next point. The two points create a line and the line's angle from the x axis is measured */
+Vector3f SplineTraveler::calcRotation(Vector3f pFrom, Vector3f pDest)
+{
+	Vector3f grotation;
+	Vector3f xaxis = Vector3f(1,0,0);
+	Vector3f yaxis = Vector3f(0,1,0);
+	Vector3f zaxis = Vector3f(0,0,1);
+	Vector3f point = pDest - pFrom;
+	point.y = 0;
+	bool tr = false;
+	//if(!(point.x == 0 && point.y == 0))
+	{
+		tr = true;
+		double x = acos((point.Dot(xaxis))/(point.Magnitude()));
+		if(point.z > 0)
+		{
+			x = 2.0*3.14159 - x;
+		}
+
+		/*double y = acos((point.Dot(yaxis))/(point.Magnitude()));
+		*/
+		double y = 0;
+
+		double z = 0;//acos((point.Dot(zaxis))/(point.Magnitude()));
+
+		grotation = Vector3f(x,y,z);
+	}
+	return grotation;
+}
+
+
+
+/*Draws line between the previous line and the current one */
+void SplineTraveler::drawPointLine(int i)
+{
+	glPushMatrix();
+	{
+		glTranslatef(path.gPoint(i).x, path.gPoint(i).y, path.gPoint(i).z);
+		if(frustum->testPoint(path.gPoint(i)))
+		{
+			glutSolidSphere(.1, 3, 2);
+		}
+	}glPopMatrix();
+	if(i > 0)
+	{
+		if(frustum->testPoint(path.gPoint(i)) || frustum->testPoint(path.gPoint(i-1)))
+		{
+			//splined points for more curvature
+			Vector3f p1 = path.splineLocation(.1, i-1);
+			Vector3f p2 = path.splineLocation(.2, i-1);
+			Vector3f p3 = path.splineLocation(.3, i-1);
+			Vector3f p4 = path.splineLocation(.4, i-1);
+			Vector3f p5 = path.splineLocation(.5, i-1);
+			Vector3f p6 = path.splineLocation(.6, i-1);
+			Vector3f p7 = path.splineLocation(.7, i-1);
+			Vector3f p8 = path.splineLocation(.8, i-1);
+			Vector3f p9 = path.splineLocation(.9, i-1);
+
+
+			glBegin(GL_LINES);
+			glVertex3f(path.gPoint(i-1).x, path.gPoint(i-1).y, path.gPoint(i-1).z);
+			glVertex3f(p1.x, p1.y, p1.z);
+
+			glVertex3f(p1.x, p1.y, p1.z);
+			glVertex3f(p2.x, p2.y, p2.z);
+
+			glVertex3f(p2.x, p2.y, p2.z);
+			glVertex3f(p3.x, p3.y, p3.z);
+
+			glVertex3f(p3.x, p3.y, p3.z);
+			glVertex3f(p4.x, p4.y, p4.z);
+
+			glVertex3f(p4.x, p4.y, p4.z);
+			glVertex3f(p5.x, p5.y, p5.z);
+
+			glVertex3f(p5.x, p5.y, p5.z);
+			glVertex3f(p6.x, p6.y, p6.z);
+
+			glVertex3f(p6.x, p6.y, p6.z);
+			glVertex3f(p7.x, p7.y, p7.z);
+
+			glVertex3f(p7.x, p7.y, p7.z);
+			glVertex3f(p8.x, p8.y, p8.z);
+
+			glVertex3f(p8.x, p8.y, p8.z);
+			glVertex3f(p9.x, p9.y, p9.z);
+
+			glVertex3f(p9.x, p9.y, p9.z);
+			glVertex3f(path.gPoint(i).x, path.gPoint(i).y, path.gPoint(i).z);
+			glEnd();
+		}
+	}
+}
+
+void SplineTraveler::drawPoints()
+{
+	int step = 1;
+
+	glDisable(GL_LIGHT0);
+	glDisable(GL_LIGHTING);
+	float blue = 1.0;
+	float red = 1.0;
+	float green = 1.0;
+	int i;
+	int chunk = path.size()*.1 / 4;
+
+	frustum->extract();
+	
+	//TODO: delete these testing spheres. 
+	glPushMatrix();
+	  {
+	  glColor3f(0,.52,.86);
+	  float u;
+	  if(curPoint == 0){ u = 0;}
+	  else { u = (float)steps/(float)totalSteps; }
+	  Vector3f testAhead = path.getNearbyPoint(-.3 , curPoint, u );
+	  glTranslatef(testAhead.x, testAhead.y, testAhead.z);
+	  glutSolidSphere(.1, 3, 2);
+	  }glPopMatrix();
+	glPushMatrix();
+	{
+
+		glColor3f(0,.52,.86);
+		float u;
+		if(curPoint == 0){ u = 0;}
+		else { u = (float)steps/(float)totalSteps; }
+		Vector3f testAhead = path.getNearbyPoint(.3 , curPoint, u );
+		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
+		glutSolidSphere(.1, 3, 2);
+	}glPopMatrix();
+	
+	glPushMatrix();
+	{
+		glColor3f(1,.52,.86);
+		float u;
+		if(curPoint == 0){ u = 0;}
+		else { u = (float)steps/(float)totalSteps; }
+		Vector3f testAhead = path.getNearbyPoint(.01 , curPoint, u );
+		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
+		glutSolidSphere(.1, 3, 2);
+	}glPopMatrix();
+
+	//Close future points are drawn in a gradient going from white to yellow to green to black
+	for(i = curPoint+1; i < (curPoint+(path.size()*.1)); i += step)
+	{
+		glColor3f(red,green,blue);
+		drawPointLine(i);
+		if(i > curPoint+chunk) red -= .02;
+		if(i > curPoint+(3.0*chunk)){ red += .02; green -=.01; }
+		if(i < curPoint+(chunk*2)){ blue -= .02; }
+		if(i > curPoint+(chunk*2)){ blue += .02; }
+
+	}
+
+	//Past points drawn in red
+	glColor3f(1,0,0);
+	for(i = 0; i <= curPoint; i++)
+	{
+		drawPointLine(i);
+	}
+
+	//Far future points drawn in black
+	glColor3f(0,0,0);
+	for(i = (curPoint+(path.size()*.1)) ;i < path.size(); i ++)
+	{
+		drawPointLine(i);
+	}
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+}
+
+
+
+
+
+
+
+
+

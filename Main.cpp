@@ -1,38 +1,38 @@
 /*
-	Katherine Blizard
-	Advisor: Zoe Wood
+   Katherine Blizard
+Advisor: Zoe Wood
 
-	Code used from: 
-		+Jeff Molofee's Basecode Example @ nehe.gamedev.net
-		+GLUI example: http://www.eng.cam.ac.uk/help/tpl/graphics/using_glui.html
-		+Greg Ostrowski's senior project
+Code used from: 
++Jeff Molofee's Basecode Example @ nehe.gamedev.net
++GLUI example: http://www.eng.cam.ac.uk/help/tpl/graphics/using_glui.html
++Greg Ostrowski's senior project
 */
 #include "Globals.h"
 bool isLight;
 
 void initLighting(void) 
 {
-   GLfloat mat_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
-   GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-   GLfloat mat_shininess[] = { 50.0 };
-   GLfloat light_position[] = { -0.5, -1.0, -2.0, 0.0 };
-   GLfloat model_ambient[] = { 1.0 ,1.0 ,1.0 , 1.0 };
-   GLfloat model_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
+	GLfloat mat_ambient[] = { 0.5, 0.5, 0.5, 1.0 };
+	GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_shininess[] = { 50.0 };
+	GLfloat light_position[] = { -0.5, -1.0, -2.0, 0.0 };
+	GLfloat model_ambient[] = { 1.0 ,1.0 ,1.0 , 1.0 };
+	GLfloat model_specular[] = {1.0f, 1.0f, 1.0f, 1.0f};
 
-   glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-   glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-   glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-   glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-   glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, model_ambient);
-   glLightfv(GL_LIGHT0, GL_SPECULAR, model_specular);
+	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, model_ambient);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, model_specular);
 	isLight = 1;
-   glEnable(GL_LIGHTING);
-   glEnable(GL_LIGHT0);
-   glShadeModel (GL_SMOOTH);
-   glEnable(GL_NORMALIZE);
-   glEnable(GL_DEPTH_TEST);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glShadeModel (GL_SMOOTH);
+	glEnable(GL_NORMALIZE);
+	glEnable(GL_DEPTH_TEST);
 
 }
 
@@ -65,29 +65,29 @@ void chkGlError()
 void readMovementData(const char* file)
 {
 	Shark.readMovementData(file, dynaMode);
-	
+
 	/*FILE * fp;
-	fp = fopen(file, "r");
-	if(fp == NULL)
+	  fp = fopen(file, "r");
+	  if(fp == NULL)
+	  {
+	  printf("can't open file %s\n", file);
+	  exit(-1);
+	  }
+	  printf("opening file: %s\n", file);
+	  for(int i = 0; i < Shark.segments; i++)
+	  {
+	  for(int j = 0; j < Shark.segments; j++)
+	  {
+	//read in file. Note that CALShark writes segment data (j value) backwards
+	if(!dynaMode)
 	{
-		printf("can't open file %s\n", file);
-		exit(-1);
+	fscanf(fp, "%f,",&Shark.gSegmentRotation(Shark.gParsedSoFar(), i, Shark.segments-1-j));
 	}
-	printf("opening file: %s\n", file);
-	for(int i = 0; i < Shark.segments; i++)
+	else
 	{
-		for(int j = 0; j < Shark.segments; j++)
-		{
-			//read in file. Note that CALShark writes segment data (j value) backwards
-			if(!dynaMode)
-			{
-				fscanf(fp, "%f,",&Shark.gSegmentRotation(Shark.gParsedSoFar(), i, Shark.segments-1-j));
-			}
-			else
-			{
-				fscanf(fp, "%f,",&Shark.gSegmentRotation(Shark.gParsedSoFar(),j,Shark.segments-1-i));
-			}
-		}
+	fscanf(fp, "%f,",&Shark.gSegmentRotation(Shark.gParsedSoFar(),j,Shark.segments-1-i));
+	}
+	}
 	}
 	fclose (fp);
 	Shark.incrementSequences();*/
@@ -98,26 +98,41 @@ void defSequence()
 {
 	Shark.defSequence();
 	/*for(int i = 0; i < 2; i++)
-	{
-		for(int j = 0; j < Shark.segments; j++)
-		{
-			Shark.segmentRot[0][i][j] = 0;
-		}
-	}
-	Shark.incrementSequences();
-	*/
+	  {
+	  for(int j = 0; j < Shark.segments; j++)
+	  {
+	  Shark.segmentRot[0][i][j] = 0;
+	  }
+	  }
+	  Shark.incrementSequences();
+	  */
 }
 
+/*Checks for the current window */
+void checkWindow(){
+	/* According to the GLUT specification, the current window is
+	 *          *      undefined during an idle callback.  So we need to explicitly change
+	 *                   *           it if necessary */
+	if(glutGetWindow() == 0) {
+		printf("Window destroyed\n");
+	}
+	if ( glutGetWindow() != main_window ){
+		glutSetWindow(main_window);
+	}
+}
+
+/*Called only once. This initializes everything in the program */
 void Initialize ()					// Any GL Init Code & User Initialiazation Goes Here
 {
 
- 	srand(time(NULL));
-	
+	srand(time(NULL));
+
 	quadratic=gluNewQuadric();			// Create A Pointer To The Quadric Object
 	gluQuadricNormals(quadratic, GLU_SMOOTH);	// Create Smooth Normals
 	gluQuadricTexture(quadratic, GL_TRUE);		// Create Texture Coords
 
 	initLighting();
+	frustum_ = Frustum();
 
 	//read blender mesh
 	mesh.init_blender();
@@ -131,30 +146,32 @@ void Initialize ()					// Any GL Init Code & User Initialiazation Goes Here
 	defSequence();	
 	//read in recorded sequences, in the order they are enumerated in KeyframeSystem
 	//readMovementData("straight10s2.csv");
-	
+
+	/*Manual Animation data */
 	readMovementData("ani_slowstraight_4.csv");
 	readMovementData("ani_faststraight_1.csv");
 	readMovementData("ani_leftturn_2.csv");		
 	readMovementData("ani_rightturn_2.csv");
 	readMovementData("ani_right_uturn_1.csv");		
+	
 	//MATparser.parseFile("velandaccData.mat");
 	//MATparser.parseFile("xytData.mat");
 	//MATparser.parseFile("oxyMaps.mat");
-	
+
 	//world1.ereader.parseFile("Shovelnose.csv");
 	//world1.gatherZPoints();
 	//world1.mreader.parseFile("xytData.mat");
 	//world1.gatherDTPoints();
-	world1.initSpline();
+	world1 = SharkWorld(&frustum_, "xytData.mat" );
 	universalMesh = SharkMesh();
-	
+
 	Shark.sSkeleton(&universalMesh);
 	int tSegments = Shark.segments;
 	Shark.buildSkeleton(&mesh, tSegments);
 	Shark.genKeyframes(dynaMode, &universalMesh);
 	frameSpeed = frameSpeedSlow;
 	Shark.sFrameSpeed(10);
-	
+
 
 
 	//load textures
@@ -177,30 +194,61 @@ void Initialize ()					// Any GL Init Code & User Initialiazation Goes Here
 void reshape (int w, int h)		// Reshape The Window When It's Moved Or Resized
 {
 	glViewport(0, 0, (GLsizei) w, (GLsizei) h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    if (w <= h)
-      glOrtho(-2.5, 2.5, -2.5*(GLfloat)h/(GLfloat)w,
-         2.5*(GLfloat)h/(GLfloat)w, -10.0, 1000.0);
-    else
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	if (w <= h) {
+		glOrtho(-2.5, 2.5, -2.5*(GLfloat)h/(GLfloat)w,
+				2.5*(GLfloat)h/(GLfloat)w, -10.0, 1000.0);
+	}
+	else {
 		//gluPerspective(60.0, (float)w/h, 0.5, 15.0);
-      glOrtho(-2.5*(GLfloat)w/(GLfloat)h, 2.5*(GLfloat)w/(GLfloat)h, -2.5, 2.5, -10.0, 1000.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();					// Reset The Modelview Matrix
+		glOrtho(-2.5*(GLfloat)w/(GLfloat)h, 2.5*(GLfloat)w/(GLfloat)h, -2.5, 2.5, -10.0, 1000.0);
+	}
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();					// Reset The Modelview Matrix
 
-    ArcBall.setBounds((GLfloat)w, (GLfloat)h);          //*NEW* Update mouse bounds for arcball
+	ArcBall.setBounds((GLfloat)w, (GLfloat)h);          //*NEW* Update mouse bounds for arcball
 }
 
-void myGlutIdle( void )
+/*The glut idle function is the update function for the rest of the program, excluding draw functions */
+void idle( void )
 {
-  /* According to the GLUT specification, the current window is
-     undefined during an idle callback.  So we need to explicitly change
-     it if necessary */
-  if ( glutGetWindow() != main_window )
-    glutSetWindow(main_window);
+	checkWindow();
 
-  glutPostRedisplay();
+	//Framerate calculation
+	//how much time has elapsed     
+	float dt = glutGet(GLUT_ELAPSED_TIME) - prevdt;
+	prevdt = dt;
+
+	//update calls 	
+	Shark.timedUpdate(0);   //TODO reenable the rail Angle
+	//Shark.timedUpdate(world1.deriveRailAngle());  
+	if(Shark.isMoving()){					//increment movement frame
+		if(showWorld) 
+		{ 
+			world1.updateWorld(dt); 
+			Shark.updateVelocity(world1.gCurrentPoint(), world1.gNextPoint(),  //TODO ???????? put Shark update in one call w/ dt
+						world1.gCurrentDTS());
+			Shark.prepareNextSeq(world1.gAnimationLoop());  
+		}
+	}
+		
+
+	glutPostRedisplay();
 }
+
+/*glut visible function toggles when the window gains or loses focus */
+void visible(int vis)
+{
+	if (vis == GLUT_VISIBLE)
+	{
+		glutIdleFunc(idle);
+	}
+	else {
+		glutIdleFunc(NULL);
+	}
+}
+
 
 void Deinitialize (void)// Any Application DeInitialization Goes Here
 {
@@ -259,12 +307,12 @@ void keyboard(unsigned char key, int x, int y)
 	case '[':
 		frame++;
 		if(frame >= Shark.segments)
-		frame = 0;
+			frame = 0;
 		break;
 	case ']':
 		frame--;
 		if(frame < 0)
-		frame = Shark.segments-1;
+			frame = Shark.segments-1;
 		break;
 	case 'p': case 'P':
 		if(Shark.isPlay())
@@ -335,7 +383,8 @@ void gluiUpdate() {
 void TUpdate(int timed)
 {
 	//FutureFeature: rotate worlds around?
-	Shark.timedUpdate(world1.deriveRailAngle());
+	//Shark.timedUpdate(world1.deriveRailAngle());
+	//
 	if(Shark.isMoving()){					//increment movement frame
 		//frame += frameSpeed;
 		//Shark.kfSys.curFrame++;
@@ -345,7 +394,7 @@ void TUpdate(int timed)
 		//	frame = 0;
 		if(showWorld) 
 		{ 
-			world1.updateWorld(); 
+			//world1.updateWorld(); 
 			Shark.updateVelocity(world1.gCurrentPoint(), world1.gNextPoint(), 
 						world1.gCurrentDTS());
 			Shark.prepareNextSeq(world1.gAnimationLoop());  
@@ -405,12 +454,13 @@ int main(int argc, char** argv)
    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
    glutInitWindowSize(600, 400);   //can alter initial window dimensions here 
    glutInitWindowPosition(50, 0);
-   glutCreateWindow("Shark Motion: Cal Poly");
+   main_window = glutCreateWindow("Shark Motion: Cal Poly");
    Initialize();
 
    //register glut callback functions
    glutDisplayFunc(Draw); 
-   glutTimerFunc(33.3333 , TUpdate, 1) ;
+   //glutTimerFunc(33.3333 , TUpdate, 1) ;
+   glutVisibilityFunc(visible);
    glutReshapeFunc(reshape);
    glutMotionFunc(mouseClickMove);
    glutMouseFunc(mouseClick);
@@ -434,12 +484,12 @@ int main(int argc, char** argv)
    segment_percent_spinner->set_int_limits(0, 100-Shark.segMin); //every segment must be atleast 1% long
 
    glui->add_button( "Update", 0, (GLUI_Update_CB)gluiUpdate);
+ */
 
-
-   glui->set_main_gfx_window( main_window );
+   //glui->set_main_gfx_window( main_window );
    // We register the idle callback with GLUI, *not* with GLUT 
    //GLUI_Master.set_glutIdleFunc( myGlutIdle );  //causes spam warnings in console when not on GLUI window
-	*/
+	//*/
 	
    glutMainLoop();  //begin glut functions
    return 0;

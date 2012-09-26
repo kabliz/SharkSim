@@ -18,6 +18,7 @@
 #include "SharkWorld.h"
 #include "Texture.h"
 #include "SharkMesh.h"
+#include "Frustum.h"
 
 #pragma comment( lib, "opengl32.lib" )		// Search For OpenGL32.lib While Linking
 #pragma comment( lib, "glu32.lib" )		// Search For GLu32.lib While Linking
@@ -36,6 +37,14 @@ extern bool isRClicked;                  //*NEW* Clicking the right mouse button
 
 int currentButton;
 
+//mouse trackball controls
+ArcBallT ArcBall(640.0f, 480.0f);			// NEW: ArcBall Instance
+Point2fT MousePt;					// NEW: Current Mouse Point
+
+Frustum frustum_;
+//update variable
+int prevdt;  //the previous update's timestamp. Used to calculate how much time has passed since the last update
+
 // User Defined Variables
 GLUquadricObj *quadratic;		// Used For Our Quadric
 
@@ -53,16 +62,14 @@ Matrix3fT   ThisRot     = {  1.0f,  0.0f,  0.0f,	// NEW: This Rotation
                              0.0f,  1.0f,  0.0f,
                              0.0f,  0.0f,  1.0f };
 
-
-ArcBallT ArcBall(640.0f, 480.0f);			// NEW: ArcBall Instance
-Point2fT MousePt;					// NEW: Current Mouse Point
-
-
+//shark globals
 Mesh mesh;  //points and meshReader system. Used to parse blender files.
 SharkMesh universalMesh;   //a "smart mesh" that's made of SharkVertices and closes its own gaps.
 Shark	Shark;   //the basis for the Shark itself
 MATreader MATparser;  //parsers
-SharkWorld world1; //The world in which points are drawn
+SharkWorld world1; //SharkWorld(&frustum_, "xytData.mat"); //The world in which points are drawn
+
+
 
 //texture stuff
 extern Image *TextureImage;

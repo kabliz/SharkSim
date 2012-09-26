@@ -7,26 +7,27 @@ double doubleLerp(double input, double minx, double maxx, double miny, double ma
 }
 
 
-/*simple linear interpolation */
+/*simple linear interpolation *
 Vector3f SharkWorld::interpolateVertices(Vector3f first, Vector3f second, int step, int max) 
 { 
         Vector3f fin = first; 
         fin = fin + ((second-first)*((float)step))/((float)max); 
         return fin;      
-}
+}*/
 
 /* Initializes the tangent list 
    requires a points list of at least three points long
    make whole points list before calling
 * */
-void SharkWorld::initSpline()
-{
-	path.parseDataFile("xytData.mat");
-	path.gatherDTPoints();
-	path.paramaterizeSpline(); 
-}
+//void SharkWorld::initialize(string splineFilename)
+//{
+//	traveler.initSpline(splineFilename);
+	//path.parseDataFile("xytData.mat");
+	//path.gatherDTPoints();
+	//path.paramaterizeSpline(); 
+//}
 
-/*Looks at the curvature of the rail path, and return an angle representing the current angle */
+/*Looks at the curvature of the rail path, and return an angle representing the current angle *
 int SharkWorld::deriveRailAngle()
 {
 	float lookAhead = .15; 
@@ -53,9 +54,9 @@ int SharkWorld::deriveRailAngle()
 	if(railAngle < -3.14159265) { railAngle += 3.14195265; }
 	railAngle *= 180/3.14159265 * -1;
 	return (int)railAngle;
-}
+}*/
 
-/*returns a string based on how wide the next turn is */
+/*returns a string based on how wide the next turn is *
 //depreciated
 std::string SharkWorld::getSharkTurn()
 {
@@ -105,11 +106,11 @@ std::string SharkWorld::getSharkTurn()
 		}
 	}
 	return string("no change");
-}
+}*/
 
 
 
-/*updates the world, with the shark's location returned */
+/*updates the world, with the shark's location returned 
 Vector3f SharkWorld::upCurrentLocation()
 {
 	//frame checks
@@ -124,8 +125,8 @@ Vector3f SharkWorld::upCurrentLocation()
 		updateAnimationFlag = true;
 		animationLoop = string("no change"); //tell shark to stop turning
 	
-		/*rotation reset */
-		/*
+		rotation reset 
+		
 		desiredRotation = futureRotation;
 		if(nextPoint == points.size()-1 )
 		{
@@ -146,7 +147,7 @@ Vector3f SharkWorld::upCurrentLocation()
 	        else if(deltaTheta.x < -3.1415926)
 		{
 			deltaTheta.x = deltaTheta.x + (2*3.1415926);	
-		}*/
+		}*
 		//TODO adjust for other axies of rotation
 	}
 	else if(totalSteps <= steps ) //go back to beginning.
@@ -197,10 +198,10 @@ Vector3f SharkWorld::upCurrentLocation()
 	//auto-calculate rotation
 	rotation = calcRotation(newLoc, aheadTarget);	
 	return newLoc;
-}
+}*/
 
-//TODO deprecate
-int SharkWorld::interpolateSpeed()
+//TODO: replace with catmulling timestamps
+/*int SharkWorld::interpolateSpeed()
 {
 	int Qtotal = totalSteps - totalSteps*.9;
 	int Qstep = steps - totalSteps*.9;
@@ -212,11 +213,11 @@ int SharkWorld::interpolateSpeed()
 	}
 	return path.gDTS(curPoint) * updateRate;
 }
+*/
 
 /*gradually rotates shark from the current (aka desired) rotation and the future rotation */
-Vector3f SharkWorld::interpolateRotation()
+/*Vector3f SharkWorld::interpolateRotation()
 {
-	//DEPRECIATED TODO
 	int Qtotal = totalSteps - totalSteps*.9;
 	int Qstep = steps - totalSteps*.9;
 	if(Qstep > 0)
@@ -224,21 +225,21 @@ Vector3f SharkWorld::interpolateRotation()
 		return interpolateVertices(desiredRotation, desiredRotation+deltaTheta, Qstep, Qtotal);
 	}
 	return desiredRotation;
-}
+}*/
 
 /*wrapper calling rotation based on the current point */
-Vector3f SharkWorld::calcRotation()
+/*Vector3f SharkWorld::calcRotation()
 {
 	return calcRotation(
 			path.gPoint(curPoint),
 			path.gPoint(nextPoint)
 			);
-}
+}*/
 
 /* Calculates the GLOBAL rotation of the world, not relative to the world's current rotation
 * pFrom, the first point,
 * pDest, the next point. The two points create a line and the line's angle from the x axis is measured */
-Vector3f SharkWorld::calcRotation(Vector3f pFrom, Vector3f pDest)
+/*Vector3f SharkWorld::calcRotation(Vector3f pFrom, Vector3f pDest)
 {
 	Vector3f grotation;
 	Vector3f xaxis = Vector3f(1,0,0);
@@ -261,159 +262,36 @@ Vector3f SharkWorld::calcRotation(Vector3f pFrom, Vector3f pDest)
 		if(point.y < 0)
 		{
 			y = 2.0*3.14159 - y;
-		}*/
+		}
 		double y = 0;
 
 		double z = 0;//acos((point.Dot(zaxis))/(point.Magnitude()));
-		/*if(point.x < 0)
-		{
-			z = 2.0*3.14159 - z;
-		}*/
+		//if(point.x < 0)
+		//{
+		//	z = 2.0*3.14159 - z;
+		//}
 
 		grotation = Vector3f(x,y,z);
 	}
 	return grotation;
-}
+}*/
 
-void SharkWorld::ExtractFrustum()
+
+
+void SharkWorld::updateWorld(int dt)
 {
-   float   proj[16];
-   float   modl[16];
-   float   clip[16];
-   float   t;
-
-   /* Get the current PROJECTION matrix from OpenGL */
-   glGetFloatv( GL_PROJECTION_MATRIX, proj );
-
-   /* Get the current MODELVIEW matrix from OpenGL */
-   glGetFloatv( GL_MODELVIEW_MATRIX, modl );
-
-   /* Combine the two matrices (multiply projection by modelview) */
-   clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
-   clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
-   clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
-   clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
-
-   clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
-   clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
-   clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
-   clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
-
-   clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
-   clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
-   clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
-   clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
-
-   clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
-   clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
-   clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
-   clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
-
-   /* Extract the numbers for the RIGHT plane */
-   frustum[0][0] = clip[ 3] - clip[ 0];
-   frustum[0][1] = clip[ 7] - clip[ 4];
-   frustum[0][2] = clip[11] - clip[ 8];
-   frustum[0][3] = clip[15] - clip[12];
-
-   /* Normalize the result */
-   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
-   frustum[0][0] /= t;
-   frustum[0][1] /= t;
-   frustum[0][2] /= t;
-   frustum[0][3] /= t;
-
-   /* Extract the numbers for the LEFT plane */
-   frustum[1][0] = clip[ 3] + clip[ 0];
-   frustum[1][1] = clip[ 7] + clip[ 4];
-   frustum[1][2] = clip[11] + clip[ 8];
-   frustum[1][3] = clip[15] + clip[12];
-
-   /* Normalize the result */
-   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
-   frustum[1][0] /= t;
-   frustum[1][1] /= t;
-   frustum[1][2] /= t;
-   frustum[1][3] /= t;
-
-   /* Extract the BOTTOM plane */
-   frustum[2][0] = clip[ 3] + clip[ 1];
-   frustum[2][1] = clip[ 7] + clip[ 5];
-   frustum[2][2] = clip[11] + clip[ 9];
-   frustum[2][3] = clip[15] + clip[13];
-
-   /* Normalize the result */
-   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
-   frustum[2][0] /= t;
-   frustum[2][1] /= t;
-   frustum[2][2] /= t;
-   frustum[2][3] /= t;
-
-   /* Extract the TOP plane */
-   frustum[3][0] = clip[ 3] - clip[ 1];
-   frustum[3][1] = clip[ 7] - clip[ 5];
-   frustum[3][2] = clip[11] - clip[ 9];
-   frustum[3][3] = clip[15] - clip[13];
-
-   /* Normalize the result */
-   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
-   frustum[3][0] /= t;
-   frustum[3][1] /= t;
-   frustum[3][2] /= t;
-   frustum[3][3] /= t;
-
-   /* Extract the FAR plane */
-   frustum[4][0] = clip[ 3] - clip[ 2];
-   frustum[4][1] = clip[ 7] - clip[ 6];
-   frustum[4][2] = clip[11] - clip[10];
-   frustum[4][3] = clip[15] - clip[14];
-
-   /* Normalize the result */
-   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
-   frustum[4][0] /= t;
-   frustum[4][1] /= t;
-   frustum[4][2] /= t;
-   frustum[4][3] /= t;
-
-   /* Extract the NEAR plane */
-   frustum[5][0] = clip[ 3] + clip[ 2];
-   frustum[5][1] = clip[ 7] + clip[ 6];
-   frustum[5][2] = clip[11] + clip[10];
-   frustum[5][3] = clip[15] + clip[14];
-
-   /* Normalize the result */
-   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
-   frustum[5][0] /= t;
-   frustum[5][1] /= t;
-   frustum[5][2] /= t;
-   frustum[5][3] /= t;
-}
-
-bool SharkWorld::pointInFrustum( Vector3f v )
-{
-   int p;
-
-   for( p = 0; p < 6; p++ )
-      if( frustum[p][0] * v.x + frustum[p][1] * v.y + frustum[p][2] * v.z + frustum[p][3] <= 0 )
-         return false;
-   return true;
-}
-
-
-void SharkWorld::updateWorld()
-{
-	location = upCurrentLocation();
+	//location = upCurrentLocation();
+	traveler.update(dt);
 }
 void SharkWorld::displayWorld()
 {
 	glPushMatrix();
 	{
-		//Vector3f center = upCurrentLocation();
-		Vector3f center = location;
-				//printf("<%f %f %f >\n", rotation.x*180/3.14159, rotation.y*180/3.14159, rotation.z*180/3.14159);
-		//printf("<%f %f %f >\n", rotation.x, rotation.y, rotation.z);
+		//Vector3f center = traveler.gLocation();
+		//Vector3f center = location;
 		glPushMatrix();
 		{
-			glTranslatef(-center.x, -center.y, -center.z );	
+			//glTranslatef(-center.x, -center.y, -center.z );	
 
 			glPushMatrix();
 			{
@@ -422,7 +300,8 @@ void SharkWorld::displayWorld()
 
 			glPushMatrix();
 			{
-				drawPoints();
+				//drawPoints();
+				traveler.drawAndMoveCamera();
 			}glPopMatrix();
 		}glPopMatrix();
 	}glPopMatrix();
@@ -430,6 +309,7 @@ void SharkWorld::displayWorld()
 
 void SharkWorld::drawSkybox()
 {
+	Vector3f location = traveler.gLocation();
 	double xx = location.x + 90; //maxPt.x + 20;
 	double xy = location.y + 90; //maxPt.y + 20;
 	double xz = location.z + 90; //maxPt.z + 20;
@@ -531,7 +411,7 @@ void SharkWorld::drawSkybox()
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 }
-
+/*
  void SharkWorld::drawPointLine(int i)
 {
 	glPushMatrix();
@@ -665,6 +545,6 @@ void SharkWorld::drawPoints()
 
 }
 
-
+*/
 
 
