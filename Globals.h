@@ -43,7 +43,7 @@ Point2fT MousePt;					// NEW: Current Mouse Point
 
 Frustum frustum_;
 //update variable
-int prevdt;  //the previous update's timestamp. Used to calculate how much time has passed since the last update
+int prevTime = 0;  //the previous update's timestamp, in miliseconds. Used to calculate how much time has passed since the last update
 
 // User Defined Variables
 GLUquadricObj *quadratic;		// Used For Our Quadric

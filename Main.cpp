@@ -217,8 +217,9 @@ void idle( void )
 
 	//Framerate calculation
 	//how much time has elapsed     
-	float dt = glutGet(GLUT_ELAPSED_TIME) - prevdt;
-	prevdt = dt;
+	int time = glutGet(GLUT_ELAPSED_TIME);
+	int dt = time - prevTime;
+	prevTime = time;
 
 	//update calls 	
 	Shark.timedUpdate(world1.deriveRailAngle());  
@@ -447,6 +448,7 @@ void Draw ()
 
 int main(int argc, char** argv)
 {
+	
    glutInit(&argc, argv);
    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
    glutInitWindowSize(600, 400);   //can alter initial window dimensions here 
@@ -465,6 +467,7 @@ int main(int argc, char** argv)
 
     //shark init
     Shark.toggleMoving(true);
+
 
    //GLUI Code to make the interface
    /*GLUI *glui = GLUI_Master.create_glui( "Options" );
@@ -487,7 +490,8 @@ int main(int argc, char** argv)
    // We register the idle callback with GLUI, *not* with GLUT 
    //GLUI_Master.set_glutIdleFunc( myGlutIdle );  //causes spam warnings in console when not on GLUI window
 	//*/
-	
+
+   prevTime = glutGet(GLUT_ELAPSED_TIME);
    glutMainLoop();  //begin glut functions
    return 0;
 }

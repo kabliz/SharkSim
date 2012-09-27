@@ -41,6 +41,7 @@ class SplinePath
 		Vector3f gPoint(int index){return points[index];}
 		void parseDataFile(const char* filename){mreader.parseFile(filename);}	
 		double gDTS(int index){return dts[index];} //time delta distance between two points
+		double gTotalDTS(int index){return totts[index];} //time delta distance between two points
 
 	private:	
 
@@ -50,8 +51,8 @@ class SplinePath
 		//original data read
 		vector<Vector3f> points;   //vector stores x, y, z(where z is water depth, unlike rendering)
 		vector<Vector3f> tangents; //tangents for the curve as it hits each point
-		vector<double> dts; //difference in time between one point and the next
-		//vector<double> totts; //total time between one point and the next
+		vector<double> dts; //difference in time (seconds) between one point and the next
+		vector<double> totts; //total running time at each point 
 		Vector3f maxPt; //records the maximum point the shark traveled
 		Vector3f minPt; //minimum point
 		Vector3f midPt;

@@ -25,7 +25,7 @@ class SplineTraveler
 		void drawStatic();
 		void ExtractFrustum();
 		bool pointInFrustum(Vector3f v);
-		Vector3f upCurrentLocation(float dt);
+		Vector3f upCurrentLocation(int dt);
 		void initSpline(string filename);    //reads .mat or .csv data sheets 
 		void initSplineMAT(string matfilename);     //opens mat files
 		void initSplineEXE(string exefilename);     //opens csv files

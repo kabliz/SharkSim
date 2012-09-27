@@ -88,21 +88,23 @@ void SplineTraveler::initSplineEXE(string filename)
 
 /*updates the world, with the traveler's location returned
  * receives delta time in miliseconds since the last update */
-Vector3f SplineTraveler::upCurrentLocation(float dt)
+Vector3f SplineTraveler::upCurrentLocation(int dt)
 {
 	timer += dt/1000.0;
 	timeSinceKnot += dt/1000.0;
 	//frame checks
 	
 	//hit next point. Update curPoint.
-	if(timer >= path.gDTS(nextPoint))
+	if(timer >= path.gTotalDTS(nextPoint))
+	//if(curU > 1)
 	//if(totalSteps <= steps && curPoint < path.size())
 	{
 		//set next variables
 		//steps = 0;
+		timeSinceKnot = timer - path.gTotalDTS(nextPoint);
 		curPoint = nextPoint;
 		nextPoint++;
-		timeSinceKnot = 0;
+			
 		//totalSteps = path.gDTS(curPoint) * updateRate; //TODO change u to some speed value 
 		//updateAnimationFlag = true;
 		//animationLoop = string("no change"); //tell traveler to stop turning
@@ -123,7 +125,9 @@ Vector3f SplineTraveler::upCurrentLocation(float dt)
 	Vector3f aheadTarget; //shark looks a bit ahead of itself
 	
 	//double uVal = path.catmullTimestamp((float)steps/((float)totalSteps), curPoint);
-	curU = path.catmullTimestamp(timeSinceKnot, curPoint);
+	curU = path.catmullTimestamp(timer, curPoint);
+	//printf("%f vs %f ==> %f\n", timer, path.gTotalDTS(nextPoint), curU);
+
 	//newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
 	newLoc = path.splineLocation(curU, curPoint); //this is the location of the shark
 
