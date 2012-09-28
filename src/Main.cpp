@@ -1,6 +1,5 @@
 /*
    Katherine Blizard
-Advisor: Zoe Wood
 
 Code used from: 
 +Jeff Molofee's Basecode Example @ nehe.gamedev.net
@@ -122,7 +121,7 @@ void checkWindow(){
 }
 
 /*Called only once. This initializes everything in the program */
-void Initialize ()					// Any GL Init Code & User Initialiazation Goes Here
+void Initialize (string splineFile )					// Any GL Init Code & User Initialiazation Goes Here
 {
 
 	srand(time(NULL));
@@ -162,7 +161,8 @@ void Initialize ()					// Any GL Init Code & User Initialiazation Goes Here
 	//world1.gatherZPoints();
 	//world1.mreader.parseFile("xytData.mat");
 	//world1.gatherDTPoints();
-	world1 = SharkWorld(&frustum_, "xytData.mat" );
+	world1 = SharkWorld(&frustum_, splineFile );
+	//world1 = SharkWorld(&frustum_, "xytData.mat" );
 	universalMesh = SharkMesh();
 
 	Shark.sSkeleton(&universalMesh);
@@ -446,15 +446,21 @@ void Draw ()
 
 
 
+/*first argument is the file to the spline path */
 int main(int argc, char** argv)
 {
-	
+   if(argc <= 1 ) {
+   	printf("Usage: runshark [spline filename]\n");
+	return -1;
+   }
+
    glutInit(&argc, argv);
    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
    glutInitWindowSize(600, 400);   //can alter initial window dimensions here 
    glutInitWindowPosition(50, 0);
    main_window = glutCreateWindow("Shark Motion: Cal Poly");
-   Initialize();
+   
+   Initialize(string(argv[1]));  //initialize the animation system, passing down the spline file
 
    //register glut callback functions
    glutDisplayFunc(Draw); 
@@ -467,7 +473,6 @@ int main(int argc, char** argv)
 
     //shark init
     Shark.toggleMoving(true);
-
 
    //GLUI Code to make the interface
    /*GLUI *glui = GLUI_Master.create_glui( "Options" );

@@ -5,18 +5,23 @@ LINFLAGS32= -lX11 -lglut -lGL -lGLU -lz
 LINFLAGS64= -lglut -lGL -lGLU -lz
 CCDEBUGFLAGS = -g
 OUTNAME = runshark 
-SRC_DIR = .
-FILES = ./*.cpp
+SRC_DIR = ./src
+HDEP = *.h
+FILES =*.cpp
 
-runshark: ${FILES}
-	${C} ${CCFLAGS} ${SRC_DIR}/*.cpp ${LINFLAGS32} -o ${OUTNAME}
 
-runshark64: ${FILES}
-	${C} ${CCFLAGS} ${SRC_DIR}/*.cpp ${LINFLAGS64} -o ${OUTNAME}
+runshark: $(FILES) $(HDEP)
+	$(C) $(CCFLAGS) $(SRC_DIR)/*.cpp $(LINFLAGS32) -o $(OUTNAME)
 
-debug: ${FILES}
-	${C} ${CCDEBUGFLAGS} ${SRC_DIR}/*.cpp ${LINFLAGS} -o ${OUTNAME} 
+runshark64: $(FILES) $(HDEP)
+	$(C) $(CCFLAGS) $(SRC_DIR)/*.cpp $(LINFLAGS64) -o $(OUTNAME)
 
-debug64: ${FILES}
-	${C} ${CCDEBUGFLAGS} ${SRC_DIR}/*.cpp ${LINFLAGS64} -o ${OUTNAME} 
+debug: $(FILES) $(HDEP)
+	$(C) $(CCDEBUGFLAGS) $(SRC_DIR)/*.cpp $(LINFLAGS) -o $(OUTNAME) 
 
+debug64: $(FILES) $(HDEP)
+	$(C) $(CCDEBUGFLAGS) $(SRC_DIR)/*.cpp $(LINFLAGS64) -o $(OUTNAME) 
+
+
+clean: 
+	rm -f ./$(OUTNAME)

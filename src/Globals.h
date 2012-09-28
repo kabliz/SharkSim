@@ -10,6 +10,7 @@
 //#include<GL/glui.h>
 #include "glui/include/GL/glui.h"
 #include<ctime>
+#include<string>
 
 #include "math.h"			    // Needed For Sqrtf
 #include "ArcBall.h"			// ArcBall Header
