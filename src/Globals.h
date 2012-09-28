@@ -1,3 +1,6 @@
+#ifndef SHARK_SIMULATOR_MAIN_H_AND_GENERALLY_IMPORTANT_STUFF
+#define SHARK_SIMULATOR_MAIN_H_AND_GENERALLY_IMPORTANT_STUFF
+
 
 //#include <windows.h>				// Header File For Windows
 //#include <gl\gl.h>				// Header File For The OpenGL32 Library
@@ -35,7 +38,7 @@ extern ArcBallT ArcBall;                     //*NEW* ArcBall instance
 extern Point2fT MousePt;                     //*NEW* Current mouse point
 extern bool isClicked;                   //*NEW* Clicking the mouse?
 extern bool isRClicked;                  //*NEW* Clicking the right mouse button?
-
+bool isLight;
 int currentButton;
 
 //mouse trackball controls
@@ -79,12 +82,23 @@ extern RGB* pixel;
 Texture TexLoad;
 
 //baic animation things
-double	frame = 0;   //depreciated, for manually skimming through frames
-double	frameSpeed = 0;  //depreciated
-double	frameSpeedSlow = 0.001; //depreciated
-double	frameSpeedFast = 0.01; //depreciated
+double	frame = 0;   //deprecated, for manually skimming through frames
+double	frameSpeed = 0;  //deprecated
+double	frameSpeedSlow = 0.001; //deprecated
+double	frameSpeedFast = 0.01; //deprecated
+
+//shark external files
+static const int numArtistAnimations = 5;
+string artistDrivenAnimations[numArtistAnimations]= {"ani_slowstraight_4.csv", 
+						     "ani_faststraight_1.csv", 
+						     "ani_leftturn_2.csv",
+       			        		     "ani_rightturn_2.csv", 
+						     "ani_right_uturn_1.csv"};  //for non-dynamic animation mode
+
+
 bool	showWorld = true; //for closeups verses looking at world
 bool    dynaMode = true; //TODO. broken backwards compatibility
 int	wireframe = 0;  //for wireframe mode.
 int	main_window;
 
+#endif

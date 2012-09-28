@@ -272,7 +272,6 @@ void Shark::readMovementData(const char* file, bool dynaMode)
                 printf("can't open file %s\n", file);
                 exit(-1);
         }
-        printf("opening movement data file: %s\n", file);
         for(int i = 0; i < segments; i++)
         {
                 for(int j = 0; j < segments; j++)
@@ -337,7 +336,7 @@ void Shark::segUpdate()
 		}
 	}
 
-	printf("Total percent specified: %3.2lf\n", (percentSpecified/totalLength)*100);
+	//printf("Total percent specified: %3.2lf\n", (percentSpecified/totalLength)*100);
 
 	if(checkLength <= totalLength)						//user inputed lengths check to be OK
 	{

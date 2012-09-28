@@ -8,28 +8,31 @@
 
 class Mesh
 {
-public:
-	Mesh();
-	void readBlender(const char* file);
-	void init_blender();
-	void draw();
-	void drawBetween(float start, float end);
-	void calculateNormals();
-//private:
+	public:
+		Mesh();
+		void readBlender(const char* file);
+		void init_blender();
+		void draw();
+		void drawBetween(float start, float end);
+		void calculateNormals();
+		//private:
 
 
-	Vector3f vertList[3000];	
-	Vector3f normals[3000];
-	float blenderTotalLength;
+		Vector3f vertList[3000];	
+		Vector3f normals[3000];
+		float blenderTotalLength;
 
-	int vertCounter;
-	float lengthMax;
-	float lengthMin;
-	float heightMax;
-	float heightMin;
-	float widthMax;
-	float widthMin;
-	
+		int vertCounter;
+		float lengthMax;
+		float lengthMin;
+		float heightMax;
+		float heightMin;
+		float widthMax;
+		float widthMin;
+
+		//TODO cross platform compilation/directories
+		int static const numSharkMeshSegments = 6;
+		string static const sharkMeshBlender[numSharkMeshSegments];  //filenames are specified in cpp
 };
 
 #endif

@@ -7,7 +7,7 @@ Code used from:
 +Greg Ostrowski's senior project
 */
 #include "Globals.h"
-bool isLight;
+//bool isLight;
 
 void initLighting(void) 
 {
@@ -147,11 +147,9 @@ void Initialize (string splineFile )					// Any GL Init Code & User Initialiazat
 	//readMovementData("straight10s2.csv");
 
 	/*Manual Animation data */
-	readMovementData("ani_slowstraight_4.csv");
-	readMovementData("ani_faststraight_1.csv");
-	readMovementData("ani_leftturn_2.csv");		
-	readMovementData("ani_rightturn_2.csv");
-	readMovementData("ani_right_uturn_1.csv");		
+	for(int i = 0; i < numArtistAnimations; i++) {
+		readMovementData(artistDrivenAnimations[i].c_str());
+	}	
 	
 	//MATparser.parseFile("velandaccData.mat");
 	//MATparser.parseFile("xytData.mat");

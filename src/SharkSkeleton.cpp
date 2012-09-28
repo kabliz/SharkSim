@@ -46,7 +46,6 @@ bool SharkSkeleton::buildAngles( GLfloat segmentRot[], int sequenceNum, int tota
 	//check to see if the sequence is empty, otherwise precondition has been violated
 	if(animatedAngles[sequenceNum].size() == 0)
 	{
-		printf("Animation system not empty before filling!\n");
 		ff = false;
 	}
 	//copy over

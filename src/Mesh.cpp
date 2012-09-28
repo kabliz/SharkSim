@@ -1,5 +1,15 @@
 #include "Mesh.h"
 
+
+const string Mesh::sharkMeshBlender[] = { "Raw/bettershark6.raw",    //location of the mesh.
+	"Raw/bettershark5.raw",          
+	"Raw/bettershark4.raw",                                                           
+	"Raw/bettershark3.raw",                                                                                                            
+	"Raw/bettershark2.raw",                                                                                                                                    
+	"Raw/bettershark1.raw" 
+};
+
+
 Mesh::Mesh()
 {
 	this->vertCounter = 0;
@@ -14,48 +24,44 @@ Mesh::Mesh()
 
 void Mesh::readBlender(const char *file)
 {
-	  FILE * pFile;
-	  pFile = fopen (file, "r");
-	  printf("opening file: %s\n", file);
-	  while(!feof(pFile)){
-		  fscanf (pFile, "%f %f %f ", &vertList[vertCounter].x, &vertList[vertCounter].y, &vertList[vertCounter].z);
-		  //find boundaries of model with max/min (used to translate/scale model correctly relative to Blender coords)
+	FILE * pFile;
+	pFile = fopen (file, "r");
+	//printf("opening file: %s\n", file);
+	while(!feof(pFile)){
+		fscanf (pFile, "%f %f %f ", &vertList[vertCounter].x, &vertList[vertCounter].y, &vertList[vertCounter].z);
+		//find boundaries of model with max/min (used to translate/scale model correctly relative to Blender coords)
 
-		  if(vertList[vertCounter].x > lengthMax)
-			  lengthMax = vertList[vertCounter].x;
-		  else if(vertList[vertCounter].x < lengthMin)
-			  lengthMin = vertList[vertCounter].x;
+		if(vertList[vertCounter].x > lengthMax)
+			lengthMax = vertList[vertCounter].x;
+		else if(vertList[vertCounter].x < lengthMin)
+			lengthMin = vertList[vertCounter].x;
 
-		  if(vertList[vertCounter].y > heightMax)
-			  heightMax = vertList[vertCounter].y;
-		  else if(vertList[vertCounter].y < heightMin)
-			  heightMin = vertList[vertCounter].y;
+		if(vertList[vertCounter].y > heightMax)
+			heightMax = vertList[vertCounter].y;
+		else if(vertList[vertCounter].y < heightMin)
+			heightMin = vertList[vertCounter].y;
 
-		  if(vertList[vertCounter].z > widthMax)
-			  widthMax = vertList[vertCounter].z;
-		  else if(vertList[vertCounter].z < widthMin)
-			  widthMin = vertList[vertCounter].z;
+		if(vertList[vertCounter].z > widthMax)
+			widthMax = vertList[vertCounter].z;
+		else if(vertList[vertCounter].z < widthMin)
+			widthMin = vertList[vertCounter].z;
 
-		  vertCounter++;
-	  }
-	  
-	  //when done, store segment length
-	  blenderTotalLength = (lengthMax - lengthMin);
-	  fclose (pFile);
+		vertCounter++;
+	}
+
+	//when done, store segment length
+	blenderTotalLength = (lengthMax - lengthMin);
+	fclose (pFile);
 }
 
 void Mesh::init_blender()
 {
-	//TODO cross platform compilation/directories
-	readBlender("Raw/bettershark6.raw");
-	readBlender("Raw/bettershark5.raw");
-	readBlender("Raw/bettershark4.raw");
-	readBlender("Raw/bettershark3.raw");
-	readBlender("Raw/bettershark2.raw");
-	readBlender("Raw/bettershark1.raw");
+	for(int i = 0; i < numSharkMeshSegments; i++) {
+		readBlender(sharkMeshBlender[i].c_str());
+	}
 	vertCounter -= 1;
-	printf("min len: %lf\n", lengthMin);
-	printf("max len: %lf\n", lengthMax);
+	//printf("min len: %lf\n", lengthMin);
+	//printf("max len: %lf\n", lengthMax);
 	calculateNormals();
 }
 
@@ -88,7 +94,7 @@ void Mesh::drawBetween(float start, float end)
 		if(center >= start && center <= end )
 		{
 			glColor3f(red, green, blue);
-			
+
 			//Need to move vertex over from transform
 			glNormal3f(normals[i].x, normals[i].y, normals[i].z);
 			glVertex3f(vertList[i].x, vertList[i].y, vertList[i].z);
@@ -109,16 +115,16 @@ void Mesh::drawBetween(float start, float end)
 }
 
 void Mesh::calculateNormals() {
-   Vector3f vectorA, vectorB, normal;
-   int i;
-   for ( i = 0; i < vertCounter; i+=4 ) {
-      vectorA = vertList[i+1] - vertList[i];
-	  vectorB = vertList[i+3] - vertList[i];
-	  normal = vectorB.Cross( vectorA );
-	  normal = normal.Normalize();
-	  normals[i] += normal;
-	  normals[i+1] += normal;
-	  normals[i+2] += normal;
-	  normals[i+3] += normal;
-   }
+	Vector3f vectorA, vectorB, normal;
+	int i;
+	for ( i = 0; i < vertCounter; i+=4 ) {
+		vectorA = vertList[i+1] - vertList[i];
+		vectorB = vertList[i+3] - vertList[i];
+		normal = vectorB.Cross( vectorA );
+		normal = normal.Normalize();
+		normals[i] += normal;
+		normals[i+1] += normal;
+		normals[i+2] += normal;
+		normals[i+3] += normal;
+	}
 }

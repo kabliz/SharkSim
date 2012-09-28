@@ -124,13 +124,17 @@ void MATreader::parseComMatrix(Bytef* matrix, int fptr, int size)
 	/*printf("\t\tundefeind bytes %d %d\n", matrix[fptr++], matrix[fptr++]);
 	  char flag = matrix[fptr++];  //nobye swapping for these. single byte
 	  classType = matrix[fptr++];*/
-	printf("\t\t %d %d \n", flag, classType);
+	//printf("\t\t %d %d \r", flag, classType);
 	isComplex = flag & 8; 
 	isGlobal = flag & 4;
 	isLogical = flag & 2;
 	//fptr += 4; //undefined space
-	printf("\t\t complex %d, global %d, logical %d, class %d\n", isComplex, isGlobal, isLogical, classType);
-	printf("\t\t undefined bytes: %d %d %d %d, dimensions: ", matrix[fptr++], matrix[fptr++], matrix[fptr++], matrix[fptr++] );
+	//printf("\t\t complex %d, global %d, logical %d, class %d\n", isComplex, isGlobal, isLogical, classType);
+	//printf("\t\t undefined bytes: %d %d %d %d, dimensions: ", matrix[fptr++], matrix[fptr++], matrix[fptr++], matrix[fptr++] );
+	matrix[fptr++]; //undefined bytes 
+	matrix[fptr++]; 
+	matrix[fptr++]; 
+	matrix[fptr++];
 
 	//array dimensions	
 	dataScan[0] = matrix[fptr++];
@@ -157,9 +161,9 @@ void MATreader::parseComMatrix(Bytef* matrix, int fptr, int size)
 		{
 			dArc = dAr[m];
 		}
-		printf("%d ", dAr[m]);
+		//printf("%d ", dAr[m]);
 	}
-	printf("\n");
+	//printf("\r");
 
 	//array name
 	//read uINt8, 8
@@ -177,17 +181,18 @@ void MATreader::parseComMatrix(Bytef* matrix, int fptr, int size)
 	loops = charToInt(dataScan);
 	if(nameConfirmation == 1 || nameConfirmation == 2)
 	{
-		printf("\t\t");
+		//printf("\t\t");
 		for(int k = 0; k < loops; k++)
 		{
-			printf("%c", matrix[fptr++]);
+			//printf("%c", matrix[fptr++]);
+			 matrix[fptr++];
 		}
-		printf("\n");
+		//printf("\r");
 		fptr += 8-loops; //default to moving two dimensions forward 
 	}
 	else
 	{
-		printf("namesize: %d, %d \n", nameConfirmation, loops);	
+		//printf("namesize: %d, %d \r", nameConfirmation, loops);	
 		//strange, errored names dont need to be moved forward
 	}	
 
@@ -209,7 +214,7 @@ void MATreader::parseComMatrix(Bytef* matrix, int fptr, int size)
 		dataScan[3] = matrix[fptr++];
 		dataSize = charToInt(dataScan);
 
-		printf("\t\t type: %d, size %d\n", dataType, dataSize);
+		//printf("\t\t type: %d, size %d\r", dataType, dataSize);
 		//fptr +=	dataSize;		
 		int k = 0;
 		//while(dataType == 9 && k < dataSize)
@@ -262,7 +267,7 @@ Bytef* MATreader::uncompressMatrix(unsigned int asize)
 	}
 	else
 	{
-		printf("new size %d\n", (long) aproxSize);
+		//printf("new size %d\r", (long) aproxSize);
 	}
 	free(buffer);
 
@@ -287,7 +292,7 @@ Bytef* MATreader::uncompressMatrix(unsigned int asize)
 		dataScan[3] = matrix[fptr++];
 		dataSize = charToInt(dataScan);
 
-		printf("\t type: %d, size %d\n", dataType, dataSize);
+		//printf("\t type: %d, size %d\r", dataType, dataSize);
 		pMatrices.push_back(vector<double>());
 		parseComMatrix(matrix, fptr, dataSize);
 		numMatrix++;
@@ -341,69 +346,69 @@ void MATreader::parseFile(const char* argc)
 		switch(dataType)	
 		{
 		case(1):
-			printf("8bit sign int\n");
+			//printf("8bit sign int\r");
 			break;
 		case(2):
-			printf("8bit unsign int\n");
+			//printf("8bit unsign int\r");
 			break;
 
 		case(3):
-			printf("16bit sign int\n");
+			//printf("16bit sign int\r");
 			break;
 
 		case(4):
-			printf("16bit unsign int\n");
+			//printf("16bit unsign int\r");
 			break;
 
 		case(5):
-			printf("32bit sign int\n");
+			//printf("32bit sign int\r");
 			break;
 
 		case(6):
-			printf("32bit unsign int\n");
+			//printf("32bit unsign int\r");
 			break;
 		case(7):
-			printf("float\n");
+			//printf("float\r");
 			break;
 
 		case(8):
 		case(10):
 		case(11):
-			printf("reserved\n");
+			//printf("reserved\r");
 			break;
 
 		case(9):
-			printf("double\n");
+			//printf("double\r");
 			break;
 
 		case(12):
-			printf("64bit sign int\n");
+			//printf("64bit sign int\r");
 			break;
 
 		case(13):
-			printf("64bit unsign int\n");
+			//printf("64bit unsign int\r");
 			break;
 
 		case(14):
-			printf("Matrix D:\n");
+			//printf("Matrix D:\r");
 			break;
 
 		case(15):
-			printf("Compressed data:\n");
+			//printf("Compressed data:\r");
 			mat = uncompressMatrix(dataSize);
 			//free(mat);
 			break;
 
 		case(16):
-			printf("UTF8\n");
+			//printf("UTF8\r");
 			break;
 
 		case(17):
-			printf("UTF16\n");
+			//printf("UTF16\r");
 			break;
 
 		case(18):
-			printf("UTF32\n");
+			//printf("UTF32\r");
 			break;
 
 		default:
@@ -415,7 +420,7 @@ void MATreader::parseFile(const char* argc)
 
 		//skipping, TODO
 		//fseek(readfile, dataSize, SEEK_CUR);
-		printf("...size %d....\n", dataSize);
+		//printf("...size %d....\r", dataSize);
 	}
 	fclose(readfile);
 }
