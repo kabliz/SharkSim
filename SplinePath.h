@@ -32,7 +32,7 @@ class SplinePath
 		double StoU(double, int);
 		Vector3f splineLocation(float u, int startpoint);	
 		Vector3f getNearbyPoint(double distanceAhead, int startPoint, double startU);
-		double catmullTimestamp(float u, int currentLocation);
+		double convertTimestampToU(float u, int currentLocation);
 		
 		//displayFunctions
 		//void drawPoints(float** frustum);

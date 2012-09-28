@@ -272,6 +272,10 @@ float Vector3f::Dot( const Vector3f & v ) {
    return (x*v.x + y*v.y + z*v.z);
 }
 
+float Vector3f::EuclDistance( const Vector3f & v) {
+	return sqrt(((x-v.x)*(x-v.x)) + ((y-v.y)*(y-v.y)) + ((z-v.z)*(z-v.z)) );
+}
+
 float Vector3f::Magnitude() {
    return sqrt( x*x + y*y + z*z );
 }

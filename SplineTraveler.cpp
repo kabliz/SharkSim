@@ -46,7 +46,10 @@ void SplineTraveler::initSpline(string filename){    //reads .mat or .csv data s
 /*Update each frame with the amount of time elapsed */
 void SplineTraveler::update(float dt)
 {
+	float prevTime = timer;
+	Vector3f prevLocation = location;
 	location = upCurrentLocation(dt);
+	velocity = location.EuclDistance(prevLocation) / (timer - prevTime); 
 }
 
 /*Draws the Spline with the center set to the current location */
@@ -90,28 +93,25 @@ void SplineTraveler::initSplineEXE(string filename)
  * receives delta time in miliseconds since the last update */
 Vector3f SplineTraveler::upCurrentLocation(int dt)
 {
+	
 	timer += dt/1000.0;
 	timeSinceKnot += dt/1000.0;
+	
 	//frame checks
 	
 	//hit next point. Update curPoint.
 	if(timer >= path.gTotalDTS(nextPoint))
-	//if(curU > 1)
-	//if(totalSteps <= steps && curPoint < path.size())
 	{
-		//set next variables
-		//steps = 0;
+		//increment the points and move on.
 		timeSinceKnot = timer - path.gTotalDTS(nextPoint);
 		curPoint = nextPoint;
 		nextPoint++;
 			
-		//totalSteps = path.gDTS(curPoint) * updateRate; //TODO change u to some speed value 
 		//updateAnimationFlag = true;
 		//animationLoop = string("no change"); //tell traveler to stop turning
 	}
 	else if(curPoint >= path.size()-1 ) //go back to beginning.
 	{
-		//steps = 0;
 		nextPoint = 0;
 	}
 	//animation changes
@@ -122,32 +122,11 @@ Vector3f SplineTraveler::upCurrentLocation(int dt)
 
 	//position
 	Vector3f newLoc;
-	Vector3f aheadTarget; //shark looks a bit ahead of itself
+	Vector3f aheadTarget; //traveler looks a bit ahead of itself
 	
-	//double uVal = path.catmullTimestamp((float)steps/((float)totalSteps), curPoint);
-	curU = path.catmullTimestamp(timer, curPoint);
-	//printf("%f vs %f ==> %f\n", timer, path.gTotalDTS(nextPoint), curU);
-
-	//newLoc = path.splineLocation(((float)steps)/((float)totalSteps), curPoint); //this is the location of the shark
-	newLoc = path.splineLocation(curU, curPoint); //this is the location of the shark
-
+	curU = path.convertTimestampToU(timer, curPoint);
+	newLoc = path.splineLocation(curU, curPoint); //this is the location of the traveler 
 	aheadTarget = path.getNearbyPoint(.3, curPoint, curU);
-	//this is the look-ahead for the shark
-	/*if(((float)steps)+(totalSteps*.3) > (float)totalSteps)
-	//if(((float)steps)+(totalSteps*.3) > (float)totalSteps)
-	{
-		//in the case where the lookahead is past the next point
-		//float difference = (((float)steps)+(totalSteps*.3)-((float)totalSteps));
-		float difference = (((float)steps)+(totalSteps*.3)-((float)totalSteps));
-		//aheadTarget = path.splineLocation(difference/((float)totalSteps), nextPoint);
-		aheadTarget = path.splineLocation(difference/((float)totalSteps), nextPoint);
-	}
-	else
-	{
-		//in the case where the lookahead is within the next point
-		//aheadTarget = path.splineLocation(((((float)steps)+(totalSteps*.3)))/((float)totalSteps), curPoint);
-		aheadTarget = path.splineLocation(((((float)steps)+(totalSteps*.3)))/((float)totalSteps), curPoint);
-	}*/
 
 	//auto-calculate rotation
 	rotation = calcRotation(newLoc, aheadTarget);

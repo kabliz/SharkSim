@@ -67,6 +67,7 @@ class Vector3f {
 
       Vector3f Cross( const Vector3f & v );
       float Dot( const Vector3f & v );
+      float EuclDistance( const Vector3f & v);
       float Magnitude();
       Vector3f Normalize();
       Vector3f Interpolate(Vector3f other, float percentage);

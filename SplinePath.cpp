@@ -184,7 +184,7 @@ Vector3f SplinePath::splineLocation(float curLocation, int startPoint)
 // Catmull interpolation for the time of movement (time-space curve, rather than the space curve of the other function)
 // Returns a double value representing the new U value to input into the space curve
 // takes in the amount of time (seconds) since program start, and the current Knot.
-double SplinePath::catmullTimestamp(float timer, int curKnot )
+double SplinePath::convertTimestampToU(float timer, int curKnot )
 {
 	int endMark = totts.size();
 	int endLocNum; //index to the end point;
@@ -222,13 +222,15 @@ double SplinePath::catmullTimestamp(float timer, int curKnot )
 	//turn the timer value into a u
 	double u = doubleLerp(timer, startTime, endTime, 0.0, 1.0);
 	//Prepare the matrices used for catmull interpolation
-	float dU[4] = {u*u*u, u*u, u, 1.0};
-	float Bu[4] = {historyTime, startTime, endTime, futureTime};
-	double res =  HmInt(dU, Mcat, Bu); //matrix multiplcation 
-	printf("vri %f, %f\n", u, res);	  //u surpasses one, so it counts backwards
+	//float dU[4] = {u*u*u, u*u, u, 1.0};
+	//float Bu[4] = {historyTime, startTime, endTime, futureTime};
+	//double res =  HmInt(dU, Mcat, Bu); //matrix multiplcation 
+	//printf("vri %f, (%f %f %f %f )=> %f\n", u, historyTime, startTime, endTime, futureTime, res);	  
+					//counting backwards. u is okay?
+					//TODO spline curves double back on themselves ._.
 
-	curTimeSpline = res;
-	return doubleLerp(res, startTime, endTime, 0.0, 1.0);
+	curTimeSpline = u; //res;
+	return u; //doubleLerp(res, startTime, endTime, 0.0, 1.0);
 }
 
 /*igeneralized catmull-rom matrix multiplcation for complex interpolations
