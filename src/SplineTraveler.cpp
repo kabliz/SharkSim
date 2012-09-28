@@ -125,8 +125,19 @@ Vector3f SplineTraveler::upCurrentLocation(int dt)
 	Vector3f aheadTarget; //traveler looks a bit ahead of itself
 	
 	curU = path.convertTimestampToU(timer, curPoint);
-	newLoc = path.splineLocation(curU, curPoint); //this is the location of the traveler 
-	aheadTarget = path.getNearbyPoint(.3, curPoint, curU);
+	int ppoint = curPoint;
+	if(curU < 0) {    //interpolation slid to previous point. currently only handles one point in reverse
+		ppoint -= 1;
+		if(ppoint < 0) {  //went off the spline backwards. set everything to zero
+			newLoc = path.splineLocation(0,0);	
+		}
+		else {  //only went one point backwards.
+			curU = 1 + curU;
+		}
+
+	}
+	newLoc = path.splineLocation(curU, ppoint); //this is the location of the traveler 
+	aheadTarget = path.getNearbyPoint(.3, ppoint, curU);
 
 	//auto-calculate rotation
 	rotation = calcRotation(newLoc, aheadTarget);

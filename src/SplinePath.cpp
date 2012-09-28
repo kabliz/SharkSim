@@ -222,15 +222,17 @@ double SplinePath::convertTimestampToU(float timer, int curKnot )
 	//turn the timer value into a u
 	double u = doubleLerp(timer, startTime, endTime, 0.0, 1.0);
 	//Prepare the matrices used for catmull interpolation
-	//float dU[4] = {u*u*u, u*u, u, 1.0};
-	//float Bu[4] = {historyTime, startTime, endTime, futureTime};
-	//double res =  HmInt(dU, Mcat, Bu); //matrix multiplcation 
+	float dU[4] = {u*u*u, u*u, u, 1.0};
+	float Bu[4] = {historyTime, startTime, endTime, futureTime};
+	double res =  HmInt(dU, Mcat, Bu); //matrix multiplcation 
 	//printf("vri %f, (%f %f %f %f )=> %f\n", u, historyTime, startTime, endTime, futureTime, res);	  
 					//counting backwards. u is okay?
 					//TODO spline curves double back on themselves ._.
 
-	curTimeSpline = u; //res;
-	return u; //doubleLerp(res, startTime, endTime, 0.0, 1.0);
+	//curTimeSpline = u;  //for linear interpolation 
+	curTimeSpline = res;    //for spline interpolation
+	//return u; 
+	return doubleLerp(res, startTime, endTime, 0.0, 1.0);
 }
 
 /*igeneralized catmull-rom matrix multiplcation for complex interpolations

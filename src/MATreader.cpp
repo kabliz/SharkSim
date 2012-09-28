@@ -418,7 +418,7 @@ void MATreader::parseFile(const char* argc)
 		}
 
 
-		//skipping, TODO
+		//skipping the rest of this data
 		//fseek(readfile, dataSize, SEEK_CUR);
 		//printf("...size %d....\r", dataSize);
 	}
