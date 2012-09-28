@@ -219,8 +219,9 @@ void idle( void )
 	int dt = time - prevTime;
 	prevTime = time;
 
+
 	//update calls 	
-	Shark.timedUpdate(world1.deriveRailAngle());  
+	Shark.timedUpdate(dt, world1.deriveRailAngle(), world1.gVelocity() );  //TODO factor in dt in Shark update  
 	if(Shark.isMoving()){					//increment movement frame
 		if(showWorld) 
 		{
@@ -383,7 +384,7 @@ void TUpdate(int timed)
 	//FutureFeature: rotate worlds around?
 	//Shark.timedUpdate(world1.deriveRailAngle());
 	//
-	if(Shark.isMoving()){					//increment movement frame
+	/*if(Shark.isMoving()){					//increment movement frame
 		//frame += frameSpeed;
 		//Shark.kfSys.curFrame++;
 		//Shark.kfSys.checkLoop();
@@ -397,7 +398,7 @@ void TUpdate(int timed)
 		}
 	}
 		
-	glutTimerFunc(16.6666, TUpdate, 1);
+	glutTimerFunc(16.6666, TUpdate, 1);*/
 	glutPostRedisplay();
 }
 

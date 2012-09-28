@@ -58,7 +58,7 @@ bool SharkSkeleton::buildAngles( GLfloat segmentRot[], int sequenceNum, int tota
 
 /*main update method for the simulation 
 * Rail angle is the angle provided from the world, showing the sharpness of the turn on the point of the rail the shark is at.*/
-void SharkSkeleton::update(int railAngle)
+void SharkSkeleton::update(int dt, int railAngle, float velocity)
 {
 	//check if the recalculate flag is set
 	if(nmesh->newUpdateApproved)

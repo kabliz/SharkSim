@@ -30,7 +30,7 @@ class Shark
 		void drawSegment(int index, float rot, GLUquadricObj *quadratic);
 		void drawSpine(int frame, GLUquadricObj *quadratic);
 		void drawShark(int frame, GLUquadricObj *quadratic);
-		void timedUpdate(int railAngle);
+		void timedUpdate(int dt, int railAngle, float velocity);  
 		void materials(materialStruct materials);
 		void segUpdate();
 		KeyframeSystem genKeyframes(bool dynamicMode, SharkMesh *sharkmesh);

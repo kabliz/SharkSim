@@ -28,7 +28,7 @@ class SharkSkeleton
 		//void findNextCurve();
 		
 		int calcTimestep(); //finds the point in time where it is optimal to make a new keyframe.
-		void update(int railAngle); //main call
+		void update(int dt, int railAngle, float velocity); //main update call
 		void setNewAngles(); //modifies the underlying bones
 
 		//transformation related functions

@@ -44,6 +44,7 @@ class SharkWorld
 		
 		string gAnimationLoop(){return animationLoop;}
 
+		float gVelocity(){return traveler.gVelocity();} //velocity the traveler is moving
 
 	private:
 
