@@ -19,13 +19,10 @@ class SharkWorld
 	public:
 		SharkWorld(){}
 		SharkWorld(Frustum *frus, string splineFilename){ traveler = SplineTraveler(frus, splineFilename);  
-					/*rotation = Vector3f(0,0,0); nextPoint = 1; updateRate = 60;*/ updateAnimationFlag = true; }
+					 updateAnimationFlag = true; }
 		~SharkWorld(){}
 		void updateWorld(int dt);
 		void displayWorld();
-		//void ExtractFrustum();
-		//bool pointInFrustum(Vector3f v);
-		//Vector3f upCurrentLocation();
 		//string getSharkTurn();
 		//void initialize(string splineFilename);
 		int deriveRailAngle();
@@ -46,44 +43,29 @@ class SharkWorld
 
 		float gVelocity(){return traveler.gVelocity();} //velocity the traveler is moving
 
+		void speedUp(){traveler.speedUp();}
+		void slowDown(){traveler.slowDown();}
+		void resetTime(){traveler.resetTime();}
+
 	private:
 
 		//world data info
-		//SplinePath path;
 		SplineTraveler traveler;
-		//double frustum[6][4];
 		
 		//global animation controls
-		//Vector3f rotation; //current rotation
-		//Vector3f location; //current location
-		//int curPoint;
-		//int timer;  //TODO toss around the dt value. Interpolate time into utime. Double check conversion from time into catmull paramaters
-		//int steps;  //interpolation progress
-		//int totalSteps; //total interpolation needed. Steps and totalSteps help keep track of the time. 
-				//They get converted to a arc progress value when interpolating.
-		//int nextPoint;
-		//int updateRate;  //how much to update each step through between knots by, related to the framerate
 		bool updateAnimationFlag;
-		//Vector3f desiredRotation;
-		//Vector3f futureRotation;
 		Vector3f deltaTheta; //difference between desired and future rotation
 		string animationLoop;
 		
 		float skyboxrotation;
 
+		//for calculating shark's lookahead and angle calculating range
 		static const float lookAhead = .15;
 		static const float frontby = -.3;
 		static const float behindby = .3;
 
 		void drawSkybox();
-		//void drawPoints();
 		void drawPrettyStuff();
-		//void drawPointLine(int i);
-		//Vector3f interpolateVertices(Vector3f first, Vector3f second, int step, int max);
-		//Vector3f calcRotation();
-		//Vector3f calcRotation(Vector3f pFrom, Vector3f pDest);
-		//Vector3f interpolateRotation();
-		//int interpolateSpeed();	
 
 };
 

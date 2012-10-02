@@ -272,6 +272,9 @@ void keyboard(unsigned char key, int x, int y)
 			wireframe = 1;
 		glutPostRedisplay();
 		break;
+	case 'r': case 'R':
+		world1.resetTime();
+		break;
 	case 's': case 'S':
 		if(Shark.isSpine())
 			Shark.toggleSpine(false);
@@ -296,22 +299,24 @@ void keyboard(unsigned char key, int x, int y)
 			Shark.toggleMoving(true);
 		break;
 	case ',':
-		frameSpeed = frameSpeedSlow;
-		Shark.decreaseFrames();
+		//frameSpeed = frameSpeedSlow;
+		//Shark.decreaseFrames();  //TODO investigate increase/decreaseFrames for proper speed
+		world1.slowDown();
 		break;
 	case '.':
-		frameSpeed = frameSpeedFast;
-		Shark.increaseFrames();
+		//frameSpeed = frameSpeedFast;
+		//Shark.increaseFrames();
+		world1.speedUp();
 		break;
 	case '[':
-		frame++;
-		if(frame >= Shark.segments)
-			frame = 0;
+		//frame++;
+		//if(frame >= Shark.segments)
+		//	frame = 0;
 		break;
 	case ']':
-		frame--;
-		if(frame < 0)
-			frame = Shark.segments-1;
+		//frame--;
+		//if(frame < 0)
+		//	frame = Shark.segments-1;
 		break;
 	case 'p': case 'P':
 		if(Shark.isPlay())
@@ -323,10 +328,10 @@ void keyboard(unsigned char key, int x, int y)
 		toggleLighting();
 		break;
 	case 'n':case'N':  //cycle through animations
-		if(Shark.gLoopSequence()+1 >= Shark.gParsedSoFar())
-			Shark.sLoopSequence(0);
-		else
-			Shark.nextLoopSequence();
+		//if(Shark.gLoopSequence()+1 >= Shark.gParsedSoFar())
+		//	Shark.sLoopSequence(0);
+	//	else
+	//		Shark.nextLoopSequence();
 		break;
 	case 'z':case'Z':
 		showWorld = !showWorld;	

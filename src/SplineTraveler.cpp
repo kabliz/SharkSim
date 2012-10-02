@@ -16,17 +16,26 @@ SplineTraveler::SplineTraveler(Frustum *frus, string fileName)
 	curU = 0;
 	timer = 0;
 	timeSinceKnot = 0;	
-	updateRate = 30;
+	elapseRate = 1;
 	initSpline(fileName);
 	frustum = frus;
-	//totalSteps = path.gDTS(curPoint) * updateRate;
 }
 
 SplineTraveler::SplineTraveler()
 { 
 	rotation = Vector3f(0,0,0); 
 	nextPoint = 1; 
-	updateRate = 30;
+}
+
+void SplineTraveler::resetTime() 
+{
+	rotation = Vector3f(0,0,0);
+	nextPoint = 1;
+	curPoint = 0;
+	curU = 0;
+	timer = 0;
+	timeSinceKnot = 0;
+	elapseRate = 1;
 }
 
 void SplineTraveler::initSpline(string filename){    //reads .mat or .csv data sheets
@@ -94,8 +103,8 @@ void SplineTraveler::initSplineEXE(string filename)
 Vector3f SplineTraveler::upCurrentLocation(int dt)
 {
 	
-	timer += dt/1000.0;
-	timeSinceKnot += dt/1000.0;
+	timer += (dt/1000.0) * elapseRate;
+	timeSinceKnot += (dt/1000.0) * elapseRate;
 	
 	//frame checks
 	

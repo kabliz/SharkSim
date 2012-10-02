@@ -50,6 +50,9 @@ class SplineTraveler
 		Vector3f gRotationDegrees(){return rotation * 180/3.14159265 ;}
 		Vector3f gRotationRadians(){return rotation;}
 		Vector3f gLocation(){return location;}
+		void speedUp(){elapseRate += .5;}
+		void slowDown(){if(elapseRate >= 0.5){ elapseRate -= .5;} }
+		void resetTime();
 
 		double gDTS(int index){return path.gDTS(index);} //time difference between points               
 		double gCurrentDTS(){return path.gDTS(curPoint);}
@@ -63,7 +66,7 @@ class SplineTraveler
 		Vector3f calcRotation();
 		Vector3f calcRotation(Vector3f pFrom, Vector3f pDest);
 		Vector3f interpolateRotation();
-		float velocity; //velocity of traveler down teh spline. Measured in distance units per second.	
+		float velocity; //velocity of traveler down the spline. Measured in distance units per second.	
 
 
 		SplinePath path;
@@ -81,11 +84,11 @@ class SplineTraveler
 		float curU;        	//how far (between zero and one) the traveler is to the next point
 		float timer;       	//Total time since started. Interpolate time into utime. Double check conversion from time into catmull paramaters
 		float timeSinceKnot;      //the time (miliseconds) since the last knot
+		float elapseRate;       //user controllable rate of time passage. Fast forward, essentially. Cannot be negative. 
 		//int steps;  		//interpolation progress
 		//int totalSteps; 	//total interpolation needed. Steps and totalSteps help keep track of the time. 
 					//They get converted to a arc progress value when interpolating.
 		int nextPoint;
-		int updateRate;  	//how much to update each step through between knots by, related to the framerate
 
 };
 
