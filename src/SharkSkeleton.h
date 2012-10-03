@@ -26,6 +26,7 @@ class SharkSkeleton
 
 		//simulation related functions
 		void calcNextAngles(int railAngle);	//automatically gets next keyframe based on the speed of the animated angle rate.
+								//takes in the angle of the curve 
 		//void findNextCurve();
 		
 		int calcTimestep(); //finds the point in time where it is optimal to make a new keyframe.
@@ -35,6 +36,8 @@ class SharkSkeleton
 		//transformation related functions
 		void applyTransformation();//export sketon to the smart SharkMesh  so it can be drawn by the Keyframe
 		void transformHeirarchy(int isDownstream , int curNode, MyMat stackMatrix);	
+
+
 
 		enum{ANGUILIFORM = 1, SUBCARANGIFORM = 2, CARANGIFORM = 3, THUNNIFORM = 4};
 	//private:
@@ -52,7 +55,7 @@ class SharkSkeleton
 					//Often Never exceeds 1/4th-1/5th of the body length. Decreases as the fish gets larger.
 		int turningAngle; //amount of turning happening
 		float swimFrequency; //frequency of oscillation.  Maximum 5 beats per second
-		int elapsedTime; //time since the simulation began. 
+		float elapsedTime; //time (in seconds) since the simulation began. 
 		
 
 	private:
@@ -71,13 +74,20 @@ class SharkSkeleton
 		//animation frames
 		int nextFrameNo;
 
+		//angle math
+		//static int const looseAngle = 45;    //max angle for segments doing the propulstion
+		//static int const stiffAngle = 3;     //max angle for segments not involved in propulsion
+
+		static float const velocityToAmp = 5.0;  //divides velocity	by this value to determine the amplitude of a stroke
+
 		//angle calculation funcs
 		float calcTurningAngle();
 		vector<int> getMaxAngles();  //returns the max angle for the current locomotion mode
 		int nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
 		void findRailCurve(int railAngle);
 		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), relational initial angle (beta), propelling amplitude coefficent (K sub a),
-		static float const velocityToAmp = 5.0;  //divides velocity	by this value to determine the amplitude of a stroke
+		
+		int gNumLocomotionBones();
 
 
 		float deriveFrequency(float velocity); //derives frequency of tail swish based on the speed it is moving
