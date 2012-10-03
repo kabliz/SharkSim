@@ -35,6 +35,7 @@ class SharkSkeleton
 		void applyTransformation();//export sketon to the smart SharkMesh  so it can be drawn by the Keyframe
 		void transformHeirarchy(int isDownstream , int curNode, MyMat stackMatrix);	
 
+		enum{ANGUILIFORM = 1, SUBCARANGIFORM = 2, CARANGIFORM = 3, THUNNIFORM = 4};
 	//private:
 	
 		//objs
@@ -54,7 +55,7 @@ class SharkSkeleton
 
 	private:
 		//modes of swimming locomotion in fish. 
-		enum{ANGUILIFORM = 1, SUBCARANGIFORM = 2, CARANGIFORM = 3, THUNNIFORM = 4};
+		
 
 		vector<int> angles;
 		double segmentLength;
@@ -74,6 +75,9 @@ class SharkSkeleton
 		void findRailCurve(int railAngle);
 		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), relational initial angle (beta), propelling amplitude coefficent (K sub a),
 		//
+	
+		static float const velocityToAmp = 5.0;  //divides velocity	by this value to determine the amplitude of a stroke
+
 };
 
 

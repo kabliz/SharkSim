@@ -25,6 +25,7 @@ SplineTraveler::SplineTraveler()
 { 
 	rotation = Vector3f(0,0,0); 
 	nextPoint = 1; 
+	elapseRate = 1;
 }
 
 void SplineTraveler::resetTime() 
@@ -155,7 +156,8 @@ Vector3f SplineTraveler::upCurrentLocation(int dt)
 
 /*returns the angle of the curve around the current point, 
  * takes in the amount (in u paramater) to lookAhead of the current point (for predictive movement)
- * and then two distances ahead and behind the point to derive the endpoints of the vectors measuring the angle. */
+ * and then two distances ahead and behind the point to derive the endpoints of the vectors measuring the angle.
+ * Returns an angle in degrees */
 int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behindBy)
 {
 	int aheadPoint = curPoint;
@@ -172,7 +174,7 @@ int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behind
 	Vector3f futurepoint = path.getNearbyPoint(frontBy, aheadPoint, pu);
 	Vector3f thispoint = path.splineLocation(pu,  aheadPoint);
 
-	Vector3f firstBranch = (thispoint - pastpoint).Normalize();
+	Vector3f firstBranch = (pastpoint - thispoint).Normalize();
 	Vector3f secondBranch = (futurepoint - thispoint).Normalize();
 
 	//arcos dot product/productof magnitudes = angle in radians
@@ -180,7 +182,7 @@ int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behind
 	railAngle = atan2(secondBranch.x, secondBranch.z) - atan2(firstBranch.x, firstBranch.z);
 	if(railAngle > 3.14159265) { railAngle -= 3.14195265; }
 	if(railAngle < -3.14159265) { railAngle += 3.14195265; }
-	railAngle *= 180/3.14159265 ;
+	railAngle *= -180/3.14159265 ;
 	return (int)railAngle;
 }
 

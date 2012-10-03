@@ -211,7 +211,7 @@ void Shark::drawSpine(int frame, GLUquadricObj *quadratic)
 			glPushMatrix();
 			drawSegment(i, rotate, quadratic);	
 		}
-		materials(Grey);
+		materials(PurpleFlat);
 		gluSphere(quadratic, .1, 5, 5);
 
 		for(int i = 0; i < segments; i++)

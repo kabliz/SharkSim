@@ -89,11 +89,11 @@ double	frameSpeedFast = 0.01; //deprecated
 
 //shark external files
 static const int numArtistAnimations = 5;
-string artistDrivenAnimations[numArtistAnimations]= {"ani_slowstraight_4.csv", 
-						     "ani_faststraight_1.csv", 
-						     "ani_leftturn_2.csv",
-       			        		     "ani_rightturn_2.csv", 
-						     "ani_right_uturn_1.csv"};  //for non-dynamic animation mode
+string artistDrivenAnimations[numArtistAnimations]= {"ani/ani_slowstraight_4.csv", 
+						     "ani/ani_faststraight_1.csv", 
+						     "ani/ani_leftturn_2.csv",
+       			        		     "ani/ani_rightturn_2.csv", 
+						     "ani/ani_right_uturn_1.csv"};  //for non-dynamic animation mode
 
 
 bool	showWorld = true; //for closeups verses looking at world

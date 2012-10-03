@@ -60,6 +60,9 @@ bool SharkSkeleton::buildAngles( GLfloat segmentRot[], int sequenceNum, int tota
 * Rail angle is the angle provided from the world, showing the sharpness of the turn on the point of the rail the shark is at.*/
 void SharkSkeleton::update(int dt, int railAngle, float velocity)
 {
+	//velocity factors
+	propellingAmplitude = velocity / velocityToAmp;
+
 	//check if the recalculate flag is set
 	if(nmesh->newUpdateApproved)
 	{
@@ -72,6 +75,7 @@ void SharkSkeleton::update(int dt, int railAngle, float velocity)
 		//apply and export the transformations to the SharkMesh
 		applyTransformation();
 	}
+	printf("%f %d\n", propellingAmplitude, turningAngle);
 }
 
 /*pushes an angle down on the rail angle queue */
@@ -117,17 +121,15 @@ void SharkSkeleton::calcNextAngles(int railAngle)
 
 	elapsedTime += 1;
 
-
-	//TODO. For now, just crank back the animation angles
+	//TODO take max angle into account
 	int prevSegmentAngle = 0;
 	turningAngle = railAngle;
-	//printf("%d\n", railAngle);
 	for(int i = 0; i < anglesPerFrame; i++)
 	{
-		turningAngle = 3*turningAngle / 4;
-		//finalAngles.push_back(animatedAngles[nextFrameNo][i] + curveAngles[i]);
+		//turningAngle = (turningAngle) - (bones.size())/i;  //turning angle distributed across segments 
+
+		//turningAngle = (3.0*turningAngle) / (bones.size() - (bones.size() - rootNode) );
 		int newAngle = nextSegmentAngle(prevSegmentAngle, oldAngles[i], maxAngles[i]);
-		//printf("%d:::: swimFrequency %d, elapsedTimei %d, propellingAmplitude %d\n", newAngle, swimFrequency, elapsedTime, propellingAmplitude );
 		finalAngles.push_back(newAngle);
 		prevSegmentAngle = newAngle;
 	}

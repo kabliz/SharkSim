@@ -60,8 +60,8 @@ class SharkWorld
 		float skyboxrotation;
 
 		//for calculating shark's lookahead and angle calculating range
-		static const float lookAhead = .15;
-		static const float frontby = -.3;
+		static const float lookAhead = 0;
+		static const float frontby = .6;
 		static const float behindby = .3;
 
 		void drawSkybox();
