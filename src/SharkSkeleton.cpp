@@ -19,6 +19,7 @@ void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 		start -= segLength[i];
 		newBone.buildBone(mesh, start, end, multiplier);
 		bones.push_back(newBone);
+		totalLength += newBone.gLength();
 
 	}
 	nmesh->newUpdateApproved = true;
@@ -56,13 +57,29 @@ bool SharkSkeleton::buildAngles( GLfloat segmentRot[], int sequenceNum, int tota
 	return ff;
 }
 
+// source http://animalcreativity.webs.com/109.pdf
+float SharkSkeleton::deriveFrequency(float velocity)
+{
+	//Velocity = .25(length(3freq - 4))
+	//therefore
+	//f = (4(v+L))/(3L)
+	
+	//TODO fix for world scaling. exchange totalLength for real length
+	return (4.0*(velocity+totalLength))/(3.0*totalLength);	
+
+}
+
+
+
 /*main update method for the simulation 
 * Rail angle is the angle provided from the world, showing the sharpness of the turn on the point of the rail the shark is at.*/
 void SharkSkeleton::update(int dt, int railAngle, float velocity)
 {
 	//velocity factors
-	propellingAmplitude = velocity / velocityToAmp;
-
+	swimFrequency = deriveFrequency(velocity); 
+	//propellingAmplitude = velocity / velocityToAmp;  //amplitude increases with frequency until a max is reached at 5 beats per ssecond.
+	
+	
 	//check if the recalculate flag is set
 	if(nmesh->newUpdateApproved)
 	{
@@ -75,7 +92,7 @@ void SharkSkeleton::update(int dt, int railAngle, float velocity)
 		//apply and export the transformations to the SharkMesh
 		applyTransformation();
 	}
-	printf("%f %d\n", propellingAmplitude, turningAngle);
+	printf("amp: %f freq:%f  ang: %d \n", propellingAmplitude, swimFrequency, turningAngle);
 }
 
 /*pushes an angle down on the rail angle queue */

@@ -5,6 +5,7 @@
 #include "Keyframe.h"
 #include "MyMat.h"
 #include "Mesh.h"
+#include "SharkFacts.h"
 #include <cmath>
 
 /*This is the main simulation skeleton class. It simulates (moves angles of) the bones and prints them to Keyframes so they can be drawn  */
@@ -12,10 +13,10 @@ class SharkSkeleton
 {
 	public:
 		//initializations
-		SharkSkeleton(){SharkSkeleton(NULL); locomotionMode = SUBCARANGIFORM;} //please set mesh 
+		SharkSkeleton(){SharkSkeleton(NULL); locomotionMode = SUBCARANGIFORM; totalLength = 0;} //please set mesh 
 		SharkSkeleton(SharkMesh *bmesh){nmesh = bmesh; rootNode = 4; finalAngles = vector<int>(); curveAngles = vector<int>(); 
 						animatedAngles = vector<vector<int> >(); bones = vector<SharkBone>(); nextFrameNo = 0; 
-						locomotionMode = SUBCARANGIFORM;
+						locomotionMode = SUBCARANGIFORM; totalLength = 0;
 						swimFrequency = 8; propellingAmplitude = .15;  turningAngle = 0; elapsedTime = 0;}
 		void buildSkeleton(Mesh *mesh, int numSegs, float* segLengths); //given a set of mesh segments, it creates the bones. 
 		void uCalibration();  //calibrates the separation between bones in terms of the spline value U.
@@ -47,9 +48,10 @@ class SharkSkeleton
 		vector<vector<int> > animatedAngles; //these are preset, artist driven, bone angles. 
 		
 		int locomotionMode; //the method of locomotion being used currently: anguiliform, subcarangiform, ...etc.
-		float propellingAmplitude; //amount of force to put in a swim stroke. Higher for more force
+		float propellingAmplitude; //amount of force to put in a swim stroke. Higher for more force. 
+					//Often Never exceeds 1/4th-1/5th of the body length. Decreases as the fish gets larger.
 		int turningAngle; //amount of turning happening
-		float swimFrequency; //frequency of oscillation
+		float swimFrequency; //frequency of oscillation.  Maximum 5 beats per second
 		int elapsedTime; //time since the simulation began. 
 		
 
@@ -59,11 +61,12 @@ class SharkSkeleton
 
 		vector<int> angles;
 		double segmentLength;
-		int framesPerSequence;
-		int anglesPerFrame;
 		int rootNode; //root node of the heirarchical model.
 		SharkMesh *nmesh;
 		double totalLength;  //the length of the shark, in world coordinates.
+		float sharkRealLength; //TODO incorporate into totalLength when scaled.
+		int framesPerSequence;
+		int anglesPerFrame;
 		
 		//animation frames
 		int nextFrameNo;
@@ -74,10 +77,10 @@ class SharkSkeleton
 		int nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
 		void findRailCurve(int railAngle);
 		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), relational initial angle (beta), propelling amplitude coefficent (K sub a),
-		//
-	
 		static float const velocityToAmp = 5.0;  //divides velocity	by this value to determine the amplitude of a stroke
 
+
+		float deriveFrequency(float velocity); //derives frequency of tail swish based on the speed it is moving
 };
 
 

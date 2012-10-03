@@ -29,6 +29,8 @@ class SharkBone
 		//lowerclass management
 		Quad* gQuad(int index){return quads[index];}
 		void sQuad(Quad* q){return quads.push_back(q);}
+		void sLength(double len){boneLength = len;}
+		double gLength(){return boneLength;}
 		
 
 	//private:		
