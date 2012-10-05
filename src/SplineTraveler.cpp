@@ -99,28 +99,6 @@ void SplineTraveler::drawStatic()
 	}glPopMatrix();
 }
 
-/*These functions will initialize the Spline Path given a filename to a file */
-/*void SplineTraveler::initSplineMAT(string filename)
-{
-	path.parseDataFile(filename.c_str());
-	path.gatherDTPoints();
-	path.paramaterizeSpline();
-}
-
-void SplineTraveler::initSplineEXE(string filename)
-{
-	path.parseDataFile(filename.c_str());
-	path.gatherEXPoints();
-	path.paramaterizeSpline();
-}
-
-void SplineTraveler::initSplineZOE(string filename)
-{
-	path.parseDataFile(filename.c_str());
-	path.gatherZOEPoints();
-	path.paramaterizeSpline();
-}*/
-
 /*updates the world, with the traveler's location returned
  * receives delta time in miliseconds since the last update */
 Vector3f SplineTraveler::upCurrentLocation(int dt)
@@ -144,7 +122,12 @@ Vector3f SplineTraveler::upCurrentLocation(int dt)
 	}
 	else if(curPoint >= path.size()-1 ) //go back to beginning.
 	{
-		nextPoint = 0;
+		if(!areGhostPoints) {
+			nextPoint = 0;
+		}
+		else {
+			nextPoint = 1;
+		}
 	}
 	//animation changes
 	//if(steps - totalSteps*.9 > 0 && updateAnimationFlag)
@@ -160,7 +143,11 @@ Vector3f SplineTraveler::upCurrentLocation(int dt)
 	int ppoint = curPoint;
 	if(curU < 0) {    //interpolation slid to previous point. currently only handles one point in reverse
 		ppoint -= 1;
-		if(ppoint < 0) {  //went off the spline backwards. set everything to zero
+		if(areGhostPoints && (ppoint < 1))
+		{
+			newLoc = path.splineLocation(0,1);
+		}
+		else if (!areGhostPoints && ppoint < 0) {//went off the spline backwards. set everything to zero
 			newLoc = path.splineLocation(0,0);	
 		}
 		else {  //only went one point backwards.

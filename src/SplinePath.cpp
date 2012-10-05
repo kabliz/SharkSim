@@ -114,6 +114,7 @@ void SplinePath::gatherEXPoints()
 		points.push_back(p);
 		dts.push_back(ereader.gDTS(id));
 		totts.push_back(runningTotts+ereader.gDTS(id));
+		runningTotts += zoereader.gDTS(id);
 	}
 	//TODO clarify EXEreader input
 	calcRadius();
@@ -125,7 +126,7 @@ void SplinePath::gatherZOEPoints()
 {
 	sGhostPoints(true);
 	float runningTotts = 0;  //running time total
-	for(int id = 0; id < ereader.size(); id++)
+	for(int id = 0; id < zoereader.size(); id++)
 	{
 		Vector3f p = zoereader.gCoordinate(id);
 		//p.x = doubleLerp(ereader.gCoordinate(id).x, ereader.gMinLatitude(), ereader.gMaxLatitude(), 0, 100);
@@ -135,11 +136,13 @@ void SplinePath::gatherZOEPoints()
 		isLargerPoint(p);
 		isSmallerPoint(p);
 		points.push_back(p);
-		dts.push_back(ereader.gDTS(id));
-		totts.push_back(runningTotts+ereader.gDTS(id));
+		dts.push_back(zoereader.gDTS(id));
+		totts.push_back(runningTotts+zoereader.gDTS(id));
+		runningTotts += zoereader.gDTS(id);
 	}
 	calcRadius();
 
+	
 	initTangents();
 }
 
@@ -186,31 +189,34 @@ void SplinePath::calcRadius()
 
 void SplinePath::initTangents()
 {
-	//first value needs to be initilized 
-	Vector3f tan = (points[1]-(points[2]-points[1]) - points[0]) *.5;
-	tangents.push_back(tan);
-
-	//loop over each of the middle points
-	for(int i = 1; i < points.size()-1; i++)
+	if(!isCatmullMode)
 	{
-		Vector3f edgeDiff = points[i+1]-points[i-1];
+		//first value needs to be initilized 
+		Vector3f tan = (points[1]-(points[2]-points[1]) - points[0]) *.5;
+		tangents.push_back(tan);
 
-		//180 degree turn case is discontinious. This is a fix
-		int j = 2;
-		while(edgeDiff.Magnitude() == 0)
+		//loop over each of the middle points
+		for(int i = 1; i < points.size()-1; i++)
 		{
-			edgeDiff = (points[i+j] - points[i-j]) * .5;
-			j++;
+			Vector3f edgeDiff = points[i+1]-points[i-1];
+
+			//180 degree turn case is discontinious. This is a fix
+			int j = 2;
+			while(edgeDiff.Magnitude() == 0)
+			{
+				edgeDiff = (points[i+j] - points[i-j]) * .5;
+				j++;
+			}
+
+			//tangent calculation
+			tan = (edgeDiff)* (points[i+1]-points[i]).Magnitude() / (edgeDiff).Magnitude();
+			tangents.push_back(tan);
 		}
 
-		//tangent calculation
-		tan = (edgeDiff)* (points[i+1]-points[i]).Magnitude() / (edgeDiff).Magnitude();
+		//init the last point
+		tan = points[points.size()-1] - points[points.size()-2];
 		tangents.push_back(tan);
 	}
-
-	//init the last point
-	tan = points[points.size()-1] - points[points.size()-2];
-	tangents.push_back(tan);
 }
 
 /*Interpolation helper function. Computs the matrix multiplcation between a u matrix, M (spline matrix) and B (points)

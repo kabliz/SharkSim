@@ -34,50 +34,60 @@ void ZOEreader::parseFile(const char* argc)
 		{
 			break;
 		}
-
+		
 		//Latitude
 		int i = 0;
+
+		char cur = dd;
 		while(!feof(readFile))
 		{
-			char cur = fgetc(readFile);
-			if(cur == ',' || cur == ' ') {break;}
+
+			//if(cur == ',' || cur == ' ') {break;}
+			if(cur == ' ') {break;}
 			numb[i] = cur;
 			i++;
+			cur = fgetc(readFile);
 		}
 		numb[i] = '\0';
 		double Latitude = atof(numb);
 
+		cur = fgetc(readFile);
 		//Altitude
 		i = 0;
 		while(!feof(readFile))
 		{
-			char cur = fgetc(readFile);
-			if(cur == ',' || cur == ' ') {break;}
+			//if(cur == ',' || cur == ' ') {break;}
+			if(cur == ' ') {break;}
 			numb[i] = cur;
 			i++;
+			cur = fgetc(readFile);
 		}
 		numb[i] = '\0';
 		double Altitude = atof(numb);
 
-
+		cur = fgetc(readFile);
+		//printf("%c..", cur);
 		//Longitude
 		i = 0;
 		while(!feof(readFile))
 		{
-			char cur = fgetc(readFile);
-			if(cur == ',' || cur == ' ') {break;}
+			//if(cur == ',' || cur == ' ') {break;}
+			if(cur == ' ' || cur == '\n') {break;}
 			numb[i] = cur;
 			i++;
+			cur = fgetc(readFile);
 		}
 		numb[i] = '\0';
 		double Longitude = atof(numb);
 
 		//spin until end of line
-		while(fgetc(readFile) != '\n'){}
+		if(cur != '\n') {
+			while(fgetc(readFile) != '\n'){}
+		}
 
 		//Add to data structure
 		latLong.push_back(Vector3f(Latitude, Altitude, Longitude));
-		Vector3f(Latitude, Altitude, Longitude).Print();
+		Vector3f(Latitude, Altitude, Longitude).Print();  //yep, wrong
 		dts.push_back(1.0);
 		if(Longitude < minlong){minlong = Longitude;}
 		if(Longitude > maxlong){maxlong = Longitude;}
