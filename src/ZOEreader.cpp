@@ -87,7 +87,6 @@ void ZOEreader::parseFile(const char* argc)
 
 		//Add to data structure
 		latLong.push_back(Vector3f(Latitude, Altitude, Longitude));
-		Vector3f(Latitude, Altitude, Longitude).Print();  //yep, wrong
 		dts.push_back(1.0);
 		if(Longitude < minlong){minlong = Longitude;}
 		if(Longitude > maxlong){maxlong = Longitude;}

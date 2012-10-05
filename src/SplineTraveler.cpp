@@ -99,6 +99,19 @@ void SplineTraveler::drawStatic()
 	}glPopMatrix();
 }
 
+Vector3f SplineTraveler::gNearbyPoint(float ahead, int point, float u)
+{
+	Vector3f res;
+	if(ahead <= 0.0001 && ahead >= -0.0001) {
+		res = path.splineLocation(u, point);
+	}
+	else {
+		res = path.getNearbyPoint(ahead, point, u);
+	}
+	return res;
+	
+}
+
 /*updates the world, with the traveler's location returned
  * receives delta time in miliseconds since the last update */
 Vector3f SplineTraveler::upCurrentLocation(int dt)

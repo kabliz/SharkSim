@@ -515,7 +515,7 @@ Vector3f SplinePath::getNearbyPoint(double distanceAhead, int startPoint, double
 	double curU = startU;
 	double result = -1;
 	int curPoint = startPoint;
-	Vector3f nearbyPoint = Vector3f(0,0,0);
+	Vector3f nearbyPoint = points[startPoint];
 
 
 	if(distanceAhead > 0) { //looking forward

@@ -50,6 +50,7 @@ class SplineTraveler
 		Vector3f gRotationDegrees(){return rotation * 180/3.14159265 ;}
 		Vector3f gRotationRadians(){return rotation;}
 		Vector3f gLocation(){return location;}
+		Vector3f gNearbyPoint(float ahead, int curPoint, float u);
 		void speedUp(){elapseRate += .5;}
 		void slowDown(){if(elapseRate >= 0.5){ elapseRate -= .5;} }
 		void resetTime();
