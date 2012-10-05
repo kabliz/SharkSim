@@ -21,6 +21,52 @@ void SplinePath::deleteHeap()
 	}
 }
 
+void SplinePath::initSpline(string filename){    //reads .txt, .mat or .csv data sheets
+	char end[3] = { filename.at(filename.size()-4),
+		filename.at(filename.size()-3),
+		filename.at(filename.size()-2) };
+	if(end[1] == 't' || end[1] == 'T' ) {
+		initSplineZOE(filename);
+	}
+	else if(end[1] == 'm' || end[1] == 'M' ) {
+		initSplineMAT(filename);
+	}
+	else if (end[1] == 'c' || end[1] == 'C'){
+		initSplineEXE(filename);
+	}
+	else {
+		printf("Spline file does not correspond to a supported file type: %c%c%c \n", end[1], end[2], end[3]);
+	}
+}
+
+
+/*These functions will initialize the Spline Path given a filename to a file */
+void SplinePath::initSplineMAT(string filename)
+{
+	parseDataFileMAT(filename.c_str());
+	gatherDTPoints();
+	paramaterizeSpline();
+}
+
+void SplinePath::initSplineEXE(string filename)
+{
+	parseDataFileEXE(filename.c_str());
+	gatherEXPoints();
+	paramaterizeSpline();
+}
+
+void SplinePath::initSplineZOE(string filename)
+{
+	zoereader = ZOEreader();
+	parseDataFileZOE(filename.c_str());
+	gatherZOEPoints();
+	paramaterizeSpline();
+}
+
+
+
+
+
 void SplinePath::gatherDTPoints()
 {
 	Vector3f p, q;
@@ -53,7 +99,7 @@ void SplinePath::gatherDTPoints()
 	initTangents();
 }
 
-void SplinePath::gatherZPoints()
+void SplinePath::gatherEXPoints()
 {
 	float runningTotts = 0;  //running time total
 	for(int id = 0; id < ereader.size(); id++)
@@ -70,6 +116,28 @@ void SplinePath::gatherZPoints()
 		totts.push_back(runningTotts+ereader.gDTS(id));
 	}
 	//TODO clarify EXEreader input
+	calcRadius();
+
+	initTangents();
+}
+
+void SplinePath::gatherZOEPoints()
+{
+	sGhostPoints(true);
+	float runningTotts = 0;  //running time total
+	for(int id = 0; id < ereader.size(); id++)
+	{
+		Vector3f p = zoereader.gCoordinate(id);
+		//p.x = doubleLerp(ereader.gCoordinate(id).x, ereader.gMinLatitude(), ereader.gMaxLatitude(), 0, 100);
+		//p.y = doubleLerp(ereader.gCoordinate(id).y, ereader.gMinLongitude(), ereader.gMinLongitude(), 0 , 100) ;
+		//p.z = ereader.gCoordinate(id).z;
+
+		isLargerPoint(p);
+		isSmallerPoint(p);
+		points.push_back(p);
+		dts.push_back(ereader.gDTS(id));
+		totts.push_back(runningTotts+ereader.gDTS(id));
+	}
 	calcRadius();
 
 	initTangents();
@@ -196,7 +264,7 @@ double SplinePath::convertTimestampToU(float timer, int curKnot )
 	//Need to derive three nighboring points next to the current point (one behind, two ahead). 
 	//Array bounds need to be checked, and they wrap.   
 	if(curKnot > 0) {
-		
+
 		historyTime = totts[curKnot-1];  //not at beginning of spline
 	}
 	else {
@@ -226,8 +294,8 @@ double SplinePath::convertTimestampToU(float timer, int curKnot )
 	float Bu[4] = {historyTime, startTime, endTime, futureTime};
 	double res =  HmInt(dU, Mcat, Bu); //matrix multiplcation 
 	//printf("vri %f, (%f %f %f %f )=> %f\n", u, historyTime, startTime, endTime, futureTime, res);	  
-					//counting backwards. u is okay?
-					//TODO spline curves double back on themselves ._.
+	//counting backwards. u is okay?
+	//TODO spline curves double back on themselves ._.
 
 	//curTimeSpline = u;  //for linear interpolation 
 	curTimeSpline = res;    //for spline interpolation
@@ -269,7 +337,7 @@ Vector3f SplinePath::catmullMatrix(float curLocation, int curKnot)
 	//Need to derive three nighboring points next to the current point (one behind, two ahead). 
 	//Array bounds need to be checked, and they wrap.   
 	if(curKnot > 0) {
-		
+
 		historyLocation = points[curKnot-1];  //not at beginning of spline
 	}
 	else {
@@ -326,61 +394,61 @@ void SplinePath::paramaterizeSpline()
 		//It is not supposed to. 
 		//solving for space curve. reference Christopher Twigg paper
 		/*double x1, z1, x2, z2, x3, z3, x4, z4;
-		Vector3f one, two, three, four;
-		double tau = .5000000;
-		
-		if(isCatmullMode)
-		{
-			Vector3f initPt = (points[i+1]*.5) - (points[i+2]-points[i+1]) - points[i];
-			int endPt = i+1;
-			int futPt = i+2;
-						
-			if (i == points.size()-1) {
-				endPt = 0;
-			}
-			if(i == points.size() -2) {
-				futPt = 0;
-			}
-			else {
-				futPt = endPt + 1;
-			}
-			
-			one = i > 0 ? points[i-1]: initPt;
-			two = points[i];
-			three = points[endPt]; //i > 1 ? points[i-2].z: points[points.size()-2].z;
-			four = points[futPt]; 
-			Vector3f tan1 = (three - one)/2;
-			Vector3f tan2 = (four - two)/2;
-			Vector3f res1 = (three-two)*3 - tan1*2 - tan2;
-			Vector3f res2 = (two-three)*2 + tan1 + tan2;
+		  Vector3f one, two, three, four;
+		  double tau = .5000000;
 
-			curArc.dx = res2.x;
-			curArc.dy = res2.z;
-			curArc.cx = res1.x;
-			curArc.cy = res1.z; 
-			curArc.bx = tan1.x;
-			curArc.by = tan1.z; 
-			curArc.ax = two.x;
-			curArc.ay = two.z;
-		}
-		else //hermite mode?
-		{
-			one = points[i];
-			two = points[i+1]; //i > 0 ? points[i-1].z: points[points.size()-1].z;
-			three = tangents[i];
-			four = tangents[i+1]; 
+		  if(isCatmullMode)
+		  {
+		  Vector3f initPt = (points[i+1]*.5) - (points[i+2]-points[i+1]) - points[i];
+		  int endPt = i+1;
+		  int futPt = i+2;
 
-			curArc.dx = one.x*Mher[0] + two.x*Mher[1] + three.x*Mher[2] + four.x*Mher[3];
-			curArc.dy = one.z*Mher[0] + two.z*Mher[1] + three.z*Mher[2] + four.z*Mher[3];
-			curArc.cx = one.x*Mher[4] + two.x*Mher[5] + three.x*Mher[6] + four.x*Mher[7];
-			curArc.cy = one.z*Mher[4] + two.z*Mher[5] + three.z*Mher[6] + four.z*Mher[7];
-			curArc.bx = one.x*Mher[8] + two.x*Mher[9] + three.x*Mher[10] + four.x*Mher[11];
-			curArc.by = one.z*Mher[8] + two.z*Mher[9] + three.z*Mher[10] + four.z*Mher[11];
-			curArc.ax = one.x*Mher[12] + two.x*Mher[13] + three.x*Mher[14] + four.x*Mher[15];
-			curArc.ay = one.z*Mher[12] + two.z*Mher[13] + three.z*Mher[14] + four.z*Mher[15];
-		}*/
+		  if (i == points.size()-1) {
+		  endPt = 0;
+		  }
+		  if(i == points.size() -2) {
+		  futPt = 0;
+		  }
+		  else {
+		  futPt = endPt + 1;
+		  }
 
-		
+		  one = i > 0 ? points[i-1]: initPt;
+		  two = points[i];
+		  three = points[endPt]; //i > 1 ? points[i-2].z: points[points.size()-2].z;
+		  four = points[futPt]; 
+		  Vector3f tan1 = (three - one)/2;
+		  Vector3f tan2 = (four - two)/2;
+		  Vector3f res1 = (three-two)*3 - tan1*2 - tan2;
+		  Vector3f res2 = (two-three)*2 + tan1 + tan2;
+
+		  curArc.dx = res2.x;
+		  curArc.dy = res2.z;
+		  curArc.cx = res1.x;
+		  curArc.cy = res1.z; 
+		  curArc.bx = tan1.x;
+		  curArc.by = tan1.z; 
+		  curArc.ax = two.x;
+		  curArc.ay = two.z;
+		  }
+		  else //hermite mode?
+		  {
+		  one = points[i];
+		  two = points[i+1]; //i > 0 ? points[i-1].z: points[points.size()-1].z;
+		  three = tangents[i];
+		  four = tangents[i+1]; 
+
+		  curArc.dx = one.x*Mher[0] + two.x*Mher[1] + three.x*Mher[2] + four.x*Mher[3];
+		  curArc.dy = one.z*Mher[0] + two.z*Mher[1] + three.z*Mher[2] + four.z*Mher[3];
+		  curArc.cx = one.x*Mher[4] + two.x*Mher[5] + three.x*Mher[6] + four.x*Mher[7];
+		  curArc.cy = one.z*Mher[4] + two.z*Mher[5] + three.z*Mher[6] + four.z*Mher[7];
+		  curArc.bx = one.x*Mher[8] + two.x*Mher[9] + three.x*Mher[10] + four.x*Mher[11];
+		  curArc.by = one.z*Mher[8] + two.z*Mher[9] + three.z*Mher[10] + four.z*Mher[11];
+		  curArc.ax = one.x*Mher[12] + two.x*Mher[13] + three.x*Mher[14] + four.x*Mher[15];
+		  curArc.ay = one.z*Mher[12] + two.z*Mher[13] + three.z*Mher[14] + four.z*Mher[15];
+		  }*/
+
+
 		//create next table to fill
 		SplineTable *curTab = new SplineTable();
 		paramfuncs = ParamFunctions(curTab);
@@ -394,7 +462,7 @@ void SplinePath::paramaterizeSpline()
 			//oldk = kk;
 			curTab->addTableEntry(kk, -1);
 		}
-		
+
 		double size;
 		Vector3f lastPoint = points[i]; //= splineLocation(curTab->getU(0), i);	
 		double totalDistance = 0; //the total coord distance to do linear interpolation over, to get u'
@@ -411,7 +479,7 @@ void SplinePath::paramaterizeSpline()
 			}
 			curTab->setDist(size, r); //place coordinate distance into tables.
 		}
-		
+
 		//and now to finally calculate u prime, the paramaterized version of u.
 		size = 0;
 		lastPoint = points[i];
@@ -443,7 +511,7 @@ Vector3f SplinePath::getNearbyPoint(double distanceAhead, int startPoint, double
 	int curPoint = startPoint;
 	Vector3f nearbyPoint = Vector3f(0,0,0);
 
-	
+
 	if(distanceAhead > 0) { //looking forward
 		int i = 0;
 		for(i = startPoint; i < paramTable.size(); i++) {

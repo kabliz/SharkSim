@@ -26,12 +26,12 @@ class SplineTraveler
 		void ExtractFrustum();
 		bool pointInFrustum(Vector3f v);
 		Vector3f upCurrentLocation(int dt);
-		void initSpline(string filename);    //reads .mat or .csv data sheets 
-		void initSplineMAT(string matfilename);     //opens mat files
-		void initSplineEXE(string exefilename);     //opens csv files
+		void initSpline(string filename);    //reads .txt, .mat or .csv data sheets 
+		//void initSplineMAT(string matfilename);     //opens mat files
+		//void initSplineEXE(string exefilename);     //opens csv files
 		void setFrustum(Frustum *frust){frustum = frust;}   
 		int deriveRailAngle(float lead, float frontBy, float behindBy);
-		
+		void sGhostPoints(bool b){areGhostPoints = b; resetTime();}	
 
 
 		void deleteHeap(){path.deleteHeap();} //delete's SplinePath heap
@@ -78,16 +78,13 @@ class SplineTraveler
 		Vector3f desiredRotation;
 		Vector3f futureRotation;
 		Vector3f deltaTheta; 	//difference between desired and future rotation
-
+		bool areGhostPoints;       //showing first and last points
 		
 		int curPoint;           //the most recent point the traveler has passed
 		float curU;        	//how far (between zero and one) the traveler is to the next point
 		float timer;       	//Total time since started. Interpolate time into utime. Double check conversion from time into catmull paramaters
 		float timeSinceKnot;      //the time (miliseconds) since the last knot
 		float elapseRate;       //user controllable rate of time passage. Fast forward, essentially. Cannot be negative. 
-		//int steps;  		//interpolation progress
-		//int totalSteps; 	//total interpolation needed. Steps and totalSteps help keep track of the time. 
-					//They get converted to a arc progress value when interpolating.
 		int nextPoint;
 
 };

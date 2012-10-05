@@ -3,12 +3,14 @@
 
 #include "MATreader.h"
 #include "EXEreader.h"
+#include "ZOEreader.h"
 #include "ParamFunctions.h"
 #include "ParamStructures.h"
 #include "SplineTable.h"
 #include "Vector.h"
 #include <cstdio>
 #include <vector>
+#include <string>
 #include <cstdlib>
 #include <GL/glut.h>
 
@@ -18,10 +20,17 @@ class SplinePath
 {
 	public:
 		//initialization functions
-		SplinePath(){Tolerance= .2; tabSet = false;}
+		SplinePath(){Tolerance= .2; tabSet = false; isGhostPointMode = false;}
+		SplinePath(bool ghostPoints){Tolerance= .2; tabSet = false; isGhostPointMode = ghostPoints;}    //set true to make the first and 
+														//last points invisible
 		~SplinePath(){}
+		void initSpline(string filename);    //reads .txt or .mat or .csv data sheets 
+		void initSplineMAT(string matfilename);     //opens mat files
+		void initSplineEXE(string exefilename);     //opens csv files
+		void initSplineZOE(string zoefilename);     //opens txt files
 		void gatherDTPoints();
-                void gatherZPoints();
+                void gatherEXPoints();
+		void gatherZOEPoints();
 		void paramaterizeSpline();
 		void initTangents();
 		void calcRadius();
@@ -39,9 +48,12 @@ class SplinePath
 
 		//points
 		Vector3f gPoint(int index){return points[index];}
-		void parseDataFile(const char* filename){mreader.parseFile(filename);}	
+		void parseDataFileMAT(const char* filename){mreader.parseFile(filename);}	
+		void parseDataFileEXE(const char* filename){ereader.parseFile(filename);}	
+		void parseDataFileZOE(const char* filename){zoereader.parseFile(filename);}	
 		double gDTS(int index){return dts[index];} //time delta distance between two points
 		double gTotalDTS(int index){return totts[index];} //time delta distance between two points
+		bool sGhostPoints(bool b){isGhostPointMode = b;}
 
 	private:	
 
@@ -65,6 +77,7 @@ class SplinePath
 
 		MATreader mreader;
 		EXEreader ereader;
+		ZOEreader zoereader;
 		double radius;
 		ParamFunctions paramfuncs;
 
@@ -77,11 +90,13 @@ class SplinePath
 		double HmInt(float U[4], const float M[16], float B[4]);
 		bool tabSet;
 
+		bool isGhostPointMode;
 		float static const Mcat[16];// = {-.5, 1.5, -1.5, .5, 1, -2.5, 2, -.5, -.5, 0, .5, 0, 0, 1, 0, 0};
 		float static const Mher[16];// = {2, -2, 1, 1, -3, 3, -2, -1, 0, 0, 1, 0, 1, 0, 0, 0};
 		double Tolerance;
 		int static const totalSlices = 100; //determines how finely to sample the curve
 		bool static const isCatmullMode = true;
+		
 
 
 };

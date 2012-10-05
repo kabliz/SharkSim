@@ -19,6 +19,7 @@ SplineTraveler::SplineTraveler(Frustum *frus, string fileName)
 	elapseRate = 1;
 	initSpline(fileName);
 	frustum = frus;
+	areGhostPoints = false;
 }
 
 SplineTraveler::SplineTraveler()
@@ -26,30 +27,45 @@ SplineTraveler::SplineTraveler()
 	rotation = Vector3f(0,0,0); 
 	nextPoint = 1; 
 	elapseRate = 1;
+	areGhostPoints = false;
 }
 
 void SplineTraveler::resetTime() 
 {
 	rotation = Vector3f(0,0,0);
-	nextPoint = 1;
-	curPoint = 0;
 	curU = 0;
-	timer = 0;
 	timeSinceKnot = 0;
 	elapseRate = 1;
+	if(!areGhostPoints) {
+		
+		nextPoint = 1;
+		curPoint = 0;
+		timer = 0;
+	}
+	else {
+		nextPoint = 2;
+		curPoint = 1;
+		timer = path.gDTS(1);	
+	}
 }
 
 void SplineTraveler::initSpline(string filename){    //reads .mat or .csv data sheets
-	char end = filename.at(filename.size()-1);
-	if(end == 't' || end == 'T' ) { 
+	path.initSpline(filename);
+	/*char end[3] = { filename.at(filename.size()-3), 
+		 	filename.at(filename.size()-2), 
+			filename.at(filename.size()-1) };
+	if(end[1] == 't' || end[1] == 'T' ) { 
+		initSplineZOE(filename); 
+	}
+	else if(end[1] == 'm' || end[1] == 'M' ) { 
 		initSplineMAT(filename); 
 	}
-	else if (end == 'v' || end == 'V'){ 
+	else if (end[1] == 'c' || end[1] == 'C'){ 
 		initSplineEXE(filename);
 	}
 	else {
 		printf("Spline file does not correspond to data file type\n");
-	}
+	}*/
 }
 
 
@@ -84,7 +100,7 @@ void SplineTraveler::drawStatic()
 }
 
 /*These functions will initialize the Spline Path given a filename to a file */
-void SplineTraveler::initSplineMAT(string filename)
+/*void SplineTraveler::initSplineMAT(string filename)
 {
 	path.parseDataFile(filename.c_str());
 	path.gatherDTPoints();
@@ -94,10 +110,16 @@ void SplineTraveler::initSplineMAT(string filename)
 void SplineTraveler::initSplineEXE(string filename)
 {
 	path.parseDataFile(filename.c_str());
-	path.gatherZPoints();
+	path.gatherEXPoints();
 	path.paramaterizeSpline();
 }
 
+void SplineTraveler::initSplineZOE(string filename)
+{
+	path.parseDataFile(filename.c_str());
+	path.gatherZOEPoints();
+	path.paramaterizeSpline();
+}*/
 
 /*updates the world, with the traveler's location returned
  * receives delta time in miliseconds since the last update */
@@ -352,6 +374,7 @@ void SplineTraveler::drawPoints()
 		glutSolidSphere(.1, 3, 2);
 	}glPopMatrix();
 
+	
 	//Close future points are drawn in a gradient going from white to yellow to green to black
 	for(i = curPoint+1; i < (curPoint+(path.size()*.1)); i += step)
 	{
@@ -366,14 +389,18 @@ void SplineTraveler::drawPoints()
 
 	//Past points drawn in red
 	glColor3f(1,0,0);
-	for(i = 0; i <= curPoint; i++)
+	if(areGhostPoints){
+		i = 1;
+	}
+	else {i = 0;}
+	for(/*same val*/ ; i <= curPoint; i++)
 	{
 		drawPointLine(i);
 	}
 
 	//Far future points drawn in black
 	glColor3f(0,0,0);
-	for(i = (curPoint+(path.size()*.1)) ;i < path.size(); i ++)
+	for(i = (curPoint+(path.size()*.1)) ;i < (areGhostPoints?path.size()-1: path.size()); i ++)
 	{
 		drawPointLine(i);
 	}
