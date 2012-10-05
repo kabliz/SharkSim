@@ -202,8 +202,14 @@ int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behind
 	//arcos dot product/productof magnitudes = angle in radians
 	float railAngle;
 	railAngle = atan2(secondBranch.x, secondBranch.z) - atan2(firstBranch.x, firstBranch.z);
-	if(railAngle > 3.14159265) { railAngle -= 3.14195265; }
-	if(railAngle < -3.14159265) { railAngle += 3.14195265; }
+
+	//accidentally measures 2pi sometimes when very small angles are being measured .
+	if(railAngle > 5.5) { railAngle -= 6.283185; }
+	if(railAngle < -5.5) { railAngle += 6.283185; }
+
+	//acute angles only
+	while(railAngle > 3.14159265) { railAngle -= 3.14195265; }
+	while(railAngle < -3.14159265) { railAngle += 3.14195265; }
 	railAngle *= -180/3.14159265 ;
 	return (int)railAngle;
 }
