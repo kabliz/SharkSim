@@ -73,6 +73,7 @@ void SplinePath::gatherDTPoints()
 	double dt = 0;
 	float runningTotts = 0; //running time totals per spot
 	float prevRT = 0;
+	printf("data width %d\n", mreader.width());
 	for(int id = 0; id < mreader.length(); id++)
 	{
 
@@ -81,6 +82,9 @@ void SplinePath::gatherDTPoints()
 		p.x = mreader.gElement(1,id);
 		p.y = 0;
 		p.z = mreader.gElement(2,id);
+		
+		//printf("%f %f %f %f %f %f\n", dt, p.x, p.y, p.z, mreader.gElement(3, id), mreader.gElement(4, id) );
+		//p.Print();
 		if(!(p.x == q.x && p.z == q.z))
 		{
 			isLargerPoint(p);
@@ -102,19 +106,32 @@ void SplinePath::gatherDTPoints()
 void SplinePath::gatherEXPoints()
 {
 	float runningTotts = 0;  //running time total
+	Vector3f sc1 = ereader.gCoordinate(0);
+	Vector3f sc2 = ereader.gCoordinate(ereader.size()-1);
+	int i = 1;
+	while(sc1.fEquals(sc2, 0.001)){  //program will NaN out if these points are the same
+		sc2 = ereader.gCoordinate(i);
+		i++;	
+	}
+	double scale = GPSconverter().findScaleDifference(sc1, sc2);
 	for(int id = 0; id < ereader.size(); id++)
 	{
-		Vector3f p;
-		p.x = doubleLerp(ereader.gCoordinate(id).x, ereader.gMinLatitude(), ereader.gMaxLatitude(), 0, 100);
-		p.y = doubleLerp(ereader.gCoordinate(id).y, ereader.gMinLongitude(), ereader.gMinLongitude(), 0 , 100) ;
-		p.z = ereader.gCoordinate(id).z;
+		Vector3f p = ereader.gCoordinate(id);
+		p = p * scale ;
+		//p.x = doubleLerp(ereader.gCoordinate(id).x, ereader.gMinLatitude(), ereader.gMaxLatitude(), 0, 100);
+		//p.y = doubleLerp(ereader.gCoordinate(id).y, ereader.gMinLongitude(), ereader.gMinLongitude(), 0 , 100) ;
+		//p.z = ereader.gCoordinate(id).z;
 
-		isLargerPoint(p);
-		isSmallerPoint(p);
-		points.push_back(p);
-		dts.push_back(ereader.gDTS(id));
-		totts.push_back(runningTotts+ereader.gDTS(id));
-		runningTotts += zoereader.gDTS(id);
+		if(p.fEquals(points[points.size()-1], .00001 * scale)) {
+			isLargerPoint(p);
+			isSmallerPoint(p);
+			points.push_back(p);
+			dts.push_back(ereader.gDTS(id));
+			totts.push_back(runningTotts+ereader.gDTS(id));
+			runningTotts += ereader.gDTS(id);
+		}
+
+		//TODO throw out duplicate points
 	}
 	//TODO clarify EXEreader input
 	calcRadius();

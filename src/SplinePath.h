@@ -7,6 +7,7 @@
 #include "ParamFunctions.h"
 #include "ParamStructures.h"
 #include "SplineTable.h"
+#include "GPSconverter.h"
 #include "Vector.h"
 #include <cstdio>
 #include <vector>
