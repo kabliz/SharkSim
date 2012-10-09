@@ -433,12 +433,15 @@ void Draw ()
 		{	
 			//yaw rotation										
 			glQuaternion Quat;
-			Quat.CreateFromAxisAngle(0, 1, 0, world1.gRotationDegrees().x);
+			Vector3f ax = world1.gRotationAxis();
+			//Quat.CreateFromAxisAngle(0, 1, 0, world1.gRotationDegrees().x);
+			Quat.setDegrees(world1.gRotationDegrees());
+			Quat.setAxis(ax.x, ax.y, ax.z);
 			GLfloat Matrix[16];
 			Quat.CreateMatrix(Matrix);
 			glMultMatrixf(Matrix);
 			//scale down
-			if(showWorld){ glScalef(.5,.5,.5);	}
+			if(showWorld){ glScalef(.5,.5,.5);	}  //TODO better scale
 			Shark.drawShark(frame, quadratic);			//draw shark		
 		}glPopMatrix();
 		

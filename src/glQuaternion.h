@@ -25,6 +25,9 @@ public:
 	glQuaternion operator *(glQuaternion q);
 	void CreateMatrix(float *pMatrix);
 	void CreateFromAxisAngle(float x, float y, float z, float degrees);
+	void setRadians(GLfloat angle);
+	void setDegrees(GLfloat angle);
+	void setAxis(GLfloat x, GLfloat y, GLfloat z);	
 	glQuaternion();
 	virtual ~glQuaternion();
 

@@ -64,9 +64,7 @@ float SharkSkeleton::deriveFrequency(float velocity)
 	//therefore
 	//f = (4(v+L))/(3L)
 	
-	//TODO fix for world scaling. exchange totalLength for real length
-	return (4.0*(velocity+totalLength))/(3.0*totalLength);	
-
+	return (4.0*( velocity+ TSEMI_LENGTH_M))/(3.0*TSEMI_LENGTH_M);	
 }
 
 
@@ -80,8 +78,10 @@ void SharkSkeleton::update(int dt, int railAngle, float velocity)
 	swimFrequency = deriveFrequency(velocity); 
 	//propellingAmplitude = Vector3f(0.0, .967(?) , 0.0).Interpolate(Vector3f(0.1, 5.0, 0), swimFrequency); //velocity ;  
 				////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
-	//TODO proper amplitude when the world is scaled
-	
+	//propellingAmplitude = Vector3f(0.1, 5.0, 0).Interpolate(Vector3f(.0, 0.967, 0), 
+	//						(swimFrequency > 5.0 ? 5.0 : swimFrequency)).y;
+	propellingAmplitude = swimFrequency / velocityToAmp; // TODO amplitude scale
+
 	//check if the recalculate flag is set
 	if(nmesh->newUpdateApproved)
 	{
@@ -111,7 +111,7 @@ int SharkSkeleton::nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int
 	int TA = turningAngle;   //TA is the turning angle for this segment
 	//TA = TA / gNumLocomotionBones();
 	
-	//if(prevTimeAngle != 0)
+	if(prevTimeAngle != 0)
 	//if(turningAngle != 0)
 	//turningAngle /= bones.size();
 	{
@@ -121,6 +121,7 @@ int SharkSkeleton::nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int
 		
 		//TA = prevTimeAngle*(maxAngle-turningAngle) / turningAngle; //turning angle
 		//TA = prevSegmentAngle*(maxAngle-prevTimeAngle)/ prevTimeAngle; //turning angle
+		//TA = turningAngle*((maxAngle-prevTimeAngle) / maxAngle);//prevTimeAngle; //turning angle
 	}
 	int finalAngle = (propellingAmplitude*sin((2.0*180.0*swimFrequency*elapsedTime - prevSegmentAngle)*3.14159265/180.0))* 180.0/3.14159265;
 	//int finalAngle = (propellingAmplitude*sin((2.0*180.0*swimFrequency*elapsedTime - prevSegmentAngle)*3.14159265/180.0) + TA)* 180.0/3.14159265;
@@ -154,7 +155,10 @@ void SharkSkeleton::calcNextAngles(int railAngle)
 	turningAngle = railAngle;
 	for(int i = 0; i < anglesPerFrame; i++)
 	{
-		int newAngle = nextSegmentAngle(prevSegmentAngle, oldAngles[i], maxAngles[i]);
+		int newAngle = 0;
+		if(i >= anglesPerFrame - gNumLocomotionBones()){
+			newAngle = nextSegmentAngle(prevSegmentAngle, oldAngles[i], maxAngles[i]);
+		}
 		finalAngles.push_back(newAngle);
 		prevSegmentAngle = newAngle;
 	}
@@ -200,47 +204,6 @@ vector<int> SharkSkeleton::getMaxAngles()
 	{
 		newAngles.push_back(looseAngle - i*1.5);
 	}	
-
-	/*if(locomotionMode == ANGUILIFORM)
-	{
-		for(int i = 0; i < anglesPerFrame; i++)
-		{
-			newAngles.push_back(looseAngle);
-		}
-	}
-	else if(locomotionMode == SUBCARANGIFORM)
-	{
-		for(i = 0; i < anglesPerFrame/4; i++)
-		{
-			newAngles.push_back(stiffAngle);
-		}
-		for(;i < anglesPerFrame; i++)
-		{
-			newAngles.push_back(looseAngle - i*1.5);
-		}
-	}
-	else if(locomotionMode == CARANGIFORM)
-	{
-		for(i = 0; i < 2*anglesPerFrame/4; i++)
-		{
-			newAngles.push_back(stiffAngle);
-		}
-		for(;i < anglesPerFrame; i++)
-		{
-			newAngles.push_back(looseAngle - i*1.5);
-		}
-	}
-	else if(locomotionMode == THUNNIFORM)
-	{
-		for(i = 0; i < 3*anglesPerFrame/4; i++)
-		{
-			newAngles.push_back(stiffAngle);
-		}
-		for(;i < anglesPerFrame; i++)
-		{
-			newAngles.push_back(looseAngle - i*1.5);
-		}
-	}*/
 	return newAngles;
 }
 

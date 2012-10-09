@@ -6,6 +6,7 @@
 #include "SplinePath.h"
 #include "Vector.h"
 #include "Frustum.h"
+#include "glQuaternion.h"
 
 #include <cstdio>
 #include <vector>
@@ -32,7 +33,7 @@ class SplineTraveler
 		void setFrustum(Frustum *frust){frustum = frust;}   
 		int deriveRailAngle(float lead, float frontBy, float behindBy);
 		void sGhostPoints(bool b){areGhostPoints = b; resetTime();}	
-
+		double calcRotationAngle();
 
 		void deleteHeap(){path.deleteHeap();} //delete's SplinePath heap
 		Vector3f gPathPoint(int index){return path.gPoint(index);}
@@ -47,8 +48,11 @@ class SplineTraveler
 			else {
 				return path.gPoint(curPoint-1);}
 		}
-		Vector3f gRotationDegrees(){return rotation * 180/3.14159265 ;}
-		Vector3f gRotationRadians(){return rotation;}
+		double gRotationDegrees(){return rotationAngle * 180/3.14159265 ;}
+		//Vector3f gRotationDegrees(){return rotation * 180/3.14159265 ;}
+		double gRotationRadians(){return rotationAngle;}
+		//Vector3f gRotationRadians(){return rotation;}
+		Vector3f gRotationAxis(){return rotateAxis;}
 		Vector3f gLocation(){return location;}
 		Vector3f gNearbyPoint(float ahead, int curPoint, float u);
 		void speedUp(){elapseRate += .5;}
@@ -64,7 +68,7 @@ class SplineTraveler
 
 		void drawPoints();
 		void drawPointLine(int i);
-		Vector3f calcRotation();
+		//Vector3f calcRotation();
 		Vector3f calcRotation(Vector3f pFrom, Vector3f pDest);
 		Vector3f interpolateRotation();
 		float velocity; //velocity of traveler down the spline. Measured in distance units per second.	
@@ -75,6 +79,8 @@ class SplineTraveler
 
 		//global animation controls
 		Vector3f rotation; 	//current rotation
+		double rotationAngle;
+		Vector3f rotateAxis;    //axis of rotation
 		Vector3f location; 	//current location
 		Vector3f desiredRotation;
 		Vector3f futureRotation;

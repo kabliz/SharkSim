@@ -33,8 +33,11 @@ class SharkWorld
 		Vector3f gCurrentPoint(){return traveler.gCurrentPoint();} 
 		Vector3f gNextPoint(){ return traveler.gNextPoint();} 
 		Vector3f gPrevPoint(){ return traveler.gPrevPoint();}
-		Vector3f gRotationDegrees(){return traveler.gRotationDegrees();}
-		Vector3f gRotationRadians(){return traveler.gRotationRadians();}
+		//Vector3f gRotationDegrees(){return traveler.gRotationDegrees();}
+		double gRotationDegrees(){return traveler.gRotationDegrees();}
+		//Vector3f gRotationRadians(){return traveler.gRotationRadians();}
+		double gRotationRadians(){return traveler.gRotationRadians();}
+		Vector3f gRotationAxis(){return traveler.gRotationAxis();}
 		
 		double gDTS(int index){return traveler.gDTS(index);} //time difference between points		
 		double gCurrentDTS(){return traveler.gCurrentDTS();}

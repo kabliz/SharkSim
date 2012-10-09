@@ -172,7 +172,9 @@ Vector3f SplineTraveler::upCurrentLocation(int dt)
 	aheadTarget = path.getNearbyPoint(.3, ppoint, curU);
 
 	//auto-calculate rotation
-	rotation = calcRotation(newLoc, aheadTarget);
+	//rotation = calcRotation(newLoc, aheadTarget);
+	calcRotationAngle();
+	
 	return newLoc;
 }
 
@@ -211,6 +213,8 @@ int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behind
 	while(railAngle > 3.14159265) { railAngle -= 3.14195265; }
 	while(railAngle < -3.14159265) { railAngle += 3.14195265; }
 	railAngle *= -180/3.14159265 ;
+	//save axis of rotation
+	rotateAxis = firstBranch.Cross(secondBranch);
 	return (int)railAngle;
 }
 
@@ -228,12 +232,16 @@ Vector3f SplineTraveler::interpolateRotation()
 }
 
 /*wrapper calling rotation based on the current point */
-Vector3f SplineTraveler::calcRotation()
+double SplineTraveler::calcRotationAngle()
 {
-	return calcRotation(
+	//rotationAngle = deriveRailAngle(0, .6, .3);
+	rotationAngle = calcRotation(Vector3f(0,1,0), path.getNearbyPoint(.2, curPoint, curU)).x;
+	return rotationAngle;
+	/*return calcRotation(
 			path.gPoint(curPoint),
 			path.gPoint(nextPoint)
 			);
+			*/
 }
 
 /* Calculates the GLOBAL rotation of the world, not relative to the world's current rotation
@@ -241,6 +249,7 @@ Vector3f SplineTraveler::calcRotation()
  * * pDest, the next point. The two points create a line and the line's angle from the x axis is measured */
 Vector3f SplineTraveler::calcRotation(Vector3f pFrom, Vector3f pDest)
 {
+	//TODO completely change to Atan
 	Vector3f grotation;
 	Vector3f xaxis = Vector3f(1,0,0);
 	Vector3f yaxis = Vector3f(0,1,0);
@@ -257,8 +266,8 @@ Vector3f SplineTraveler::calcRotation(Vector3f pFrom, Vector3f pDest)
 			x = 2.0*3.14159 - x;
 		}
 
-		/*double y = acos((point.Dot(yaxis))/(point.Magnitude()));
-		*/
+		//double y = acos((point.Dot(yaxis))/(point.Magnitude()));
+		
 		double y = 0;
 
 		double z = 0;//acos((point.Dot(zaxis))/(point.Magnitude()));

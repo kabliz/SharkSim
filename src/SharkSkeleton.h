@@ -78,7 +78,7 @@ class SharkSkeleton
 		//static int const looseAngle = 45;    //max angle for segments doing the propulstion
 		//static int const stiffAngle = 3;     //max angle for segments not involved in propulsion
 
-		static float const velocityToAmp = 5.0;  //divides velocity	by this value to determine the amplitude of a stroke
+		static float const velocityToAmp = 15.0;  //divides velocity	by this value to determine the amplitude of a stroke
 
 		//angle calculation funcs
 		float calcTurningAngle();
