@@ -235,47 +235,31 @@ Vector3f SplineTraveler::interpolateRotation()
 double SplineTraveler::calcRotationAngle()
 {
 	//rotationAngle = deriveRailAngle(0, .6, .3);
-	//compare rotation of traveler to the up vector
-	calcRotation(path.getNearbyPoint(.5, curPoint, curU), path.splineLocation(curU, curPoint), 
-					path.getNearbyPoint(.2, curPoint, curU));
+	//compare rotation of traveler to an side axis vector
+	
+	calcRotation(Vector3f(1,0,0), path.splineLocation(curU, curPoint), 
+					path.getNearbyPoint(.5, curPoint, curU));
 	return rotationAngle;
-	/*return calcRotation(
-			path.gPoint(curPoint),
-			path.gPoint(nextPoint)
-			);
-			*/
 }
 
 /* Calculates the GLOBAL rotation of the world, not relative to the world's current rotation
  * * pFrom, the first point,
  * * pDest, the next point. The two points create a line and the line's angle from the x axis is measured */
-double SplineTraveler::calcRotation(Vector3f pFrom, Vector3f pVertex, Vector3f pDest)
+double SplineTraveler::calcRotation(Vector3f axis, Vector3f pVertex, Vector3f pDest)
 {
-	Vector3f firstBranch = (pVertex - pFrom).Normalize();
-	Vector3f secondBranch = (pVertex - pDest).Normalize();	
-
-	/*float railAngle;
-	railAngle = atan2(secondBranch.x, secondBranch.z) - atan2(firstBranch.x, firstBranch.z);
-
-	//accidentally measures 2pi sometimes when very small angles are being measured .
-	if(railAngle > 5.5) { railAngle -= 6.283185; }
-	if(railAngle < -5.5) { railAngle += 6.283185; }
-	
-	//acute angles only
-	while(railAngle > 3.14159265) { railAngle -= 3.14195265; }
-	while(railAngle < -3.14159265) { railAngle += 3.14195265; }
-	railAngle *= -180/3.14159265 ;  //to degrees
-	*/
+	//Vector3f firstBranch = (pFrom - pVertex).Normalize();  
+	Vector3f secondBranch = (pDest - pVertex).Normalize(); 
 
 	//TODO handle 180 degree case
 	float railAngle;
-	railAngle = acos((firstBranch.Dot(secondBranch))/(firstBranch.Magnitude()));
-	//acute angles only
-	while(railAngle > 3.14159265) { railAngle -= 3.14195265; }
-	while(railAngle < -3.14159265) { railAngle += 3.14195265; }
-	
+	//dot product angle. magtides of the vectors are already equal to one
+	railAngle = acos(axis.Dot(secondBranch));
+	if(secondBranch.z > 0)
+	{
+		railAngle = 2.0*3.14159265 - railAngle;
+	}
 	rotationAngle = railAngle;
-	rotateAxis = firstBranch.Cross(secondBranch);
+	rotateAxis = secondBranch.Cross(axis);   //axis of this rotation.
 	//rotateAxis = Vector3f(0,1,0);
 	/*Vector3f xaxis = Vector3f(1,0,0);
 	Vector3f yaxis = Vector3f(0,1,0);
