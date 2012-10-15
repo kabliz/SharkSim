@@ -97,9 +97,6 @@ class SplinePath
 		double Tolerance;
 		int static const totalSlices = 100; //determines how finely to sample the curve
 		bool static const isCatmullMode = true;
-		
-
-
 };
 
 #endif

@@ -427,16 +427,18 @@ void Draw ()
 	{
 		if(showWorld)
 		{
-			world1.displayWorld();                                  //ocean around the shark
+			world1.displayWorld();                                //ocean around the shark
 		}
 		glPushMatrix();
 		{	
 			//yaw rotation										
 			glQuaternion Quat;
 			Vector3f ax = world1.gRotationAxis();
+			Quat.CreateFromAxisAngle(ax.x, ax.y, ax.z, world1.gRotationDegrees());
 			//Quat.CreateFromAxisAngle(0, 1, 0, world1.gRotationDegrees().x);
-			Quat.setDegrees(world1.gRotationDegrees());
-			Quat.setAxis(ax.x, ax.y, ax.z);
+			//Quat.setDegrees(world1.gRotationDegrees());
+			//Quat.setAxis(0,1,0);
+			//Quat.setAxis(ax.x, ax.y, ax.z);
 			GLfloat Matrix[16];
 			Quat.CreateMatrix(Matrix);
 			glMultMatrixf(Matrix);

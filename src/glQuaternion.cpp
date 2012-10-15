@@ -37,23 +37,6 @@ void glQuaternion::CreateFromAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat 
 	m_z = float(z * result);
 }
 
-void glQuaternion::setRadians(GLfloat radians)
-{
-	m_w = (float)cos(radians/2.0f);
-}
-
-void glQuaternion::setDegrees(GLfloat degrees)
-{
-	m_w = (float)cos(((degrees/180.0f)*PI)/2.0f);
-}
-
-/*sets the axis vectors for rotating*/
-void glQuaternion::setAxis(GLfloat x, GLfloat y, GLfloat z)
-{
-	m_x = x;
-	m_y = y;
-	m_z = z;	
-}
 
 /*fills a previously allocated pMatrix with a new rotation matrix based on this quaternion. 
  * Quaternion's angle and axis should be set already. */

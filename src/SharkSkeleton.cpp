@@ -223,12 +223,10 @@ void SharkSkeleton::setNewAngles()
  * the stack is the rotations and translations. */
 void SharkSkeleton::transformHeirarchy(int isDownstream, int curSegment, MyMat newstack)
 {
-	//transformt the Bone itself.
+	//transformt the Bone itself. The matrix is modified by this action
 	bones[curSegment].transformBone(&newstack, isDownstream);
-	//printf("r %d ", curSegment);
 
 	//if there were other bones that are not part of the spine (which are not part of the design as of this writing), they would recurse at this point.
-
 	//then recurse to the other bones.
 	if(isDownstream == 1 && curSegment < bones.size()-1 ) //going towards tail
 	{

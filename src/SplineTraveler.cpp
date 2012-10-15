@@ -205,7 +205,7 @@ int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behind
 	float railAngle;
 	railAngle = atan2(secondBranch.x, secondBranch.z) - atan2(firstBranch.x, firstBranch.z);
 
-	//accidentally measures 2pi sometimes when very small angles are being measured .
+	//accidentally measures 2pi sometimes when very small angles are being measured.
 	if(railAngle > 5.5) { railAngle -= 6.283185; }
 	if(railAngle < -5.5) { railAngle += 6.283185; }
 
@@ -214,7 +214,7 @@ int SplineTraveler::deriveRailAngle(float lookAhead, float frontBy, float behind
 	while(railAngle < -3.14159265) { railAngle += 3.14195265; }
 	railAngle *= -180/3.14159265 ;
 	//save axis of rotation
-	rotateAxis = firstBranch.Cross(secondBranch);
+	
 	return (int)railAngle;
 }
 
@@ -235,7 +235,9 @@ Vector3f SplineTraveler::interpolateRotation()
 double SplineTraveler::calcRotationAngle()
 {
 	//rotationAngle = deriveRailAngle(0, .6, .3);
-	rotationAngle = calcRotation(Vector3f(0,1,0), path.getNearbyPoint(.2, curPoint, curU)).x;
+	//compare rotation of traveler to the up vector
+	calcRotation(path.getNearbyPoint(.5, curPoint, curU), path.splineLocation(curU, curPoint), 
+					path.getNearbyPoint(.2, curPoint, curU));
 	return rotationAngle;
 	/*return calcRotation(
 			path.gPoint(curPoint),
@@ -247,11 +249,35 @@ double SplineTraveler::calcRotationAngle()
 /* Calculates the GLOBAL rotation of the world, not relative to the world's current rotation
  * * pFrom, the first point,
  * * pDest, the next point. The two points create a line and the line's angle from the x axis is measured */
-Vector3f SplineTraveler::calcRotation(Vector3f pFrom, Vector3f pDest)
+double SplineTraveler::calcRotation(Vector3f pFrom, Vector3f pVertex, Vector3f pDest)
 {
-	//TODO completely change to Atan
-	Vector3f grotation;
-	Vector3f xaxis = Vector3f(1,0,0);
+	Vector3f firstBranch = (pVertex - pFrom).Normalize();
+	Vector3f secondBranch = (pVertex - pDest).Normalize();	
+
+	/*float railAngle;
+	railAngle = atan2(secondBranch.x, secondBranch.z) - atan2(firstBranch.x, firstBranch.z);
+
+	//accidentally measures 2pi sometimes when very small angles are being measured .
+	if(railAngle > 5.5) { railAngle -= 6.283185; }
+	if(railAngle < -5.5) { railAngle += 6.283185; }
+	
+	//acute angles only
+	while(railAngle > 3.14159265) { railAngle -= 3.14195265; }
+	while(railAngle < -3.14159265) { railAngle += 3.14195265; }
+	railAngle *= -180/3.14159265 ;  //to degrees
+	*/
+
+	//TODO handle 180 degree case
+	float railAngle;
+	railAngle = acos((firstBranch.Dot(secondBranch))/(firstBranch.Magnitude()));
+	//acute angles only
+	while(railAngle > 3.14159265) { railAngle -= 3.14195265; }
+	while(railAngle < -3.14159265) { railAngle += 3.14195265; }
+	
+	rotationAngle = railAngle;
+	rotateAxis = firstBranch.Cross(secondBranch);
+	//rotateAxis = Vector3f(0,1,0);
+	/*Vector3f xaxis = Vector3f(1,0,0);
 	Vector3f yaxis = Vector3f(0,1,0);
 	Vector3f zaxis = Vector3f(0,0,1);
 	Vector3f point = pDest - pFrom;
@@ -273,8 +299,8 @@ Vector3f SplineTraveler::calcRotation(Vector3f pFrom, Vector3f pDest)
 		double z = 0;//acos((point.Dot(zaxis))/(point.Magnitude()));
 
 		grotation = Vector3f(x,y,z);
-	}
-	return grotation;
+	}*/
+	return railAngle;
 }
 
 

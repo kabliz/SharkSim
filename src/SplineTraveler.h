@@ -69,7 +69,7 @@ class SplineTraveler
 		void drawPoints();
 		void drawPointLine(int i);
 		//Vector3f calcRotation();
-		Vector3f calcRotation(Vector3f pFrom, Vector3f pDest);
+		double calcRotation(Vector3f pFrom, Vector3f pVertex, Vector3f pDest);
 		Vector3f interpolateRotation();
 		float velocity; //velocity of traveler down the spline. Measured in distance units per second.	
 

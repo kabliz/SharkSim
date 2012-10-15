@@ -21,7 +21,7 @@ void SharkBone::buildBone(Mesh *mesh, float start, float end, MyMat multiplier)
 			{
 				SharkVertex *curVert = new SharkVertex();
 				curVert->local = mesh->vertList[in+corn];
-				curVert->transformed = Vector3f(0,0,0); //Vector3f(Matrix.multVec(mesh->vertList[in+corn], true)); not transformed yet here
+				curVert->transformed = Vector3f(0,0,0); // not transformed yet here
 				curVert->normal = Vector3f(0,0,0); //normal is initially set to zero until it can be compared later. 
 				map<Vector3f, SharkVertex*, compareVect3>::iterator findTest
 					= sMesh->vertices.find(mesh->vertList[in+corn]);
