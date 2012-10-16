@@ -20,10 +20,9 @@ class SharkBone
 		SharkBone(SharkMesh *nmesh, int bon){ sMesh = nmesh; boneNo = bon;}
 		~SharkBone(){}
 		void buildBone(Mesh *mesh, float start, float end, MyMat matrixMultiplier); //takes in mesh input and records them in 
-		void transformBone(MyMat* stackmatri, int isDownstream);
+		void transformBone(MyMat* stackmatri);
 		//Quad and SharkVertex form
 		void changeAngle(int newAngle, bool isAheadRoot); //changes the quaternion and associted angle
-		//void draw(); //draws quads to screen 
 		void printToFrame();
 
 		//lowerclass management
@@ -31,13 +30,19 @@ class SharkBone
 		void sQuad(Quad* q){return quads.push_back(q);}
 		void sLength(double len){boneLength = len;}
 		double gLength(){return boneLength;}
-		
+		void boneLengthToTranslation(bool downStream); //for the non-general building method only  	
+		void addTranslation(MyMat trans){transMatHeir.multRight(trans);}
+
+		void addChild(SharkBone* ch){childBones.push_back(ch);}
 
 	//private:		
 		vector<Quad*> quads; //Quads are organized into rows, and each row has a list of quads in it
 		SharkMesh *sMesh;  //pointer to the main shark mesh.
+		
 		MyMat rotationMatrix;
-		double boneLength; //this is the length of the mesh segment. It will be helpful in knowing the amount to translate by.
+		double boneLength; //this is the length of the mesh segment. 
+
+
 
 	private:
 		int boneNo;  // the index of the bone in the skeleton
@@ -47,7 +52,12 @@ class SharkBone
 				//this is the u difference between the bone passing the same location as the bone in front of it.
 		float startB;
 		float endB;  //these are the start and end points on the bone, relative to the entire mesh in units. related to boneLength.
+		
+		MyMat transMatHeir;   //apply this translation to the stack.           translates from boneLength
+		MyMat transMatLocal;      //only apply this translation to this bone.  translates from startB and endB
+		
+		//child bones. Recursive transform downwards
+		vector<SharkBone*> childBones;
 };
-
 #endif
 

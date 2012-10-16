@@ -1,6 +1,7 @@
 #include "SharkBone.h"
 
-/*Puts verticeis in the SharkMesh and puts the quads into the Bone 
+/* Builds a mesh from CalShark
+ * Puts verticeis in the SharkMesh and puts the quads into the Bone 
  *The vertices created live in the heap space. The Quads and the Sharkmesh both point to them */
 void SharkBone::buildBone(Mesh *mesh, float start, float end, MyMat multiplier)
 {
@@ -49,6 +50,18 @@ void SharkBone::buildBone(Mesh *mesh, float start, float end, MyMat multiplier)
 	}//end quads
 }
 
+/*Creates a translation matrix from the bonelength and direction. 
+ *Because this is the CalShark loader, the translation would be in the x direction only. */
+void SharkBone::boneLengthToTranslation(bool downstream)
+{
+	double xtrans = downstream ? boneLength : -boneLength;
+	double xend = downstream ? -endB : -startB;	//start and end points on the bone.
+
+	transMatHeir.makeTranslate(Vector3f(xtrans, 0, 0));
+	transMatLocal.makeTranslate(Vector3f(xend, 0, 0));	
+
+}
+
 /*This changes the angles for this bone */
 void SharkBone::changeAngle(int newAngle, bool isAheadRoot)
 {
@@ -64,34 +77,35 @@ void SharkBone::changeAngle(int newAngle, bool isAheadRoot)
 }
 
 
-/*Matrix multiplies the smark SharkMesh */
-void SharkBone::transformBone(MyMat *stackMatrix, int isDownstream)
+/*Matrix multiplies the smark SharkMesh
+ * Downstream value reverses the translation direction, for bones ahead of the root */
+void SharkBone::transformBone(MyMat *stackMatrix)
 {
 	//current shark model segment
 	MyMat Matrix = *stackMatrix;
-	MyMat transrix;
-	transrix.makeTranslate(Vector3f((isDownstream == 2 ? boneLength : -boneLength), 0, 0));
 	MyMat secondStack = MyMat();
 
 	Matrix = Matrix.multRight(rotationMatrix); //roatation goes before translates
-	Matrix = Matrix.multRight(transrix); //doesnt matter which order translates are done
+	Matrix = Matrix.multRight(transMatHeir);
 
-	*stackMatrix = Matrix; //advance heirarchy
-	MyMat transrix2;
-	transrix2.makeTranslate(Vector3f((isDownstream == 2? -endB : -startB), 0, 0));
-	Matrix = Matrix.multRight(transrix2); //not part of the heirarchy
+	*stackMatrix = Matrix; //advance heirarchy, without applying the below local translation to the whole stack
+	Matrix = Matrix.multRight(transMatLocal);
 
-	//map<Vector3f, SharkVertex*, compareVect3>::iterator im;
 	vector<Quad*>::iterator iq;
-
+	//transform each quad in the mesh
 	for(iq = quads.begin(); iq < quads.end(); iq++)
 	{
 		(*iq)->matrixTransform(Matrix);
-	 	/*(*iq)->verts[0]->transformed = Vector3f(Matrix.multVec((*iq)->verts[0]->local, true));
-	 	(*iq)->verts[3]->transformed = Vector3f(Matrix.multVec((*iq)->verts[3]->local, true));
-	 	
-		(*iq)->verts[1]->transformed = Vector3f(Matrix.multVec((*iq)->verts[1]->local, true));
-	 	(*iq)->verts[2]->transformed = Vector3f(Matrix.multVec((*iq)->verts[2]->local, true));*/
+	}
+
+	//recursive transform downwards to child bones. 
+	//The matrix is copied so that child changes don't propagate upstream  
+	vector<SharkBone*>::iterator ib; 
+	
+	for(ib = childBones.begin(); ib != childBones.end(); ib++ )
+	{
+		MyMat tmp = MyMat(*stackMatrix);	
+		(*ib)->transformBone(&tmp);
 	}
 
 }

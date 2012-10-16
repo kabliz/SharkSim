@@ -1,7 +1,8 @@
 #include "SharkSkeleton.h"
 
 
-/*Given the initial Blender mesh, build the smart mesh and the bones that make up the skeleton. 
+/* Builds the skeleton from the CalShark shark model. This is the non-general build method
+ * Given the initial Blender mesh, build the smart mesh and the bones that make up the skeleton. 
  * Needs to know, the number of segments that make up the shark, and the length of the segments*/
 void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 {
@@ -12,23 +13,38 @@ void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 	//Mesh transformation to smart sharkMesh form. 
 	start = mesh->lengthMax; 
 	end = mesh->lengthMax;
+	//build the individual bones	
 	for(int i = 0; i < numSegments; i++)
 	{
-		SharkBone newBone = SharkBone(nmesh, i);
+		SharkBone * newBone = new SharkBone(nmesh, i);
 		end = start;
 		start -= segLength[i];
-		newBone.buildBone(mesh, start, end, multiplier);
+		newBone->buildBone(mesh, start, end, multiplier);
+		newBone->boneLengthToTranslation(i < rootNode);
+		totalLength += newBone->gLength();
 		bones.push_back(newBone);
-		totalLength += newBone.gLength();
-
 	}
+	
+	//create the heirarchy in the bones
+	for(int i = rootNode; i > 0; i--)  //from head to root
+	{
+		bones[i]->addChild(bones[i-1]);   
+	}
+	for(int i = bones.size()-1; i > rootNode; i--)
+	{
+		bones[i-1]->addChild(bones[i]);
+	}
+
+	//adjustment translation aroudn the root.
+	MyMat forwardtrans;
+	forwardtrans.makeTranslate(Vector3f((bones[rootNode-1]->boneLength), 0, 0));
+	bones[rootNode-1]->addTranslation(forwardtrans);
 	nmesh->newUpdateApproved = true;
-	//printf("numBones %d\n", bones.size());
 }
 
 /*copies user defined animation frames into the class. It needs the number of the current sequence, and the total number of frames. 
  * the array should be stored in row-majorness*/
-void SharkSkeleton::buildAnimations(  int totalFrames, GLfloat *segmentRot, int totalAngles)
+void SharkSkeleton::buildAnimations(int totalFrames, GLfloat *segmentRot, int totalAngles)
 {
 	framesPerSequence = totalFrames;
 	anglesPerFrame = totalAngles;
@@ -211,7 +227,7 @@ void SharkSkeleton::setNewAngles()
 {
 	for(int i = 0; i < anglesPerFrame; i++)
 	{
-		bones[i].changeAngle(finalAngles[i], i<rootNode);
+		bones[i]->changeAngle(finalAngles[i], i<rootNode);
 	}
 }
 
@@ -224,11 +240,11 @@ void SharkSkeleton::setNewAngles()
 void SharkSkeleton::transformHeirarchy(int isDownstream, int curSegment, MyMat newstack)
 {
 	//transformt the Bone itself. The matrix is modified by this action
-	bones[curSegment].transformBone(&newstack, isDownstream);
+	bones[curSegment]->transformBone(&newstack);
 
 	//if there were other bones that are not part of the spine (which are not part of the design as of this writing), they would recurse at this point.
 	//then recurse to the other bones.
-	if(isDownstream == 1 && curSegment < bones.size()-1 ) //going towards tail
+	/*if(isDownstream == 1 && curSegment < bones.size()-1 ) //going towards tail
 	{
 		transformHeirarchy(isDownstream, curSegment+1, newstack);
 	}
@@ -242,7 +258,7 @@ void SharkSkeleton::transformHeirarchy(int isDownstream, int curSegment, MyMat n
 		if(rootNode > 0) //move forward
 		{
 			MyMat forwardtrans;
-			forwardtrans.makeTranslate(Vector3f((bones[curSegment-1].boneLength), 0, 0));
+			forwardtrans.makeTranslate(Vector3f((bones[curSegment-1]->boneLength), 0, 0));
 			transformHeirarchy(2, curSegment-1,forwardtrans.multLeft(newstack));
 					
 		}
@@ -250,7 +266,7 @@ void SharkSkeleton::transformHeirarchy(int isDownstream, int curSegment, MyMat n
 		{
 			transformHeirarchy(1,curSegment+1, newstack);
 		}
-	}
+	}*/
 }
 
 /*Applies matrix transformations to the SharkMesh. Accomplishes this by starting the recursive chain in transformHierarchy.
@@ -263,7 +279,7 @@ void SharkSkeleton::applyTransformation()
 	MyMat stackMatrix = MyMat();
 
 	//this sets the mesh back so it's aligned in world coordinates as it should be.
-	stackMatrix.makeTranslate(Vector3f(bones[rootNode].boneLength, 0, 0));
+	stackMatrix.makeTranslate(Vector3f(bones[rootNode]->boneLength, 0, 0));
 
 	transformHeirarchy(0, rootNode, stackMatrix); //transform
 	nmesh->hasNewTransform = true; //polling for new Keyframes will succeed now.

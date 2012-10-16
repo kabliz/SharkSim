@@ -15,7 +15,7 @@ class SharkSkeleton
 		//initializations
 		SharkSkeleton(){SharkSkeleton(NULL); locomotionMode = SUBCARANGIFORM; totalLength = 0;} //please set mesh 
 		SharkSkeleton(SharkMesh *bmesh){nmesh = bmesh; rootNode = 4; finalAngles = vector<int>(); curveAngles = vector<int>(); 
-						animatedAngles = vector<vector<int> >(); bones = vector<SharkBone>(); nextFrameNo = 0; 
+						animatedAngles = vector<vector<int> >(); bones = vector<SharkBone*>(); nextFrameNo = 0; 
 						locomotionMode = SUBCARANGIFORM; totalLength = 0;
 						swimFrequency = 8; propellingAmplitude = .15;  turningAngle = 0; elapsedTime = 0;}
 		void buildSkeleton(Mesh *mesh, int numSegs, float* segLengths); //given a set of mesh segments, it creates the bones. 
@@ -23,6 +23,7 @@ class SharkSkeleton
 		void buildAnimations( int totalFrames, GLfloat *segmentRot, int totalAngles  );
 		bool buildAngles( GLfloat segmentRot[], int FrameNo, int totalAngles  );
 		void setMesh(SharkMesh *s){nmesh =s;}
+		void clearHeap(); //TODO clean the heap out
 
 		//simulation related functions
 		void calcNextAngles(int railAngle);	//automatically gets next keyframe based on the speed of the animated angle rate.
@@ -43,7 +44,7 @@ class SharkSkeleton
 	//private:
 	
 		//objs
-		vector<SharkBone> bones; //List of Bones in the shark. They are each made up of Quads
+		vector<SharkBone*> bones; //List of Bones in the shark. They are each made up of Quads
 		//map<Vector3f, SharkVertex*, compareVect3> baseVertices; //the vertices that Quad classes untimately point to. 
 								        //Pointer structure automatically connects the mesh segments
 		vector<int> finalAngles;  //these are the bone angles that will be exported to the Keyframe
