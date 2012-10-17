@@ -8,7 +8,7 @@
 #include "SharkFacts.h"
 #include <cmath>
 
-/*This is the main simulation skeleton class. It simulates (moves angles of) the bones and prints them to Keyframes so they can be drawn  */
+/*This is the Skeletel model of an animated kinematic system. It is an interface to the bones which can print them to Keyframes so they can be drawn  */
 class SharkSkeleton
 {
 	public:
