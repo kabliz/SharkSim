@@ -20,7 +20,15 @@ void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 		end = start;
 		start -= segLength[i];
 		newBone->buildBone(mesh, start, end, multiplier);
-		newBone->boneLengthToTranslation(i < rootNode);
+		if(i == rootNode-1){     //the translation ahead of the root node will not line up w/o an additional translation	
+			MyMat forwardtrans;
+			forwardtrans.makeTranslate(Vector3f(newBone->gLength(), 0, 0));
+			newBone->sJointTranslation(forwardtrans);
+			newBone->boneLengthToTranslation(i < rootNode);
+		}
+		else {
+			newBone->boneLengthToTranslation(i < rootNode);
+		}
 		totalLength += newBone->gLength();
 		bones.push_back(newBone);
 	}
@@ -36,9 +44,9 @@ void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 	}
 
 	//adjustment translation aroudn the root.
-	MyMat forwardtrans;
-	forwardtrans.makeTranslate(Vector3f((bones[rootNode-1]->boneLength), 0, 0));
-	bones[rootNode-1]->addTranslation(forwardtrans);
+	//MyMat forwardtrans;
+	//forwardtrans.makeTranslate(Vector3f(( bones[rootNode-1]->gLength()), 0, 0));
+	//bones[rootNode-1]->addTranslation(forwardtrans);
 	nmesh->newUpdateApproved = true;
 }
 

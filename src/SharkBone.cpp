@@ -58,8 +58,7 @@ void SharkBone::boneLengthToTranslation(bool downstream)
 	double xend = downstream ? -endB : -startB;	//start and end points on the bone.
 
 	transMatHeir.makeTranslate(Vector3f(xtrans, 0, 0));
-	transMatLocal.makeTranslate(Vector3f(xend, 0, 0));	
-
+	transMatLocal.makeTranslate(Vector3f(xend, 0, 0));
 }
 
 /*This changes the angles for this bone */
@@ -85,9 +84,10 @@ void SharkBone::transformBone(MyMat *stackMatrix)
 	MyMat Matrix = *stackMatrix;
 	MyMat secondStack = MyMat();
 
+	Matrix = Matrix.multRight(jointTrans);
 	Matrix = Matrix.multRight(rotationMatrix); //roatation goes before translates
 	Matrix = Matrix.multRight(transMatHeir);
-
+	
 	*stackMatrix = Matrix; //advance heirarchy, without applying the below local translation to the whole stack
 	Matrix = Matrix.multRight(transMatLocal);
 
