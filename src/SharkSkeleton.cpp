@@ -1,6 +1,38 @@
 #include "SharkSkeleton.h"
 
 
+SharkBone* SharkSkeleton::gBone(string key)
+{
+	return bones.find(key)->second;
+}
+
+string SharkSkeleton::itoa(int key)
+{
+	char dec = (char) key%10;
+	char tens = (char) (key/10)%10;
+	char hunds = (char) (key/100)%10;
+	char thous = (char) (key/1000)%10;
+	char tents = (char) (key/10000)%10;
+	return string(1,tents)+string(1,thous)+string(1,hunds)+string(1,tens)+string(1,dec);
+}
+
+SharkBone* SharkSkeleton::gBone(int key)  //bone getter where the key prefers to be an integer
+{
+	return gBone(itoa(key));
+}
+
+/*sets the bone, with its name as its key */
+void SharkSkeleton::sBone(SharkBone* newBone)
+{
+	bones[newBone->gName()] = newBone;	
+}
+
+/*sets the angle on the armature. the key is the bone name. */
+void SharkSkeleton::sAngle(string key, int angle)
+{
+	gBone(key)->changeAngle(angle);
+}
+
 /* Builds the skeleton from the CalShark shark model. This is the non-general build method
  * Given the initial Blender mesh, build the smart mesh and the bones that make up the skeleton. 
  * Needs to know, the number of segments that make up the shark, and the length of the segments*/
@@ -9,10 +41,13 @@ void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 	MyMat multiplier;  //this is here just to multiply matrices toghether
 	float start; //start and end determine where to slice the mesh into bones. 
 	float end;
+	const int rootNum = 4;   //number down the spine where the root is.
 
 	//Mesh transformation to smart sharkMesh form. 
 	start = mesh->lengthMax; 
 	end = mesh->lengthMax;
+
+	rootNode = itoa(rootNum);   //set the name of the root
 	//build the individual bones	
 	for(int i = 0; i < numSegments; i++)
 	{
@@ -20,33 +55,30 @@ void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 		end = start;
 		start -= segLength[i];
 		newBone->buildBone(mesh, start, end, multiplier);
-		if(i == rootNode-1){     //the translation ahead of the root node will not line up w/o an additional translation	
+		if(i == rootNum-1){     //the translation ahead of the root node will not line up w/o an additional translation	
 			MyMat forwardtrans;
 			forwardtrans.makeTranslate(Vector3f(newBone->gLength(), 0, 0));
 			newBone->sJointTranslation(forwardtrans);
-			newBone->boneLengthToTranslation(i < rootNode);
+			newBone->boneLengthToTranslation(i < rootNum);
 		}
 		else {
-			newBone->boneLengthToTranslation(i < rootNode);
+			newBone->boneLengthToTranslation(i < rootNum);
 		}
 		totalLength += newBone->gLength();
-		bones.push_back(newBone);
+		newBone->sName(itoa(i));
+		sBone(newBone); //name the bone and put it into the map.
 	}
 	
 	//create the heirarchy in the bones
-	for(int i = rootNode; i > 0; i--)  //from head to root
+	for(int i = rootNum; i > 0; i--)  //from head to root
 	{
-		bones[i]->addChild(bones[i-1]);   
+		gBone(i)->addChild(gBone(i-1));   
 	}
-	for(int i = bones.size()-1; i > rootNode; i--)
+	for(int i = bones.size()-1; i > rootNum; i--)
 	{
-		bones[i-1]->addChild(bones[i]);
+		gBone(i-1)->addChild(gBone(i));
 	}
-
-	//adjustment translation aroudn the root.
-	//MyMat forwardtrans;
-	//forwardtrans.makeTranslate(Vector3f(( bones[rootNode-1]->gLength()), 0, 0));
-	//bones[rootNode-1]->addTranslation(forwardtrans);
+	armTranslation.makeTranslate(Vector3f(gBone(rootNode)->boneLength, 0, 0));
 	nmesh->newUpdateApproved = true;
 }
 
@@ -99,12 +131,12 @@ void SharkSkeleton::update(int dt, int railAngle, float velocity)
 {
 	elapsedTime += dt/1000.0;
 	//velocity factors
-	swimFrequency = deriveFrequency(velocity); 
+	//swimFrequency = deriveFrequency(velocity); 
 	//propellingAmplitude = Vector3f(0.0, .967(?) , 0.0).Interpolate(Vector3f(0.1, 5.0, 0), swimFrequency); //velocity ;  
 				////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
 	//propellingAmplitude = Vector3f(0.1, 5.0, 0).Interpolate(Vector3f(.0, 0.967, 0), 
 	//						(swimFrequency > 5.0 ? 5.0 : swimFrequency)).y;
-	propellingAmplitude = swimFrequency / velocityToAmp; // TODO amplitude scale
+	//propellingAmplitude = swimFrequency / velocityToAmp; // TODO amplitude scale
 
 	//check if the recalculate flag is set
 	if(nmesh->newUpdateApproved)
@@ -215,7 +247,7 @@ int SharkSkeleton::gNumLocomotionBones()
 vector<int> SharkSkeleton::getMaxAngles()
 {
 	vector<int> newAngles;
-	const int looseAngle = 47;
+	const int looseAngle = 47;  //magic s
 	const int stiffAngle = 1;
 	int i = 0;
 
@@ -226,16 +258,17 @@ vector<int> SharkSkeleton::getMaxAngles()
 	}
 	for(/*i stays the same */; i < anglesPerFrame; i++)
 	{
-		newAngles.push_back(looseAngle - i*1.5);
+		newAngles.push_back(looseAngle - i*1.5);  //magic
 	}	
 	return newAngles;
 }
 
-void SharkSkeleton::setNewAngles()
+
+void SharkSkeleton::setNewAngles()   //clearly a Loco function
 {
 	for(int i = 0; i < anglesPerFrame; i++)
 	{
-		bones[i]->changeAngle(finalAngles[i], i<rootNode);
+		gBone(i)->changeAngle(finalAngles[i], i<4);  //magic number is root node in Loco
 	}
 }
 
@@ -245,36 +278,10 @@ void SharkSkeleton::setNewAngles()
  * 	2 is headward.
  * the curSegment is used to index the bones with.
  * the stack is the rotations and translations. */
-void SharkSkeleton::transformHeirarchy(int isDownstream, int curSegment, MyMat newstack)
+void SharkSkeleton::transformHeirarchy(int isDownstream, MyMat newstack)
 {
 	//transformt the Bone itself. The matrix is modified by this action
-	bones[curSegment]->transformBone(&newstack);
-
-	//if there were other bones that are not part of the spine (which are not part of the design as of this writing), they would recurse at this point.
-	//then recurse to the other bones.
-	/*if(isDownstream == 1 && curSegment < bones.size()-1 ) //going towards tail
-	{
-		transformHeirarchy(isDownstream, curSegment+1, newstack);
-	}
-	else if(isDownstream == 2 && curSegment > 0) //gowing towards head
-	{
-		transformHeirarchy(isDownstream, curSegment-1, newstack);
-	}
-	else if(isDownstream == 0)//root node
-	{
-		//make two directions
-		if(rootNode > 0) //move forward
-		{
-			MyMat forwardtrans;
-			forwardtrans.makeTranslate(Vector3f((bones[curSegment-1]->boneLength), 0, 0));
-			transformHeirarchy(2, curSegment-1,forwardtrans.multLeft(newstack));
-					
-		}
-		if(rootNode < bones.size()-1) //move backward
-		{
-			transformHeirarchy(1,curSegment+1, newstack);
-		}
-	}*/
+	bones[rootNode]->transformBone(&newstack);
 }
 
 /*Applies matrix transformations to the SharkMesh. Accomplishes this by starting the recursive chain in transformHierarchy.
@@ -287,9 +294,9 @@ void SharkSkeleton::applyTransformation()
 	MyMat stackMatrix = MyMat();
 
 	//this sets the mesh back so it's aligned in world coordinates as it should be.
-	stackMatrix.makeTranslate(Vector3f(bones[rootNode]->boneLength, 0, 0));
+	stackMatrix.multRight(armTranslation);	
 
-	transformHeirarchy(0, rootNode, stackMatrix); //transform
+	transformHeirarchy(0, stackMatrix); //transform
 	nmesh->hasNewTransform = true; //polling for new Keyframes will succeed now.
 }
 

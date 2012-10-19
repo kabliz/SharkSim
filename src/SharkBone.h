@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <vector>
+#include <string>
 #include <map>
 #include "Quad.h"
 #include "glQuaternion.h"
@@ -22,7 +23,8 @@ class SharkBone
 		void buildBone(Mesh *mesh, float start, float end, MyMat matrixMultiplier); //takes in mesh input and records them in 
 		void transformBone(MyMat* stackmatri);
 		//Quad and SharkVertex form
-		void changeAngle(int newAngle, bool isAheadRoot); //changes the quaternion and associted angle
+		void changeAngle(int newAngle, bool isAheadRoot); //cal shark. changes the quaternion and associted angle
+		void changeAngle(int newAngle); 
 		void printToFrame();
 
 		//lowerclass management
@@ -33,7 +35,9 @@ class SharkBone
 		void boneLengthToTranslation(bool downStream); //for the non-general building (Cal Shark) method only  	
 		void addTranslation(MyMat trans){transMatHeir.multRight(trans);}
 		void sJointTranslation(MyMat trans){jointTrans.multRight(trans);}
-
+		string gName(){return boneName;}
+		void sName(string newname){boneName = newname;}
+		
 		void addChild(SharkBone* ch){childBones.push_back(ch);}
 
 	//private:		
@@ -43,9 +47,8 @@ class SharkBone
 		MyMat rotationMatrix;
 		double boneLength; //this is the length of the mesh segment. 
 
-
-
 	private:
+		string boneName;   //given bone name.  A bone's name should be unique in its skeleton.
 		int boneNo;  // the index of the bone in the skeleton
 		glQuaternion rotatQ;
 		float angleOfRot; //rotation along xz plane

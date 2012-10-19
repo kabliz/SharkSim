@@ -61,7 +61,8 @@ void SharkBone::boneLengthToTranslation(bool downstream)
 	transMatLocal.makeTranslate(Vector3f(xend, 0, 0));
 }
 
-/*This changes the angles for this bone */
+/*This changes the angles for this bone.
+ * This is the cal shark version, that needs to know whether the bone is ahead of the root */
 void SharkBone::changeAngle(int newAngle, bool isAheadRoot)
 {
 	angleOfRot = newAngle;
@@ -73,6 +74,13 @@ void SharkBone::changeAngle(int newAngle, bool isAheadRoot)
 	rotationMatrix = MyMat(glm[0], glm[4], glm[8], glm[12], glm[1], glm[5],glm[9],
 			glm[13],glm[2],glm[6],glm[10],glm[14],glm[3],glm[7],
 			glm[11],glm[15]);
+}
+
+/*Change the angle of this bone.
+ * This is the general case of this function. Cal Shark needs the other one. */
+void SharkBone::changeAngle(int newAngle)
+{
+	changeAngle(newAngle, false);
 }
 
 

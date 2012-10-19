@@ -13,15 +13,14 @@
 class SharkLoco {
 
 	public:
-
 		int calcTimestep(); //finds the point in time where it is optimal to make a new keyframe.
 		void update(int dt, int railAngle, float velocity); //main update call
 		void setNewAngles(); //modifies the underlying bones
 
+
 		//simulation related functions
 		void calcNextAngles(int railAngle);     //automatically gets next keyframe based on the speed of the animated angle rate.
 		//takes in the angle of the curve 
-
 
 		enum{ANGUILIFORM = 1, SUBCARANGIFORM = 2, CARANGIFORM = 3, THUNNIFORM = 4};
 
@@ -42,7 +41,6 @@ class SharkLoco {
 		float swimFrequency; //frequency of oscillation.  Maximum 5 beats per second
 		float elapsedTime; //time (in seconds) since the simulation began. 
 
-
 		static float const velocityToAmp = 15.0;  //divides velocity    by this value to determine the amplitude of a stroke
 
 		//angle calculation funcs
@@ -54,10 +52,7 @@ class SharkLoco {
 
 		int gNumLocomotionBones();
 
-
 		float deriveFrequency(float velocity); //derives frequency of tail swish based on the speed it is moving
-
-
 };
 
 
