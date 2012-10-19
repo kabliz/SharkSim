@@ -9,7 +9,7 @@
 #include "Keyframe.h"
 #include "FrameSequence.h"
 #include "KeyframeSystem.h"
-#include "SharkSkeleton.h"
+#include "SharkLoco.h"
 
 typedef struct materialStruct {
   GLfloat ambient[4];
@@ -100,7 +100,8 @@ class Shark
 		GLfloat	segLengthInput[segMax];				//used to tell if user has specified segment lengths
 		GLfloat	segLength[segMax];					//used to draw spine
 		KeyframeSystem kfSys;
-		SharkSkeleton skeleton;
+		//SharkSkeleton skeleton;
+		SharkLoco skeleton;
 
 		Mesh	mesh;
 		glQuaternion glQuat;
