@@ -40,6 +40,16 @@ void SharkSkeleton::sAngle(int key, int angle)
 {
 	sAngle(itoa(key),angle);
 }
+void SharkSkeleton::sAngle(string key, glQuaternion rotation)
+{
+	gBone(key)->changeAngle(rotation);
+}
+
+void SharkSkeleton::buildSkeletonAOBJ(string filename)
+{
+
+}
+
 
 /* Builds the skeleton from the CalShark shark model. This is the non-general build method
  * Given the initial Blender mesh, build the smart mesh and the bones that make up the skeleton. 

@@ -21,18 +21,18 @@
 
 class glQuaternion  
 {
-public:
-	glQuaternion operator *(glQuaternion q);
-	void CreateMatrix(float *pMatrix);
-	void CreateFromAxisAngle(float x, float y, float z, float degrees);
-	glQuaternion();
-	virtual ~glQuaternion();
+	public:
+		glQuaternion operator *(glQuaternion q);
+		void CreateMatrix(float *pMatrix);
+		void CreateFromAxisAngle(float x, float y, float z, float degrees);
+		glQuaternion();
+		virtual ~glQuaternion();
 
-private:
-	float m_w;
-	float m_z;
-	float m_y;
-	float m_x;
+	private:
+		float m_w;
+		float m_z;
+		float m_y;
+		float m_x;
 };
 
 #endif // !defined(AFX_GLQUATERNION_H__52FB84BB_6D1B_4314_833F_5A8737A35DAB__INCLUDED_)

@@ -83,6 +83,15 @@ void SharkBone::changeAngle(int newAngle)
 	changeAngle(newAngle, false);
 }
 
+/*sets the rotation based on an existing quaternion */
+void SharkBone::changeAngle(glQuaternion newAngle)
+{
+	GLfloat glm[16];
+	newAngle.CreateMatrix(glm);	
+	rotationMatrix = MyMat(glm[0], glm[4], glm[8], glm[12], glm[1], glm[5],glm[9],
+			glm[13],glm[2],glm[6],glm[10],glm[14],glm[3],glm[7],
+			glm[11],glm[15]);
+}
 
 /*Matrix multiplies the smark SharkMesh
  * Downstream value reverses the translation direction, for bones ahead of the root */

@@ -9,7 +9,6 @@ SRC_DIR = ./src
 HDEP = *.h
 FILES =*.cpp
 
-
 runshark: $(FILES) $(HDEP)
 	$(C) $(CCFLAGS) $(SRC_DIR)/*.cpp $(LINFLAGS32) -o $(OUTNAME)
 

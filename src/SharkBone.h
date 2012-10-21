@@ -25,6 +25,7 @@ class SharkBone
 		//Quad and SharkVertex form
 		void changeAngle(int newAngle, bool isAheadRoot); //cal shark. changes the quaternion and associted angle
 		void changeAngle(int newAngle); 
+		void changeAngle(glQuaternion newAngle); 
 		void printToFrame();
 
 		//lowerclass management
