@@ -50,6 +50,41 @@ void SharkBone::buildBone(Mesh *mesh, float start, float end, MyMat multiplier)
 	}//end quads
 }
 
+/*builds a bone from an aobj file. Copies over the vertices. Does not set child bones; That has to be done separate 
+ * The shark mesh should be loaded already*/
+void SharkBone::buildBoneAOBJ(string bName, Vector3f headpt, Vector3f tailpt )
+{
+	boneName = bName;
+
+	//hunt through the mesh and pull out all quads with the boneName on it
+	vector<Quad*>::iterator iq;
+
+	for(iq = sMesh->gFaceBegin(); iq != sMesh->gFaceEnd(); iq++)
+	{
+		if((*iq)->checkBone(boneName) > 0)  //quad is on this bone
+		{
+			sQuad(*iq);
+		}
+	}
+
+	//length of bone
+	boneLength = headpt.EuclDistance(tailpt);
+	
+	//get rotation
+	Vector3f boneVec = headpt - tailpt;
+	Vector3f rot = boneVec.Normalize();
+	float theta = acos(rot.Dot(Vector3f(1,0,0)));
+	glQuaternion qr = glQuaternion(); 
+	
+	qr.CreateFromAxisAngle(0, 1, 0, theta);
+        changeAngle(qr);	
+
+	//get translates 
+	Vector3f locTrans = headpt * -1;
+	transMatLocal.makeTranslate(locTrans);
+	transMatHeir.makeTranslate(boneVec);
+}
+
 /*Creates a translation matrix from the bonelength and direction. 
  *Because this is the CalShark loader, the translation would be in the x direction only. */
 void SharkBone::boneLengthToTranslation(bool downstream)

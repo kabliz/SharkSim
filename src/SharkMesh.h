@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <vector>
 #include <map>
+#include <string>
+#include <utility>
 
 #include "SharkVertex.h"
 #include "Quad.h"
@@ -40,6 +42,8 @@ class SharkMesh
 		~SharkMesh(){}
 		void deleteHeap(); 
 
+		FILE* buildAOBJ(string filename);   //returns the pointer to the point it read the first b
+
 		SharkVertex *gVertex(Vector3f key){return vertices.find(key)->second;}	
 		map<Vector3f, SharkVertex*, compareVect3>::iterator gVertices(){return vertices.begin();}
 		map<Vector3f, SharkVertex*, compareVect3>::iterator gVerticesEnd(){return vertices.end();}
@@ -61,6 +65,8 @@ class SharkMesh
 		vector<Quad*> faces;
 		bool hasNewTransform;
 		bool newUpdateApproved;
+
+		string nextToken(char delimit, FILE* readFile);
 };
 
 #endif

@@ -12,24 +12,14 @@ class Quad
 {
 	public:
 		Quad(){front = NULL; back = NULL; left = NULL; right = NULL; verts[0] = NULL; 
-			verts[1] = NULL; verts[2] = NULL; verts[3] = NULL; //rawVerts[0] = NULL;
-			//rawVerts[1] = NULL; rawVerts[2] = NULL; rawVerts[3] = NULL; 
+			verts[1] = NULL; verts[2] = NULL; verts[3] = NULL; 
 		}
 		
 		Quad(SharkVertex *one, SharkVertex *two, SharkVertex  *three, SharkVertex *four)
 			{front = NULL; back = NULL; left = NULL; right = NULL; verts[0] = one; 
-			verts[1] = two; verts[2] = three; verts[3] = four; //rawVerts[0] = NULL;
-			//rawVerts[1] = NULL; rawVerts[2] = NULL; rawVerts[3] = NULL; 
+			verts[1] = two; verts[2] = three; verts[3] = four;
 		}
 		
-		/*Quad(Vector3f *one, Vector3f *two, Vector3f *three, Vector3f *four, 
-		     Vector3f *rone, Vector3f *rtwo, Vector3f *rthree, Vector3f *rfour)
-		{
-			front = NULL; back = NULL; left = NULL; right = NULL; verts[0] = one; 
-			verts[1] = two; verts[2] = three; verts[3] = four; rawVerts[0] = rone;
-			rawVerts[1] = rtwo; rawVerts[2] = rthree; rawVerts[3] = rfour; 
-		}*/
-
 		void locateAdjacants(vector<Quad*> lisq);
 		bool compareLeft(Quad oth);
 		bool compareRight(Quad oth);
@@ -55,6 +45,7 @@ class Quad
 
 		int gBoneNo(){return boneNo;}
 		void sBoneNo(int bone){boneNo = bone;}
+		float checkBone(string boneName){ return verts[0]->checkBone(boneName) ; } //hax
 
 		Quad* gFront(){return front;}	
 		Quad* gBack(){return back;}	

@@ -5,7 +5,7 @@
 #include "Keyframe.h"
 #include "MyMat.h"
 #include "Mesh.h"
-#include "SharkFacts.h"
+//#include "SharkFacts.h"
 #include "glQuaternion.h"
 #include <cmath>
 #include <map>
@@ -22,9 +22,10 @@ class SharkSkeleton
 		~SharkSkeleton(){}		 
 		
 		void buildSkeleton(Mesh *mesh, int numSegs, float* segLengths); //given a set of mesh segments, it creates the bones. 
-		void buildSkeletonAOBJ(string filename); //given a set of mesh segments, it creates the bones. 
+		void buildSkeletonAOBJ(SharkMesh *emptyMesh, string filename); //given a set of mesh segments, it creates the bones. 
 		void setMesh(SharkMesh *s){nmesh =s;}
 		void clearHeap(); //TODO clean the heap out
+
 
 		//manipulations
 		void sAngle(string boneName, int angle);
@@ -34,7 +35,7 @@ class SharkSkeleton
 
 		//transformation related functions
 		void applyTransformation();	//export sketon to the smart SharkMesh  so it can be drawn by the Keyframe
-
+		
 		bool newUpdateApproved(){return nmesh->newUpdateApproved;}
 
 	private:
@@ -61,8 +62,7 @@ class SharkSkeleton
 		string itoa(int toConvert);       //int to string.   not really atoi backwards, but supports numbers up to 100000.  
 		void sBone(SharkBone* newBone);   //sets bone with its name as the key
 
-		//angle math
-		static float const velocityToAmp = 15.0;  //divides velocity	by this value to determine the amplitude of a stroke
+		string nextToken(char delimiter, FILE* readFile);	
 };
 
 

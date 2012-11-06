@@ -21,6 +21,7 @@ class SharkBone
 		SharkBone(SharkMesh *nmesh, int bon){ sMesh = nmesh; boneNo = bon;}
 		~SharkBone(){}
 		void buildBone(Mesh *mesh, float start, float end, MyMat matrixMultiplier); //takes in mesh input and records them in 
+		void buildBoneAOBJ(string boneName, Vector3f headpt, Vector3f tailpt);			//general case bone builder. Needs a mesh with bone info in it
 		void transformBone(MyMat* stackmatri);
 		//Quad and SharkVertex form
 		void changeAngle(int newAngle, bool isAheadRoot); //cal shark. changes the quaternion and associted angle

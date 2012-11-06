@@ -45,9 +45,83 @@ void SharkSkeleton::sAngle(string key, glQuaternion rotation)
 	gBone(key)->changeAngle(rotation);
 }
 
-void SharkSkeleton::buildSkeletonAOBJ(string filename)
+string SharkSkeleton::nextToken(char delimit, FILE* readFile)
 {
+	char numb[32];
+	int k = 0;
+	while(!feof(readFile))
+	{
+		char cur = fgetc(readFile);
+		if(cur == delimit) {break;}
+		numb[k] = cur;
+		k++;
+	}
+	numb[k] = '\0';
+	return string(numb);
+}
 
+/*Builds an entire mesh and skeleton straight out of a .aobj file */
+void SharkSkeleton::buildSkeletonAOBJ(SharkMesh* sharkmesh, string filename)
+{
+	FILE* readFile = sharkmesh->buildAOBJ(filename);   
+	//readFile has just read the first 'b' in the aobj file. The mesh is filled now
+
+	//go though the rest of the parsing, pulling out each bone	
+	char identifier = 'b';
+	int index = 0;
+	vector<vector<string> > boneRelationships = vector<vector<string> >();
+	while(!feof(readFile))
+	{
+		//b name headRestArmature tailRestArmature ... child names ...
+		if(identifier == 'b')
+		{
+			char cur = fgetc(readFile);  //space
+			vector<string> childNames = vector<string>();
+			while(cur != '\n')  //per line
+			{
+				string bName = nextToken(' ', readFile);	
+				Vector3f headr;
+				headr.x = atof(nextToken(' ', readFile).c_str());
+				headr.y = atof(nextToken(' ', readFile).c_str());
+				headr.z = atof(nextToken(' ', readFile).c_str());
+
+				Vector3f tailr;
+				tailr.x = atof(nextToken(' ', readFile).c_str());
+				tailr.y = atof(nextToken(' ', readFile).c_str());
+				tailr.z = atof(nextToken(' ', readFile).c_str());
+			
+				SharkBone* nBone = new SharkBone(sharkmesh, index);
+				nBone->buildBoneAOBJ(bName, headr, tailr);
+				sBone(nBone);
+
+				//child names need to be read.
+				childNames.push_back(bName); //first name is the name of this bone
+				while(cur != '\n')
+				{
+					childNames.push_back(nextToken(' ', readFile));
+				}
+				boneRelationships.push_back(childNames);
+
+				index++;
+			}
+		}
+		else
+		{
+			printf("problem reading aobj bones\n");
+			exit(-1);
+		}
+
+		identifier = fgetc(readFile);
+	}
+
+	//Now, build the relationship tree among the bones
+	for(int i = 0; i < boneRelationships.size(); i++)
+	{
+		for(int j = 1; j < boneRelationships[i].size(); j++)
+		{
+			gBone(boneRelationships[i][0])->addChild(gBone(boneRelationships[i][j]));	
+		}	
+	}
 }
 
 
@@ -86,7 +160,7 @@ void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 		newBone->sName(itoa(i));
 		sBone(newBone); //name the bone and put it into the map.
 	}
-	
+
 	//create the heirarchy in the bones
 	for(int i = rootNum; i > 0; i--)  //from head to root
 	{

@@ -24,6 +24,7 @@ class BlendArmAnimation
 		void applyTransformation();
 
 	private:
+		SharkMesh mesh;
 		SharkSkeleton* skeleton;
 		map<string, ArmTimeline>* actions;   //set of actions this skeleton takes. 
 		string currentAction;

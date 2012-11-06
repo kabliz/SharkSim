@@ -19,8 +19,11 @@ class SharkVertex
 		int gNumInfluences(){return bones.size();}
 		string gBoneName(int index){return bones[index].first;}
 		float gBoneWeight(int index){return bones[index].second;}
+		void sBonePair(pair<string,float> f){bones.push_back(f);}
+		void sBonePair(string boneName, float boneWeight){sBonePair(pair<string, float>(boneName, boneWeight));}
+		float checkBone(string boneName);
 
-//	private:
+	//private:
 		Vector3f local;    
 		Vector3f transformed;  //vertex after transformation
 		Vector3f normal;

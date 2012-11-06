@@ -8,7 +8,6 @@ Vector3f Quad::calcNormal()
 {
 	Vector3f vectorA, vectorB, normal;
 	int i;
-	//TODO ????? I forgot why Quad::Calcnormal was here
 	/*for ( i = 0; i < vertCounter; i+=4 ) 
 	{
 	       vectorA = vertList[i+1] - vertList[i];
@@ -66,12 +65,7 @@ bool Quad::compareFront(Quad oth)
 	//compares edges 0 and 3, if not, switch the function names
 	bool topmatch = gLocalVert(0).fEquals(oth.gLocalVert(1), .00001);	
 	bool bottmatch = gLocalVert(3).fEquals(oth.gLocalVert(2), .00001);	
-	/*bool topmatch = (verts[0]->gLocal().x >= oth.verts[1]->glocal().x-.00001 && verts[0]->glocal().x <= oth.verts[1]->glocal().x+.00001) && 
-			(verts[0]->gLocal().y >= oth.verts[1]->glocal().y-.00001 && verts[0]->glocal().y <= oth.verts[1]->glocal().y+.00001) && 
-			(verts[0]->gLocal().z >= oth.verts[1]->glocal().z-.00001 && verts[0]->glocal().z <= oth.verts[1]->glocal().z+.00001); 
-	bool bottmatch =(verts[3]->gLocal().x >= oth.verts[2]->glocal().x-.00001 && verts[3]->glocal().x <= oth.verts[2]->glocal().x+.00001) && 
-			(verts[3]->gLocal().y >= oth.verts[2]->glocal().y-.00001 && verts[3]->glocal().y <= oth.verts[2]->glocal().y+.00001) && 
-			(verts[3]->gLocal().z >= oth.verts[2]->glocal().z-.00001 && verts[3]->glocal().z <= oth.verts[2]->glocal().z+.00001);*/ 
+	
 	return topmatch && bottmatch;
 }
 
@@ -80,12 +74,7 @@ bool Quad::compareBack(Quad oth)
 	//compares edges 1 and 2
 	bool topmatch = gLocalVert(1).fEquals(oth.gLocalVert(0), .00001);
 	bool bottmatch = gLocalVert(2).fEquals(oth.gLocalVert(3), .00001);
-	/*bool topmatch = (verts[1]->gLocal().x >= oth.verts[0]->glocal().x-.00001 && verts[1]->glocal().x <= oth.verts[0]->glocal().x+.00001) && 
-			(verts[1]->gLocal().y >= oth.verts[0]->glocal().y-.00001 && verts[1]->glocal().y <= oth.verts[0]->glocal().y+.00001) && 
-			(verts[1]->gLocal().z >= oth.verts[0]->glocal().z-.00001 && verts[1]->glocal().z <= oth.verts[0]->glocal().z+.00001); 
-	bool bottmatch =(verts[2]->gLocal().x >= oth.verts[3]->glocal().x-.00001 && verts[2]->glocal().x <= oth.verts[3]->glocal().x+.00001) && 
-			(verts[2]->gLocal().y >= oth.verts[3]->glocal().y-.00001 && verts[2]->glocal().y <= oth.verts[3]->glocal().y+.00001) && 
-			(verts[2]->gLocal().z >= oth.verts[3]->glocal().z-.00001 && verts[2]->glocal().z <= oth.verts[3]->glocal().z+.00001);*/ 
+	
 	return topmatch && bottmatch;
 }
 
@@ -94,14 +83,7 @@ bool Quad::compareLeft(Quad oth)
 	//compares edges 2 and 3
 	bool topmatch = gLocalVert(2).fEquals(oth.gLocalVert(1), .00001);
 	bool bottmatch = gLocalVert(3).fEquals(oth.gLocalVert(0), .00001);
-	/*
-	bool topmatch = (verts[2]->gLocal().x >= oth.verts[1]->local().x-.00001 && verts[2]->glocal().x <= oth.verts[1]->glocal().x+.00001) && 
-			(verts[2]->gLocal().y >= oth.verts[1]->local().y-.00001 && verts[2]->glocal().y <= oth.verts[1]->glocal().y+.00001) && 
-			(verts[2]->gLocal().z >= oth.verts[1]->local().z-.00001 && verts[2]->glocal().z <= oth.verts[1]->glocal().z+.00001); 
-	bool bottmatch =(verts[3]->gLocal().x >= oth.verts[0]->local().x-.00001 && verts[3]->glocal().x <= oth.verts[0]->glocal().x+.00001) && 
-			(verts[3]->gLocal().y >= oth.verts[0]->local().y-.00001 && verts[3]->glocal().y <= oth.verts[0]->glocal().y+.00001) && 
-			(verts[3]->gLocal().z >= oth.verts[0]->local().z-.00001 && verts[3]->glocal().z <= oth.verts[0]->glocal().z+.00001); 
-	*/
+	
 	return topmatch && bottmatch;
 }
 
@@ -110,13 +92,7 @@ bool Quad::compareRight(Quad oth)
 	//compares edges 0 and 1
 	bool topmatch = gLocalVert(0).fEquals(oth.gLocalVert(3), .00001);
 	bool bottmatch = gLocalVert(1).fEquals(oth.gLocalVert(2), .00001);
-	/*bool topmatch = (verts[0]->local.x >= oth.verts[3]->local.x-.00001 && verts[0]->local.x <= oth.verts[3]->local.x+.00001) && 
-			(verts[0]->local.y >= oth.verts[3]->local.y-.00001 && verts[0]->local.y <= oth.verts[3]->local.y+.00001) && 
-			(verts[0]->local.z >= oth.verts[3]->local.z-.00001 && verts[0]->local.z <= oth.verts[3]->local.z+.00001); 
-	bool bottmatch =(verts[1]->local.x >= oth.verts[2]->local.x-.00001 && verts[1]->local.x <= oth.verts[2]->local.x+.00001) && 
-			(verts[1]->local.y >= oth.verts[2]->local.y-.00001 && verts[1]->local.y <= oth.verts[2]->local.y+.00001) && 
-			(verts[1]->local.z >= oth.verts[2]->local.z-.00001 && verts[1]->local.z <= oth.verts[2]->local.z+.00001); 
-	*/
+	
 	return topmatch && bottmatch;
 }
 
