@@ -36,6 +36,11 @@ void SharkSkeleton::sAngle(int key, int angle, bool downstream)
 {
 	gBone(itoa(key))->changeAngle(angle, downstream);
 }
+void SharkSkeleton::sAngle(string key, int angle, bool downstream)
+{
+	gBone(key)->changeAngle(angle, downstream);
+}
+
 void SharkSkeleton::sAngle(int key, int angle)
 {
 	sAngle(itoa(key),angle);
@@ -47,23 +52,29 @@ void SharkSkeleton::sAngle(string key, glQuaternion rotation)
 
 string SharkSkeleton::nextToken(char delimit, FILE* readFile)
 {
-	char numb[32];
-	int k = 0;
+	string numb;
 	while(!feof(readFile))
 	{
 		char cur = fgetc(readFile);
-		if(cur == delimit) {break;}
-		numb[k] = cur;
-		k++;
+		if(cur == delimit || cur == '\n') {break;}
+		numb.append(1,cur);
 	}
-	numb[k] = '\0';
-	return string(numb);
+	//printf("%s\n", numb.c_str());
+	return numb;
 }
 
 /*Builds an entire mesh and skeleton straight out of a .aobj file */
-void SharkSkeleton::buildSkeletonAOBJ(SharkMesh* sharkmesh, string filename)
+void SharkSkeleton::buildSkeletonAOBJ(string filename)
 {
-	FILE* readFile = sharkmesh->buildAOBJ(filename);   
+	FILE* readFile;
+	readFile = fopen(filename.c_str(), "r");
+     	if(readFile == NULL)
+    	{
+	   	printf(".aobj file not found\n");
+	  	exit(-1);
+ 	} 
+
+	nmesh->buildAOBJ(readFile);   
 	//readFile has just read the first 'b' in the aobj file. The mesh is filled now
 
 	//go though the rest of the parsing, pulling out each bone	
@@ -75,6 +86,7 @@ void SharkSkeleton::buildSkeletonAOBJ(SharkMesh* sharkmesh, string filename)
 		//b name headRestArmature tailRestArmature ... child names ...
 		if(identifier == 'b')
 		{
+			identifier = 0;
 			char cur = fgetc(readFile);  //space
 			vector<string> childNames = vector<string>();
 			while(cur != '\n')  //per line
@@ -90,18 +102,21 @@ void SharkSkeleton::buildSkeletonAOBJ(SharkMesh* sharkmesh, string filename)
 				tailr.y = atof(nextToken(' ', readFile).c_str());
 				tailr.z = atof(nextToken(' ', readFile).c_str());
 			
-				SharkBone* nBone = new SharkBone(sharkmesh, index);
+				SharkBone* nBone = new SharkBone(nmesh, index);
 				nBone->buildBoneAOBJ(bName, headr, tailr);
 				sBone(nBone);
 
 				//child names need to be read.
 				childNames.push_back(bName); //first name is the name of this bone
+				fseek(readFile, -1, SEEK_CUR);
+				cur = fgetc(readFile);
 				while(cur != '\n')
 				{
 					childNames.push_back(nextToken(' ', readFile));
+					fseek(readFile, -1, SEEK_CUR);
+					cur = fgetc(readFile);
 				}
 				boneRelationships.push_back(childNames);
-
 				index++;
 			}
 		}

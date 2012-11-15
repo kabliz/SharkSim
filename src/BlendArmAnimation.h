@@ -11,7 +11,7 @@ class BlendArmAnimation
 {
 	public:
 		BlendArmAnimation(){runningTime = 0;}
-		BlendArmAnimation(SharkMesh *smesh, SharkSkeleton* sk){runningTime = 0; skeleton = sk;} 
+		BlendArmAnimation(SharkMesh *smesh, SharkSkeleton* sk){runningTime = 0; skeleton = sk; skeleton->setMesh(smesh);} 
 		~BlendArmAnimation(){}
 
 		void buildSkeleton(string ModelFile, vector<string> actionFiles);  //.aobj file and an action file for each action.

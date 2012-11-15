@@ -3,7 +3,8 @@
 
 //#include <GL\glui.h>
 //#include <GL/glui.h>
-#include "glui/include/GL/glui.h"
+//#include "GL/glui.h"
+// include/GL/glui.h"
 #include "Mesh.h"
 #include "glQuaternion.h"
 #include "Keyframe.h"
@@ -49,8 +50,10 @@ class Shark
 		int gParsedSoFar(){return sequencesParsed;}		
 		void incrementSequences(){sequencesParsed++;}
 		void sSegmentLength(int index, int put){segLengthInput[index] = put;} 
-		void sSkeleton(SharkMesh* sk){skeleton = sk;}
+		//void sSkeleton(SharkMesh* sk){skeleton = sk;}
+		void sMesh(SharkMesh* sk){skeleton.setMesh(sk);}
 		void buildSkeleton(Mesh *mesh, int numSegs){skeleton.buildSkeleton(mesh, numSegs, (float*) segLength);}
+		void buildSkeleton(string modelFilename){skeleton.buildSkeleton(modelFilename);}
 		void sFrameSpeed(int frameSpeed){kfSys.setFrameSpeed(frameSpeed);}	
 		void toggleSpine(bool isSpineShown){showSpine = isSpineShown;}
 		void toggleSkin(bool isSkinShown){showSkin = isSkinShown;}

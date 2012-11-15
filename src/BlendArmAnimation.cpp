@@ -3,7 +3,7 @@
 
 void BlendArmAnimation::buildSkeleton(string modelFile, vector<string> actionFiles)
 {
-	skeleton->buildSkeletonAOBJ(&mesh, modelFile);    //geometry of the skeleton
+	skeleton->buildSkeletonAOBJ(modelFile);    //geometry of the skeleton
 
 	//create each action. ArmTimeline initialization
 	for(int i = 0; i < actionFiles.size(); i++)

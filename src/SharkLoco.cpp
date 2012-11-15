@@ -1,5 +1,16 @@
 #include "SharkLoco.h"
 
+const string SharkLoco::spineKeys[10] = {string("Spine1"), string("Spine2"), string("Spine3"), string("Spine4"), 
+				      string("Spine5"), string("Spine6"), string("Spine7"), string("Spine8"), string("Spine9"), string("Spine10")};
+const string SharkLoco::leftPec = "PecLeft";       //Pectoral Fins
+const string SharkLoco::rightPec = "PecRight";       
+const string SharkLoco::leftPel = "PelLeft";       //Pelvic Fins
+const string SharkLoco::rightPel = "PelRight";       
+const string SharkLoco::dorsal1 = "Dorsal1";       
+const string SharkLoco::dorsal2 = "Dorsal2";       
+const string SharkLoco::anal = "Anal";       
+const string SharkLoco::lowCaudal = "Caudal";
+
 
 /* Builds the skeleton from the CalShark shark model. This is the non-general build method
  * Given the initial Blender mesh, build the smart mesh and the bones that make up the skeleton. 
@@ -7,6 +18,12 @@
 void SharkLoco::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 {
 	skeleton.buildSkeleton(mesh, numSegments, segLength);
+}
+
+void SharkLoco::buildSkeleton(string modelFile)
+{
+	skeleton.sRoot("Spine3");
+	skeleton.buildSkeletonAOBJ(modelFile);
 }
 
 /*copies user defined animation frames into the class. It needs the number of the current sequence, and the total number of frames. 
@@ -125,7 +142,8 @@ void SharkLoco::calcNextAngles(int railAngle)
 	finalAngles.clear();
 	vector<int> maxAngles = getMaxAngles();
 
-	if(elapsedTime == 0) //first time running
+	//if(elapsedTime == 0) //first time running
+	if(oldAngles.size() == 0) //first time running
 	{
 		oldAngles.clear();
 		for(int i = 0; i < anglesPerFrame; i++)
@@ -195,7 +213,7 @@ void SharkLoco::setNewAngles()
 {
 	for(int i = 0; i < anglesPerFrame; i++)
 	{
-		skeleton.sAngle(i, finalAngles[i], i<4);  //magic number is root bone 
+		skeleton.sAngle(spineKeys[i], finalAngles[i], i<4);  //magic number is root bone 
 	}
 }
 

@@ -42,7 +42,8 @@ class SharkMesh
 		~SharkMesh(){}
 		void deleteHeap(); 
 
-		FILE* buildAOBJ(string filename);   //returns the pointer to the point it read the first b
+		//FILE* buildAOBJ(string filename);   //returns the pointer to the point it read the first b
+		void buildAOBJ(FILE* readFile);   //returns the pointer to the point it read the first b
 
 		SharkVertex *gVertex(Vector3f key){return vertices.find(key)->second;}	
 		map<Vector3f, SharkVertex*, compareVect3>::iterator gVertices(){return vertices.begin();}

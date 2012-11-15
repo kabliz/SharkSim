@@ -15,7 +15,7 @@ Shark::Shark()
 	this->segNum = 1;
 	this->tempSegPercent = 0;
 
-	mesh.init_blender(); //global var
+	//mesh.init_blender(); //global var
 	this->totalLength = mesh.blenderTotalLength;
 }
 

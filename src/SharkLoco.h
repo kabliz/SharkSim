@@ -24,6 +24,7 @@ class SharkLoco {
 		~SharkLoco(){}
 
 		void buildSkeleton(Mesh* mesh, int numSegments, float *segLength);
+		void buildSkeleton(string modelFilename);
 		int calcTimestep(); //finds the point in time where it is optimal to make a new keyframe.  //TODO
 		void update(int dt, int railAngle, float velocity); //main update call
 		void setNewAngles(); //modifies the underlying bones
@@ -54,6 +55,17 @@ class SharkLoco {
 		vector<int> finalAngles;  		//these are the bone angles that will be exported to the Keyframe
 		vector<int> curveAngles; 		//these represent the curvature of the spline at a point the shark will be.
 		vector<vector<int> > animatedAngles; 	//these are preset, artist driven, bone angles. 
+		
+		/*Bone names */
+		static const string spineKeys[];// = ["Spine1", "Spine2", "Spine3", "Spine4", "Spine5", "Spine6", "Spine7", "Spine8", "Spine9", "Spine10"];
+		static const string leftPec;// = "PecLeft";  	//Pectoral Fins
+		static const string rightPec;// = "PecRight"; 
+		static const string leftPel;// = "PelLeft"; 	//Pelvic Fins
+		static const string rightPel;// = "PelRight"; 
+		static const string dorsal1;// = "Dorsal1"; 
+		static const string dorsal2;// = "Dorsal2"; 
+		static const string anal ;//= "Anal"; 
+		static const string lowCaudal;// = "Caudal"; 
 
 		int locomotionMode; //the method of locomotion being used currently: anguiliform, subcarangiform, ...etc.
 		float propellingAmplitude; //amount of force to put in a swim stroke. Higher for more force. 

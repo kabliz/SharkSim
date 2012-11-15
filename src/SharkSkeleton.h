@@ -22,7 +22,7 @@ class SharkSkeleton
 		~SharkSkeleton(){}		 
 		
 		void buildSkeleton(Mesh *mesh, int numSegs, float* segLengths); //given a set of mesh segments, it creates the bones. 
-		void buildSkeletonAOBJ(SharkMesh *emptyMesh, string filename); //given a set of mesh segments, it creates the bones. 
+		void buildSkeletonAOBJ(string filename); //given a set of mesh segments, it creates the bones. 
 		void setMesh(SharkMesh *s){nmesh =s;}
 		void clearHeap(); //TODO clean the heap out
 
@@ -31,7 +31,9 @@ class SharkSkeleton
 		void sAngle(string boneName, int angle);
 		void sAngle(int boneName, int angle);      
 		void sAngle(int boneName, int angle, bool reverseAngledir);      
+		void sAngle(string boneName, int angle, bool reverseAngledir);      
 		void sAngle(string boneName, glQuaternion rotation);      
+		void sRoot(string newRoot){rootNode = newRoot;}
 
 		//transformation related functions
 		void applyTransformation();	//export sketon to the smart SharkMesh  so it can be drawn by the Keyframe

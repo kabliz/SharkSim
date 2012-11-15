@@ -11,7 +11,8 @@
 #include<GL/glu.h>
 #include<GL/glut.h>
 //#include<GL/glui.h>
-#include "glui/include/GL/glui.h"
+//#include "glui/
+//include/GL/glui.h"
 #include<ctime>
 #include<string>
 
@@ -68,7 +69,7 @@ Matrix3fT   ThisRot     = {  1.0f,  0.0f,  0.0f,	// NEW: This Rotation
 
 //shark globals
 Mesh mesh;  //points and meshReader system. Used to parse blender files.
-SharkMesh universalMesh;   //a "smart mesh" that's made of SharkVertices and closes its own gaps.
+SharkMesh *universalMesh;   //a "smart mesh" that's made of SharkVertices and closes its own gaps.
 Shark	Shark;   //the basis for the Shark itself
 MATreader MATparser;  //parsers
 SharkWorld world1; //SharkWorld(&frustum_, "xytData.mat"); //The world in which points are drawn

@@ -96,7 +96,7 @@ class SplinePath
 		float static const Mher[16];// = {2, -2, 1, 1, -3, 3, -2, -1, 0, 0, 1, 0, 1, 0, 0, 0};
 		double Tolerance;
 		int static const totalSlices = 100; //determines how finely to sample the curve
-		bool static const isCatmullMode = true;
+		bool static const isCatmullMode = false;
 };
 
 #endif

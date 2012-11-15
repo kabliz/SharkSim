@@ -206,6 +206,7 @@ void SplinePath::calcRadius()
 
 void SplinePath::initTangents()
 {
+	//TODO correct aheadPoint and behindPoint index
 	if(!isCatmullMode)
 	{
 		//first value needs to be initilized 
@@ -218,7 +219,7 @@ void SplinePath::initTangents()
 			Vector3f edgeDiff = points[i+1]-points[i-1];
 
 			//180 degree turn case is discontinious. This is a fix
-			int j = 2;
+			int j = 3;
 			while(edgeDiff.Magnitude() == 0)
 			{
 				edgeDiff = (points[i+j] - points[i-j]) * .5;
@@ -226,7 +227,7 @@ void SplinePath::initTangents()
 			}
 
 			//tangent calculation
-			tan = (edgeDiff)* (points[i+1]-points[i]).Magnitude() / (edgeDiff).Magnitude();
+			tan = (edgeDiff)* (points[i+1]-points[i]).Magnitude() / (edgeDiff).Magnitude()*.5;
 			tangents.push_back(tan);
 		}
 
@@ -266,7 +267,7 @@ Vector3f SplinePath::splineLocation(float curLocation, int startPoint)
 	}
 	else
 	{
-		int endPoint = startPoint + 1;
+		int endPoint = startPoint + 1;   //TODO found this line. dangerous. set endPoint properly
 		return hermiteMatrix(curLocation, points[startPoint], points[endPoint],
 				tangents[startPoint], tangents[endPoint]);
 	}

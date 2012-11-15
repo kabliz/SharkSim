@@ -134,13 +134,13 @@ void Initialize (string splineFile )					// Any GL Init Code & User Initialiazat
 	frustum_ = Frustum();
 
 	//read blender mesh
-	mesh.init_blender();
+	//mesh.init_blender();
 	//initialize segLength
-	for(int i = 0; i < Shark.segMax; i++)
+	/*for(int i = 0; i < Shark.segMax; i++)
 	{
 		Shark.sSegmentLength(i, 0);
-	}
-	Shark.segUpdate();
+	}*/
+	//Shark.segUpdate();
 	//put in stiff (defualt case )sequence
 	defSequence();	
 	//read in recorded sequences, in the order they are enumerated in KeyframeSystem
@@ -161,12 +161,13 @@ void Initialize (string splineFile )					// Any GL Init Code & User Initialiazat
 	//world1.gatherDTPoints();
 	world1 = SharkWorld(&frustum_, splineFile );
 	//world1 = SharkWorld(&frustum_, "xytData.mat" );
-	universalMesh = SharkMesh();
+	universalMesh = new SharkMesh();
 
-	Shark.sSkeleton(&universalMesh);
+	Shark.sMesh(universalMesh);
 	int tSegments = Shark.segments;
-	Shark.buildSkeleton(&mesh, tSegments);
-	Shark.genKeyframes(dynaMode, &universalMesh);
+	//Shark.buildSkeleton(&mesh, tSegments);
+	Shark.buildSkeleton("Model/LeopardShark.aobj");
+	Shark.genKeyframes(dynaMode, universalMesh);
 	frameSpeed = frameSpeedSlow;
 	Shark.sFrameSpeed(10);
 
@@ -253,8 +254,9 @@ void Deinitialize (void)// Any Application DeInitialization Goes Here
 {
 	gluDeleteQuadric(quadratic);
 	Shark.deinitialize();	
-	universalMesh.deleteHeap();
+	universalMesh->deleteHeap();
 	world1.deleteHeap();
+	delete universalMesh;
 }
 
 void keyboard(unsigned char key, int x, int y)

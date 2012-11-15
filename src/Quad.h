@@ -7,7 +7,7 @@
 #include "SharkVertex.h"
 #include "MyMat.h"
 
-/*A quad is a set of four points that make a rectangle. The two vertices towards the shark front are numbers zero and three */
+/*A quad is a set of four points that make a rectangle. */
 class Quad
 {
 	public:

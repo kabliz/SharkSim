@@ -34,68 +34,12 @@ void Keyframe::draw(void)
 		glNormal3f((*iq)->gNormalVert(3).x, (*iq)->gNormalVert(3).y, (*iq)->gNormalVert(3).z);
 		glVertex3f((*iq)->gTransformedVert(3).x, (*iq)->gTransformedVert(3).y, (*iq)->gTransformedVert(3).z);
 
-		/*	
-		glNormal3f((*iq)->verts[1]->normal.x, (*iq)->verts[1]->normal.y, (*iq)->verts[1]->normal.z);
-		glVertex3f((*iq)->verts[1]->transformed.x, (*iq)->verts[1]->transformed.y, (*iq)->verts[1]->transformed.z);
-		
-		glNormal3f((*iq)->verts[2]->normal.x, (*iq)->verts[2]->normal.y, (*iq)->verts[2]->normal.z);
-		glVertex3f((*iq)->verts[2]->transformed.x, (*iq)->verts[2]->transformed.y, (*iq)->verts[2]->transformed.z);
-		
-		glNormal3f((*iq)->verts[3]->normal.x, (*iq)->verts[3]->normal.y, (*iq)->verts[3]->normal.z);
-		glVertex3f((*iq)->verts[3]->transformed.x, (*iq)->verts[3]->transformed.y, (*iq)->verts[3]->transformed.z);
-		*/
 		i++;
 	}
 	
 	glEnd();	
 }
-/*
-void printIntoKeyframe( GLfloat segmentRot[], GLfloat segLength[], Mesh *mesh, int segments, glQuaternion *glQuat, int curSegment, 
-		MyMat *Matrix, float start, float end, float length, )
-{
-	MyMat transrix2;
-	transrix2.makeTranslate(Vector3f(-start, 0, 0));
-	*Matrix = Matrix.multRight(transrix2);
-	//------------------------------------ chop to draw
-	float center;
-	for(int in = 0; in < mesh->vertCounter; in+=4)
-	{
-		//find center of face
-		center = (mesh->vertList[in].x + mesh->vertList[in+1].x + mesh->vertList[in+2].x 
-				+ mesh->vertList[in+3].x ) / 4;
-		//draw if face is between start and end
-		if(center >= start && center <= end )
-		{
-			Quad *curQuad = new Quad();
-			curQuad->faceNormal = Vector3f(0,0,0);
-			for(int corn = 0; corn < 4; corn++) //corner iteration
-			{
-				SharkVertex *curVert = new SharkVertex();
-				curVert->local = mesh->vertList[in+corn];
-				curVert->transformed = Vector3f(Matrix.multVec(mesh->vertList[in+corn], true)); 
-				curVert->normal = Vector3f(0,0,0);				
-				map<Vector3f, SharkVertex*, compareVect3>::iterator findTest 
-					= uVertices.find(mesh->vertList[in+corn]);
-				if(findTest == uVertices.end())
-				{
-					uVertices.insert(pair<Vector3f, SharkVertex*>(mesh->vertList[in+corn]
-								, curVert));	
-					curQuad->verts[corn] = curVert;
-				}
-				else
-				{
-					delete curVert;
-					curQuad->verts[corn] = (*findTest).second;
-				}
-				curQuad->faceNormal += Matrix.multVec(mesh->normals[in+corn], false);
-				
-			}//end corners
-			curQuad->faceNormal /= 4.0;
-			curQuad->boneNo = curSegment;
-			faces.push_back(curQuad);
-		}//end if
-	}//end quads 
-}*/
+
 
 /*Subroutine of transformHeiararchy(), this function calculates the position and rotation for a given bone segment and 
 * generates quaderlaterals with those transformations */
@@ -226,7 +170,7 @@ void Keyframe::gatherTransformData(GLfloat segmentRot[], GLfloat segLength[], Me
 			glQuat, startingPoint, stackMatrix, start, end);
 	 
 	createQuads();                    
-	multiBoneAttenuate(); 
+	//multiBoneAttenuate();   //TODO phase out Attenuate in favor of conventional Skinning
 }
 
 
@@ -238,7 +182,7 @@ void Keyframe::createQuads(void)
 	//O(n squared operation)
 	for(iq = faces.begin(); iq < faces.end(); iq++)
 	{
-		(*iq)->locateAdjacants(faces);
+		//(*iq)->locateAdjacants(faces);
 		(*iq)->sNormalVert(0, (*iq)->gNormalVert(0) + (*iq)->gNormal());
 		(*iq)->sNormalVert(1, (*iq)->gNormalVert(1) + (*iq)->gNormal());
 		(*iq)->sNormalVert(2, (*iq)->gNormalVert(2) + (*iq)->gNormal());
@@ -252,6 +196,7 @@ void Keyframe::createQuads(void)
 }
 
 /*Rigging: Slightly adjusts quads to make sections where gaps were closed in more smooted out */
+//TODO replace with Skinning. Deprecated.
 void Keyframe::multiBoneAttenuate(void)
 {
 	//find all the quads whose front quadrant has a different bone number, 
@@ -299,7 +244,7 @@ void Keyframe::multiBoneAttenuate(void)
 /*linear interpolation funcion */
 Vector3f Keyframe::interpolateVertices(Vector3f first, Vector3f second, int step, int max)
 {
-	//TODO: replace Lerp with catmull-Rom if necessary
+	//TODO: replace Lerp with Slerp if necessary
 	Vector3f fin = first;
 	fin = fin + ((second-first)*((float)step))/((float)max);
 	return fin;	
