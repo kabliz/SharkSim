@@ -96,7 +96,17 @@ bool Quad::compareRight(Quad oth)
 	return topmatch && bottmatch;
 }
 
-/*Multiplies the local value of this quad by a transformation matrix, and sets the transformed value of this quad */
+/*resets all vertex transforms to the local (rest) position */
+void Quad::restPosition()
+{
+	for(int i = 0; i < 4; i++)
+	{
+		verts[i]->transformed = verts[i]->local;
+	}
+}
+
+/*Multiplies the local value of this quad by a transformation matrix, and sets the transformed value of this quad.
+ * Transformation is Rigid body (absolute) and does not consider vertex weights */
 void Quad::matrixTransform(MyMat matrix)
 {
 	verts[0]->transformed = Vector3f(matrix.multVec(verts[0]->local, true));
@@ -104,6 +114,33 @@ void Quad::matrixTransform(MyMat matrix)
 
 	verts[1]->transformed = Vector3f(matrix.multVec(verts[1]->local, true));
 	verts[2]->transformed = Vector3f(matrix.multVec(verts[2]->local, true));
+}
+
+/*Skinning transform of a quad with a transformation and the name of the bone that created that transformation.
+ * Vertex weights taken from the bone name affect the strength of the  */
+void Quad::linearBlendTransform(MyMat matrix, string boneName)
+{
+	for(int i = 0; i < 4; i++)
+	{
+		float weight = verts[i]->checkBone(boneName);
+		if(weight > 0)
+		{
+			verts[i]->transformed = verts[i]->transformed + 
+						(Vector3f(matrix.multVec(verts[i]->local, true))*weight);
+		}
+	}
+}
+
+/*Returns the weight on the first vertex that matches this bone */
+float Quad::checkBone(string boneName)
+{
+	double weight;
+	for(int i = 0; i < 4; i++)
+	{
+		weight = verts[i]->checkBone(boneName);
+		if(weight > 0){return weight;}
+	}
+	return -1;
 }
 
 

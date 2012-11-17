@@ -59,7 +59,7 @@ string SharkSkeleton::nextToken(char delimit, FILE* readFile)
 		if(cur == delimit || cur == '\n') {break;}
 		numb.append(1,cur);
 	}
-	//printf("%s\n", numb.c_str());
+	printf("%s\n", numb.c_str());
 	return numb;
 }
 
@@ -76,6 +76,8 @@ void SharkSkeleton::buildSkeletonAOBJ(string filename)
 
 	nmesh->buildAOBJ(readFile);   
 	//readFile has just read the first 'b' in the aobj file. The mesh is filled now
+
+	
 
 	//go though the rest of the parsing, pulling out each bone	
 	char identifier = 'b';
@@ -137,6 +139,7 @@ void SharkSkeleton::buildSkeletonAOBJ(string filename)
 			gBone(boneRelationships[i][0])->addChild(gBone(boneRelationships[i][j]));	
 		}	
 	}
+	fclose(readFile);
 }
 
 
@@ -193,6 +196,7 @@ void SharkSkeleton::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
  * After calling this, the Keyframe is ready to save the vertex information. Flag in mesh (hasNewTransform) will be set. */
 void SharkSkeleton::applyTransformation()
 {
+	//printf("vert %d quad %d \n", nmesh->vertSize(), nmesh->faceSize());  //sucessfully runs once and explodes
 	nmesh->newUpdateApproved = false;
 	//perform all the matrix magic in there to make a keyframe.
 
@@ -201,8 +205,9 @@ void SharkSkeleton::applyTransformation()
 	//this sets the mesh back so it's aligned in world coordinates as it should be.
 	stackMatrix.multRight(armTranslation);	
 
-	bones[rootNode]->transformBone(&stackMatrix);
-	//transformHeirarchy(stackMatrix); //transform
+	nmesh->restPosition();   //reset all of the transformations
+	bones[rootNode]->transformBone(&stackMatrix, !isLinearBlendSkinned);
+	//bones[rootNode]->transformBone(&stackMatrix, isLinearBlendSkinned);
 	nmesh->hasNewTransform = true; //polling for new Keyframes will succeed now.
 }
 

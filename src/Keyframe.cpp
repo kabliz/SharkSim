@@ -180,13 +180,19 @@ void Keyframe::createQuads(void)
 	vector<Quad*>::iterator iq;
 	map<Vector3f, SharkVertex*, compareVect3>::iterator isv;
 	//O(n squared operation)
-	for(iq = faces.begin(); iq < faces.end(); iq++)
+	for(int i = 0; i < faces.size(); i++)
+	//for(iq = faces.begin(); iq < faces.end(); iq++)
 	{
 		//(*iq)->locateAdjacants(faces);
-		(*iq)->sNormalVert(0, (*iq)->gNormalVert(0) + (*iq)->gNormal());
+		/*(*iq)->sNormalVert(0, (*iq)->gNormalVert(0) + (*iq)->gNormal());
 		(*iq)->sNormalVert(1, (*iq)->gNormalVert(1) + (*iq)->gNormal());
 		(*iq)->sNormalVert(2, (*iq)->gNormalVert(2) + (*iq)->gNormal());
 		(*iq)->sNormalVert(3, (*iq)->gNormalVert(3) + (*iq)->gNormal());
+		*/
+		faces[i]->sNormalVert(0, faces[i]->gNormalVert(0) + faces[i]->gNormal());
+		faces[i]->sNormalVert(1, faces[i]->gNormalVert(1) + faces[i]->gNormal());
+		faces[i]->sNormalVert(2, faces[i]->gNormalVert(2) + faces[i]->gNormal());
+		faces[i]->sNormalVert(3, faces[i]->gNormalVert(3) + faces[i]->gNormal());
 	}
 
 	for(isv = uVertices.begin(); isv != uVertices.end(); isv++)

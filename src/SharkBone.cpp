@@ -129,8 +129,8 @@ void SharkBone::changeAngle(glQuaternion newAngle)
 }
 
 /*Matrix multiplies the smark SharkMesh
- * Downstream value reverses the translation direction, for bones ahead of the root */
-void SharkBone::transformBone(MyMat *stackMatrix)
+ * pass down the hierarchical model matrix and a value  */
+void SharkBone::transformBone(MyMat *stackMatrix, bool rigidBody)
 {
 	//current shark model segment
 	MyMat Matrix = *stackMatrix;
@@ -147,7 +147,14 @@ void SharkBone::transformBone(MyMat *stackMatrix)
 	//transform each quad in the mesh
 	for(iq = quads.begin(); iq < quads.end(); iq++)
 	{
-		(*iq)->matrixTransform(Matrix);
+		if(rigidBody)
+		{
+			(*iq)->matrixTransform(Matrix);
+		}
+		else  //linear blend skinning
+		{
+			(*iq)->linearBlendTransform(Matrix, boneName);
+		}
 	}
 
 	//recursive transform downwards to child bones. 
@@ -157,7 +164,7 @@ void SharkBone::transformBone(MyMat *stackMatrix)
 	for(ib = childBones.begin(); ib != childBones.end(); ib++ )
 	{
 		MyMat tmp = MyMat(*stackMatrix);	
-		(*ib)->transformBone(&tmp);
+		(*ib)->transformBone(&tmp, rigidBody);
 	}
 
 }

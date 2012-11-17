@@ -10,7 +10,9 @@
 class SharkVertex
 {
 	public:
-		Vector3f gLocal(){return local;}
+		SharkVertex(){bones = vector<pair<string,float> >();}
+		~SharkVertex(){}
+		Vector3f gLocal(){return local; }
 		Vector3f gTransformed(){return transformed;}
 		Vector3f gNormal(){return normal;}
 		void sNormal(Vector3f n){normal = n;}

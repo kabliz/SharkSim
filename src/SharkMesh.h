@@ -38,7 +38,7 @@ using namespace std;
 class SharkMesh
 {
 	public:
-		SharkMesh(){ }
+		SharkMesh(){ vertices = map<Vector3f, SharkVertex*, compareVect3>(); faces = vector<Quad*>();	}
 		~SharkMesh(){}
 		void deleteHeap(); 
 
@@ -51,6 +51,8 @@ class SharkMesh
 		void insertVec (pair< Vector3f, SharkVertex*> u ){vertices.insert(u);}
 
 		Quad* gFace(int index){return faces[index];}
+		int faceSize(){return faces.size();}
+		int vertSize(){return vertices.size();}
 		//vector<Quad*> gFaces(){return faces;}
 		void pushFace(Quad* f){faces.push_back(f);}
 		vector<Quad*>::iterator gFaceBegin(){return faces.begin();}
@@ -60,6 +62,7 @@ class SharkMesh
 		bool isUpdateApproved(){return newUpdateApproved;}
 		void sNewTransform(bool n){hasNewTransform = n;}
 		void sUpdateApproved(bool n){newUpdateApproved = n;}
+		void restPosition();  //resets transform vertex back to local (rest) pose
 
 	//private:
 		map<Vector3f, SharkVertex*, compareVect3> vertices;

@@ -17,8 +17,8 @@ class SharkSkeleton
 {
 	public:
 		//initializations
-		SharkSkeleton(){ bones = map<string, SharkBone*>(); rootNode = "";  }
-		SharkSkeleton(SharkMesh *smesh){nmesh = smesh;  bones = map<string, SharkBone*>(); }
+		SharkSkeleton(){ bones = map<string, SharkBone*>(); rootNode = ""; isLinearBlendSkinned = true; }
+		SharkSkeleton(SharkMesh *smesh){nmesh = smesh;  bones = map<string, SharkBone*>(); isLinearBlendSkinned = true; }
 		~SharkSkeleton(){}		 
 		
 		void buildSkeleton(Mesh *mesh, int numSegs, float* segLengths); //given a set of mesh segments, it creates the bones. 
@@ -54,7 +54,8 @@ class SharkSkeleton
 		string rootNode; //root node of the heirarchical model.
 		SharkMesh *nmesh;
 		double totalLength;  //the length of the shark, in world coordinates.
-		
+		bool isLinearBlendSkinned; 
+
 		//animation frames
 		int nextFrameNo;    //TODO ??? what is this again
 		

@@ -38,14 +38,17 @@ class Quad
 		void sTransformedVert(int index, Vector3f vert){verts[index]->sTransformed(vert);}
 		void sLocalVert(int index, Vector3f vert){verts[index]->sLocal(vert);}
 	
-		void matrixTransform(MyMat stackmatri);
-	
+		void matrixTransform(MyMat stackmatri);  //rigid body transformation
+		void linearBlendTransform(MyMat stackmatri, string boneName);   //skinned transformation 
+		void restPosition();  //returns quad to rest position (clears transformations). 
+		
+
 		Vector3f gNormal(){return faceNormal;}	
 		void sNormal(Vector3f newNormal){faceNormal = newNormal;}
 
 		int gBoneNo(){return boneNo;}
 		void sBoneNo(int bone){boneNo = bone;}
-		float checkBone(string boneName){ return verts[0]->checkBone(boneName) ; } //hax
+		float checkBone(string boneName);
 
 		Quad* gFront(){return front;}	
 		Quad* gBack(){return back;}	
