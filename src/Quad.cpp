@@ -6,7 +6,8 @@
 
 Vector3f Quad::calcNormal()
 {
-	Vector3f vectorA, vectorB, normal;
+	//Vector3f vectorA, vectorB, normal;
+	Vector3f nor = Vector3f(0,0,0);
 	int i;
 	/*for ( i = 0; i < vertCounter; i+=4 ) 
 	{
@@ -19,7 +20,12 @@ Vector3f Quad::calcNormal()
 	       normals[i+2] += normal;
 	       normals[i+3] += normal;
 	}*/
-	return normal;
+	for(i = 0; i < 4; i++)
+	{
+		nor = nor + verts[i]->normal;
+	}
+	faceNormal = nor / 4.0;
+	return nor;
 }
 
 double Quad::attenuate(int numedges, int iteration, int k)
@@ -114,21 +120,6 @@ void Quad::matrixTransform(MyMat matrix)
 
 	verts[1]->transformed = Vector3f(matrix.multVec(verts[1]->local, true));
 	verts[2]->transformed = Vector3f(matrix.multVec(verts[2]->local, true));
-}
-
-/*Skinning transform of a quad with a transformation and the name of the bone that created that transformation.
- * Vertex weights taken from the bone name affect the strength of the  */
-void Quad::linearBlendTransform(MyMat matrix, string boneName)
-{
-	for(int i = 0; i < 4; i++)
-	{
-		float weight = verts[i]->checkBone(boneName);
-		if(weight > 0)
-		{
-			verts[i]->transformed = verts[i]->transformed + 
-						(Vector3f(matrix.multVec(verts[i]->local, true))*weight);
-		}
-	}
 }
 
 /*Returns the weight on the first vertex that matches this bone */

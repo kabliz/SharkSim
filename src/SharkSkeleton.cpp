@@ -59,7 +59,6 @@ string SharkSkeleton::nextToken(char delimit, FILE* readFile)
 		if(cur == delimit || cur == '\n') {break;}
 		numb.append(1,cur);
 	}
-	printf("%s\n", numb.c_str());
 	return numb;
 }
 
@@ -139,7 +138,11 @@ void SharkSkeleton::buildSkeletonAOBJ(string filename)
 			gBone(boneRelationships[i][0])->addChild(gBone(boneRelationships[i][j]));	
 		}	
 	}
+	bones[rootNode]->buildTranslation(bones[rootNode]->gHead());
+
 	fclose(readFile);
+
+
 }
 
 
@@ -207,7 +210,6 @@ void SharkSkeleton::applyTransformation()
 
 	nmesh->restPosition();   //reset all of the transformations
 	bones[rootNode]->transformBone(&stackMatrix, !isLinearBlendSkinned);
-	//bones[rootNode]->transformBone(&stackMatrix, isLinearBlendSkinned);
 	nmesh->hasNewTransform = true; //polling for new Keyframes will succeed now.
 }
 

@@ -256,6 +256,27 @@ Vector3f MyMat::multVec(Vector3f v, bool isPoint)
 	return newvec;
 }
 
+MyMat& MyMat::multScalar(const float multi)
+{
+	m_Elem[0][0] *= multi ;
+	m_Elem[0][1] *= multi ;
+	m_Elem[0][2] *= multi ;
+	m_Elem[0][3] *= multi ;
+	m_Elem[1][0] *= multi ;
+	m_Elem[1][1] *= multi ;
+	m_Elem[1][2] *= multi ;
+	m_Elem[1][3] *= multi ;
+	m_Elem[2][0] *= multi ;
+	m_Elem[2][1] *= multi ;
+	m_Elem[2][2] *= multi ;
+	m_Elem[2][3] *= multi ;
+	m_Elem[3][0] *= multi ;
+	m_Elem[3][1] *= multi ;
+	m_Elem[3][2] *= multi ;
+	m_Elem[3][3] *= multi ;
+}
+
+
 /*   similar to SbMatrix
  *   Return matrix components in the SbMat structure.
  */

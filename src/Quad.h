@@ -39,7 +39,7 @@ class Quad
 		void sLocalVert(int index, Vector3f vert){verts[index]->sLocal(vert);}
 	
 		void matrixTransform(MyMat stackmatri);  //rigid body transformation
-		void linearBlendTransform(MyMat stackmatri, string boneName);   //skinned transformation 
+		//void linearBlendTransform(MyMat stackmatri, string boneName);   //skinned transformation 
 		void restPosition();  //returns quad to rest position (clears transformations). 
 		
 

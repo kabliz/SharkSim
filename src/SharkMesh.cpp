@@ -11,7 +11,6 @@ string SharkMesh::nextToken(char delimit, FILE* readFile)
 		if(cur == delimit || cur == '\n') {break;}
 		numb.append(1, cur);
 	}
-	//printf("%s \n", numb.c_str());
 	return numb;
 }
 
@@ -25,7 +24,7 @@ void SharkMesh::buildAOBJ(FILE* readFile)
 		//it should be on the first on the line
 		char identifier = fgetc(readFile);
 		if(ferror(readFile)){ printf("888888888Error reading FILE\n"); exit(-1);}
-		
+
 
 		//load in the vertices
 		//v x y z nx ny nz boneName/weight boneName/weight ...
@@ -48,9 +47,7 @@ void SharkMesh::buildAOBJ(FILE* readFile)
 				nor.x = atof(nextToken(' ', readFile).c_str());
 				nor.y = atof(nextToken(' ', readFile).c_str());
 				nor.z = atof(nextToken(' ', readFile).c_str());
-				sv->sNormal(nor);
-				
-				vert.Print();
+				sv->sNormal(nor*-1.0);  //TODO magic.  fix blender normals. shouldn't need to reverse them.
 
 				sv->sTransformed(Vector3f(0,0,0));
 				//bone / weight repeats
@@ -63,12 +60,10 @@ void SharkMesh::buildAOBJ(FILE* readFile)
 					sv->sBonePair(boneName, weight);
 					fseek(readFile, -1, SEEK_CUR);
 					cur = fgetc(readFile);
-					//printf(" %s/%f", boneName.c_str(), weight);
 				}
 				localVerts.push_back(vert);
 				insertVec(pair<Vector3f, SharkVertex*>(vert, sv));
 			}
-			printf("\n");
 		}
 		//faces
 		//f ... vertices in mesh .....
@@ -78,19 +73,18 @@ void SharkMesh::buildAOBJ(FILE* readFile)
 			if(ferror(readFile)){ printf("4Error reading FILE\n"); exit(-1);}
 			Quad *curQuad = new Quad();
 			curQuad->sNormal(Vector3f(0,0,0));
-			
+
 			//caution. Vertices listed in mesh may not be consistant with other quads 
 			int vertex1 = atoi(nextToken(' ', readFile).c_str());
 			int vertex2 = atoi(nextToken(' ', readFile).c_str());
 			int vertex3 = atoi(nextToken(' ', readFile).c_str());
 			int vertex4 = atoi(nextToken(' ', readFile).c_str());
-			
+
 			curQuad->sVert(0, gVertex(localVerts[vertex1-1]));
 			curQuad->sVert(1, gVertex(localVerts[vertex2-1]));
 			curQuad->sVert(2, gVertex(localVerts[vertex3-1]));
 			curQuad->sVert(3, gVertex(localVerts[vertex4-1]));
-			//curQuad->sNormal(curQuad->gNormal() + curQuad->gVert(0) + curQuad->gVert(1) + curQuad->gVert(2) + curQuad->gVert(3));
-			curQuad->sNormal(curQuad->gNormal() / 4.0);
+			curQuad->calcNormal();
 
 			pushFace(curQuad);	
 			//neighboring quads are to be found later, after parsing is done.
@@ -101,8 +95,6 @@ void SharkMesh::buildAOBJ(FILE* readFile)
 			{
 				cur = fgetc(readFile);
 				if(ferror(readFile)){ printf("5Error reading FILE\n"); exit(-1);}
-				//fseek(readFile, -1, SEEK_CUR);
-				//cur = fgetc(readFile);
 			}
 		}		
 		//bones
@@ -115,7 +107,8 @@ void SharkMesh::buildAOBJ(FILE* readFile)
 	}
 }
 
-/*Restores vertex transformation back to rest pose */
+
+/*Restores vertex transformation back to rest pose (joint space) */
 void SharkMesh::restPosition()
 {
 	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
@@ -124,6 +117,23 @@ void SharkMesh::restPosition()
 		im->second->transformed = im->second->local;
 	}
 }
+
+/*Skinning transform of a quad with a transformation and the name of the bone that created that transformation.
+ *  * Vertex weights taken from the bone name affect the strength of the  */
+void SharkMesh::linearBlendTransform(MyMat matrix, string boneName)
+{
+	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
+	for(im = vertices.begin(); im != vertices.end(); im++ )
+	{
+		float weight = im->second->checkBone(boneName);
+		if(weight > 0)
+		{
+			im->second->transformed +=  
+				Vector3f(matrix.multVec(im->second->local, true))*weight;
+		}
+	}
+}
+
 
 //TODO delete Heap properly.
 void SharkMesh::deleteHeap()

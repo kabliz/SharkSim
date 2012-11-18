@@ -10,6 +10,7 @@
 
 #include "SharkVertex.h"
 #include "Quad.h"
+#include "MyMat.h"
 
 /*Compares two vertices to make sure they don't already exist in the mesh. */
 struct compareVect3
@@ -57,12 +58,15 @@ class SharkMesh
 		void pushFace(Quad* f){faces.push_back(f);}
 		vector<Quad*>::iterator gFaceBegin(){return faces.begin();}
 		vector<Quad*>::iterator gFaceEnd(){return faces.end();}
+		map<Vector3f, SharkVertex*,compareVect3>::iterator gVertBegin(){return vertices.begin();}
+		map<Vector3f, SharkVertex*,compareVect3>::iterator gVertEnd(){return vertices.end();}
 
 		bool isTransformReady(){return hasNewTransform;}
 		bool isUpdateApproved(){return newUpdateApproved;}
 		void sNewTransform(bool n){hasNewTransform = n;}
 		void sUpdateApproved(bool n){newUpdateApproved = n;}
 		void restPosition();  //resets transform vertex back to local (rest) pose
+		void linearBlendTransform(MyMat matrix, string boneName);
 
 	//private:
 		map<Vector3f, SharkVertex*, compareVect3> vertices;

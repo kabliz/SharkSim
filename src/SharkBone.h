@@ -34,16 +34,19 @@ class SharkBone
 		void sQuad(Quad* q){return quads.push_back(q);}
 		void sLength(double len){boneLength = len;}
 		double gLength(){return boneLength;}
+		void buildTranslation(Vector3f prevtail);
 		void boneLengthToTranslation(bool downStream); //for the non-general building (Cal Shark) method only  	
 		void addTranslation(MyMat trans){transMatHeir.multRight(trans);}
 		void sJointTranslation(MyMat trans){jointTrans.multRight(trans);}
 		string gName(){return boneName;}
 		void sName(string newname){boneName = newname;}
-		
+		Vector3f gHead(){return headPoint;}
+		Vector3f gTail(){return tailPoint;}
+
 		void addChild(SharkBone* ch){childBones.push_back(ch);}
 
 	//private:		
-		vector<Quad*> quads; //Quads are organized into rows, and each row has a list of quads in it
+		vector<Quad*> quads; //Quads are organized into rows, and each row has a list of quads in it. Good for rigib body transforms
 		SharkMesh *sMesh;  //pointer to the main shark mesh.
 		
 		MyMat rotationMatrix;
@@ -62,6 +65,10 @@ class SharkBone
 		MyMat transMatHeir;   //apply this translation to the stack.           translates from boneLength
 		MyMat transMatLocal;      //only apply this translation to this bone.  translates from startB and endB
 		MyMat jointTrans;     //any custom trans add here. Possibly hacky.
+
+		Vector3f headPoint;
+		Vector3f tailPoint;
+
 
 		//child bones. Recursive transform downwards
 		vector<SharkBone*> childBones;
