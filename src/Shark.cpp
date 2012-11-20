@@ -133,8 +133,11 @@ void Shark::drawSkin(int frame)
 	materials(Grey);
 	glPushMatrix();
 
-		
-	if(showSkin && !(ismoving || play))  //if we are drawing the skin
+	/*if(true) //draw boens in wireframe mode
+	{
+		skeleton.draw();
+	}	
+	if(showSkin && !(ismoving || play))  //if we are drawing the skin  /?TODO remove this entire old chunk of code
 	{
 		
 		glTranslatef(segLength[0], 0, 0); //segment drawing moves the whole mesh back a space
@@ -158,15 +161,20 @@ void Shark::drawSkin(int frame)
 		for(int i = 0; i < segments; i++)
 			glPopMatrix();
 		
-	}
-	else if(showSkin && ismoving)
+	}*/
+	//else if(showSkin)
+	if(showSkin)
 	{
 		kfSys.draw();
 	}
-	else if(showSkin && play)
+	else
 	{
-		//kfSys.sequences[0].drawKeyFrame(frame); //TODO
+		skeleton.draw();
 	}
+	//else if(showSkin && play)
+	//{
+		//kfSys.sequences[0].drawKeyFrame(frame); //TODO
+	//}
 	
 	
 	glPopMatrix();

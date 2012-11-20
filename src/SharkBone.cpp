@@ -58,32 +58,6 @@ void SharkBone::buildBoneAOBJ(string bName, Vector3f headpt, Vector3f tailpt )
 	headPoint = headpt;
 	tailPoint = tailpt;
 
-	//hunt through the mesh and pull out all quads with the boneName on it
-	//vector<Quad*>::iterator iq;
-	map<Vector3f, SharkVertex*, compareVect3>::iterator iq;
-	/*for(iq = sMesh->gFaceBegin(); iq != sMesh->gFaceEnd(); iq++)
-	{
-		if((*iq)->checkBone(boneName) > 0)  //quad is on this bone
-		{
-			sQuad(*iq);
-		}
-	}*/
-
-	//binding matrix
-	/*for(iq = sMesh->gVertBegin(); iq != sMesh->gVertEnd(); iq++)
-	{
-		float weight = (iq)->second->checkBone(boneName);
-		if(weight > 0)  //vert is on this bone
-		{
-			
-			//inverse translate the vertex from skin local space to joint local space
-			//MyMat invTrans = MyMat();
-			//invTrans.makeTranslate(headpt*-weight);
-			//invTrans.makeTranslate(headpt);
-			//(iq)->second->local = invTrans.multVec((iq)->second->local, true);
-		}
-	}*/
-
 	//length of bone
 	boneLength = headpt.EuclDistance(tailpt);
 	
@@ -96,30 +70,23 @@ void SharkBone::buildBoneAOBJ(string bName, Vector3f headpt, Vector3f tailpt )
 	
 	qr.CreateFromAxisAngle(0, 1, 0, theta);
         changeAngle(qr);	
-
-	//get translates 
-	//headpoint - ROOT HEAD POINT? hurr durr
-	//Vector3f locTrans = headpt*-1;
-	//transMatLocal.makeTranslate(locTrans);   //skin space to joint space
-	//transMatHeir.makeTranslate(headpt-tailpt);   //joint space to shark space
-
-	//printf("%s : %f < %f %f %f >\n", boneName.c_str(), theta, locTrans.x, locTrans.y, locTrans.z );
 }
 
-void SharkBone::buildTranslation(Vector3f root)
+
+/*creates translation matrices for this bone and all child bones */
+void SharkBone::buildTranslation(Vector3f root, Vector3f headL, Vector3f tailL)
 {
-	//headpoint - ROOT HEAD POINT? hurr durr
-	Vector3f locTrans = (headPoint - root);
-	//Vector3f locTrans = (root - headPoint);
-	
+	Vector3f locTrans = (headPoint - (headPoint-tailPoint))*-1;
 	transMatLocal.makeTranslate(locTrans);   //skin space to joint space
 	
-	transMatHeir.makeTranslate(headPoint-tailPoint);   //joint space to shark space
+	Vector3f transHeir = headPoint-tailPoint;
+	transHeir = transHeir * -1;
+	transMatHeir.makeTranslate(transHeir);   //joint space to shark space
 
 	vector<SharkBone*>::iterator ic;
 	for(ic = childBones.begin(); ic != childBones.end(); ic++)
 	{
-		(*ic)->buildTranslation(root);
+		(*ic)->buildTranslation(root, headPoint, tailPoint);
 	}
 }
 
@@ -166,9 +133,10 @@ void SharkBone::changeAngle(glQuaternion newAngle)
 			glm[11],glm[15]);
 }
 
-/*Matrix multiplies the smark SharkMesh
- * pass down the hierarchical model matrix and a value  */
-void SharkBone::transformBone(MyMat *stackMatrix, bool rigidBody)
+
+/*creates the matrices. Advances matrix hierarchy and derives the combined heirarchical matrix and binding matrix
+ * returns: the binding matrix that is not tied tot he hierarchy */
+MyMat SharkBone::createTransforms(MyMat *stackMatrix)
 {
 	//current shark model segment
 	MyMat Matrix = *stackMatrix;
@@ -176,14 +144,22 @@ void SharkBone::transformBone(MyMat *stackMatrix, bool rigidBody)
 
 	Matrix = Matrix.multRight(jointTrans);
 	Matrix = Matrix.multRight(rotationMatrix); //roatation goes before translates
-	//if(rigidBody){ Matrix = Matrix.multRight(transMatHeir); }
 	Matrix = Matrix.multRight(transMatHeir); 
 	
 	*stackMatrix = Matrix; //advance heirarchy, without applying the below local translation to the whole stack
-	
-	
+	Matrix = Matrix.multRight(transMatLocal);
+
+	return Matrix;
+}
+
+/*Matrix multiplies the smark SharkMesh
+ * pass down the hierarchical model matrix and a value  */
+void SharkBone::transformBone(MyMat *stackMatrix, bool rigidBody)
+{
+	//current shark model segment
+	MyMat Matrix = createTransforms(stackMatrix); 
+
 	if(rigidBody){ 
-		Matrix = Matrix.multRight(transMatLocal);
 		vector<Quad*>::iterator iq;
 		//transform each quad in the mesh
 		for(iq = quads.begin(); iq < quads.end(); iq++)
@@ -193,9 +169,45 @@ void SharkBone::transformBone(MyMat *stackMatrix, bool rigidBody)
 		}
 	}
 	else {
-		Matrix = Matrix.multLeft(transMatLocal);
 		sMesh->linearBlendTransform(Matrix, boneName);
 	}
+
+	//recursive transform downwards to child bones. 
+	//The matrix is copied so that child changes don't propagate upstream  
+	vector<SharkBone*>::iterator ib; 
+	for(ib = childBones.begin(); ib != childBones.end(); ib++ )
+	{
+		MyMat tmp = MyMat(*stackMatrix);	
+		(*ib)->transformBone(&tmp, rigidBody);
+	}
+
+}
+
+void SharkBone::drawTri(MyMat matrix)
+{
+	Vector3f perpen = headPoint.Cross(tailPoint);
+	perpen = perpen / perpen.Magnitude();
+	Vector3f tailV = Vector3f(matrix.multVec(tailPoint, true));
+	Vector3f headVa = Vector3f(matrix.multVec(headPoint, true)) + (perpen*.15);
+	Vector3f headVb = Vector3f(matrix.multVec(headPoint, true)) - (perpen*.15);
+
+	glColor3f(0,1.0,0);
+	glBegin(GL_TRIANGLES);
+	{
+		glVertex3f(tailV.x, tailV.y, tailV.z);	
+		glVertex3f(headVa.x, headVa.y, headVa.z);	
+		glVertex3f(headVb.x, headVb.y, headVb.z);	
+	} glEnd();
+	glColor3f(1,1,1);
+
+}
+
+void SharkBone::draw(MyMat *stackmatrix)
+{
+	MyMat Matrix = createTransforms(stackmatrix);
+
+	//current shark model segment
+	drawTri(Matrix);
 
 	//recursive transform downwards to child bones. 
 	//The matrix is copied so that child changes don't propagate upstream  
@@ -203,8 +215,7 @@ void SharkBone::transformBone(MyMat *stackMatrix, bool rigidBody)
 	
 	for(ib = childBones.begin(); ib != childBones.end(); ib++ )
 	{
-		MyMat tmp = MyMat(*stackMatrix);	
-		(*ib)->transformBone(&tmp, rigidBody);
+		MyMat tmp = MyMat(*stackmatrix);	
+		(*ib)->draw(&tmp);
 	}
-
 }

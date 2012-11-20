@@ -68,6 +68,8 @@ class SharkMesh
 		void restPosition();  //resets transform vertex back to local (rest) pose
 		void linearBlendTransform(MyMat matrix, string boneName);
 
+		void countWeights();  //prints out combined weights of all the vertices
+
 	//private:
 		map<Vector3f, SharkVertex*, compareVect3> vertices;
 		vector<Quad*> faces;

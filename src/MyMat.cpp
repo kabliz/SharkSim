@@ -256,24 +256,37 @@ Vector3f MyMat::multVec(Vector3f v, bool isPoint)
 	return newvec;
 }
 
-MyMat& MyMat::multScalar(const float multi)
+Vector3f MyMat::multVecRight(Vector3f v, bool isPoint)
 {
-	m_Elem[0][0] *= multi ;
-	m_Elem[0][1] *= multi ;
-	m_Elem[0][2] *= multi ;
-	m_Elem[0][3] *= multi ;
-	m_Elem[1][0] *= multi ;
-	m_Elem[1][1] *= multi ;
-	m_Elem[1][2] *= multi ;
-	m_Elem[1][3] *= multi ;
-	m_Elem[2][0] *= multi ;
-	m_Elem[2][1] *= multi ;
-	m_Elem[2][2] *= multi ;
-	m_Elem[2][3] *= multi ;
-	m_Elem[3][0] *= multi ;
-	m_Elem[3][1] *= multi ;
-	m_Elem[3][2] *= multi ;
-	m_Elem[3][3] *= multi ;
+	float hg = (isPoint ? 1.0 : 0.0);
+	Vector3f newvec;
+	
+	newvec.x = v.x*m_Elem[0][0] + v.y*m_Elem[1][0] + v.z*m_Elem[2][0] + hg*m_Elem[3][0];
+	newvec.y = v.x*m_Elem[0][1] + v.y*m_Elem[1][1] + v.z*m_Elem[2][1] + hg*m_Elem[3][1];
+	newvec.z = v.x*m_Elem[0][2] + v.y*m_Elem[1][2] + v.z*m_Elem[2][2] + hg*m_Elem[3][2];
+	return newvec;
+}
+
+MyMat MyMat::multScalar(const float multi)
+{
+	MyMat newMat = MyMat();
+	newMat[0][0] = m_Elem[0][0] * multi ;
+	newMat[0][1] = m_Elem[0][1] * multi ;
+	newMat[0][2] = m_Elem[0][2] * multi ;
+	newMat[0][3] = m_Elem[0][3] * multi ;
+	newMat[1][0] = m_Elem[1][0] * multi ;
+	newMat[1][1] = m_Elem[1][1] * multi ;
+	newMat[1][2] = m_Elem[1][2] * multi ;
+	newMat[1][3] = m_Elem[1][3] * multi ;
+	newMat[2][0] = m_Elem[2][0] * multi ;
+	newMat[2][1] = m_Elem[2][1] * multi ;
+	newMat[2][2] = m_Elem[2][2] * multi ;
+	newMat[2][3] = m_Elem[2][3] * multi ;
+	newMat[3][0] = m_Elem[3][0] * multi ;
+	newMat[3][1] = m_Elem[3][1] * multi ;
+	newMat[3][2] = m_Elem[3][2] * multi ;
+	newMat[3][3] = m_Elem[3][3] * multi ;
+	return newMat;
 }
 
 
@@ -305,18 +318,6 @@ void MyMat::setValue(const MyMat &m) {
 	m_Elem[3][2] = temp_m[3][2];
 	m_Elem[3][3] = temp_m[3][3];
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /*   similar to SbMatrix

@@ -35,7 +35,8 @@ class MyMat {
 		MyMat& multRight(const MyMat &m);
 		MyMat& multLeft(const MyMat & m);
 		Vector3f multVec(Vector3f input, bool isPoint);
-		MyMat& multScalar(const float multi);
+		Vector3f multVecRight(Vector3f input, bool isPoint);
+		MyMat multScalar(const float multi);
 
 		//
 		MyMat inverse(void) const;

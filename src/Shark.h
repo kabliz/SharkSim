@@ -87,6 +87,7 @@ class Shark
 		bool ismoving;				//toggle shark movement
 		bool play;				//toggle shark movement frame by frame
 
+
 		//used to draw spine
 		double	segPercent;			//percent of the totalLength 1 segment is (used in segUpdate)
 		double	lengthLeft;			//amount of shark not with specified length (used in segUpdate)

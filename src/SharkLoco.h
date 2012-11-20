@@ -34,7 +34,7 @@ class SharkLoco {
 		void buildAnimations( int totalFrames, GLfloat *segmentRot, int totalAngles  );
                 bool buildAngles( GLfloat segmentRot[], int FrameNo, int totalAngles  );
 		
-
+		void draw(){skeleton.draw();}
 
 		//simulation related functions
 		void calcNextAngles(int railAngle);     //automatically gets next keyframe based on the speed of the animated angle rate.

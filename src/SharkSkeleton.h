@@ -40,6 +40,8 @@ class SharkSkeleton
 		
 		bool newUpdateApproved(){return nmesh->newUpdateApproved;}
 
+		void draw();
+
 	private:
 	
 		//objs

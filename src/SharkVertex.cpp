@@ -10,7 +10,7 @@ float SharkVertex::checkBone(string boneName)
 			return gBoneWeight(i);
 		}	
 	}
-	return -1;
+	return 0;
 
 }
 

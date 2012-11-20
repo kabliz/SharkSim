@@ -125,12 +125,27 @@ void SharkMesh::linearBlendTransform(MyMat matrix, string boneName)
 	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
 	for(im = vertices.begin(); im != vertices.end(); im++ )
 	{
-		float weight = im->second->checkBone(boneName);
-		if(weight > 0)
+		float weight = (*im).second->checkBone(boneName);
+		if(weight > 0.001)
 		{
-			im->second->transformed +=  
-				Vector3f(matrix.multVec(im->second->local, true))*weight;
+			(*im).second->transformed += 
+				matrix.multScalar(weight).multVec((*im).second->local, true);
 		}
+	}
+}
+
+
+void SharkMesh::countWeights()
+{
+	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
+	for(im = vertices.begin(); im != vertices.end(); im++ )
+	{
+		float weight = 0;
+		for(int i = 0; i < im->second->gNumInfluences(); i++)
+		{
+			weight += im->second->gBoneWeight(i);
+		}
+		printf("%f\n", weight);
 	}
 }
 

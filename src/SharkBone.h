@@ -34,7 +34,7 @@ class SharkBone
 		void sQuad(Quad* q){return quads.push_back(q);}
 		void sLength(double len){boneLength = len;}
 		double gLength(){return boneLength;}
-		void buildTranslation(Vector3f prevtail);
+		void buildTranslation(Vector3f root, Vector3f prevhead, Vector3f prevtail);
 		void boneLengthToTranslation(bool downStream); //for the non-general building (Cal Shark) method only  	
 		void addTranslation(MyMat trans){transMatHeir.multRight(trans);}
 		void sJointTranslation(MyMat trans){jointTrans.multRight(trans);}
@@ -45,6 +45,8 @@ class SharkBone
 
 		void addChild(SharkBone* ch){childBones.push_back(ch);}
 
+		void draw(MyMat *stackMatrix);
+
 	//private:		
 		vector<Quad*> quads; //Quads are organized into rows, and each row has a list of quads in it. Good for rigib body transforms
 		SharkMesh *sMesh;  //pointer to the main shark mesh.
@@ -53,6 +55,10 @@ class SharkBone
 		double boneLength; //this is the length of the mesh segment. 
 
 	private:
+
+		void drawTri(MyMat matrix);
+		MyMat createTransforms(MyMat *stackmatrix);
+
 		string boneName;   //given bone name.  A bone's name should be unique in its skeleton.
 		int boneNo;  // the index of the bone in the skeleton
 		glQuaternion rotatQ;

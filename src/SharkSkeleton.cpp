@@ -138,7 +138,9 @@ void SharkSkeleton::buildSkeletonAOBJ(string filename)
 			gBone(boneRelationships[i][0])->addChild(gBone(boneRelationships[i][j]));	
 		}	
 	}
-	bones[rootNode]->buildTranslation(bones[rootNode]->gHead());
+	bones[rootNode]->buildTranslation(bones[rootNode]->gHead(), Vector3f(0,0,0), Vector3f(0,0,0));
+
+	//nmesh->countWeights();
 
 	fclose(readFile);
 
@@ -213,4 +215,13 @@ void SharkSkeleton::applyTransformation()
 	nmesh->hasNewTransform = true; //polling for new Keyframes will succeed now.
 }
 
+void SharkSkeleton::draw()
+{
+	MyMat stackMatrix = MyMat();
+
+	//this sets the mesh back so it's aligned in world coordinates as it should be.
+	stackMatrix.multRight(armTranslation);	
+
+	bones[rootNode]->draw(&stackMatrix);
+}
 

@@ -210,7 +210,7 @@ void SplinePath::initTangents()
 	if(!isCatmullMode)
 	{
 		//first value needs to be initilized 
-		Vector3f tan = (points[1]-(points[2]-points[1]) - points[0]) *.5;
+		Vector3f tan = (points[1]-(points[2]-points[1]) - points[0]) *.9;
 		tangents.push_back(tan);
 
 		//loop over each of the middle points
@@ -222,12 +222,12 @@ void SplinePath::initTangents()
 			int j = 3;
 			while(edgeDiff.Magnitude() == 0)
 			{
-				edgeDiff = (points[i+j] - points[i-j]) * .5;
+				edgeDiff = (points[i+j] - points[i-j]) * .9;
 				j++;
 			}
 
 			//tangent calculation
-			tan = (edgeDiff)* (points[i+1]-points[i]).Magnitude() / (edgeDiff).Magnitude()*.5;
+			tan = (edgeDiff)* (points[i+1]-points[i]).Magnitude() / (edgeDiff).Magnitude()*.9;
 			tangents.push_back(tan);
 		}
 
