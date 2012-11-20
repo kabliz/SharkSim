@@ -51,6 +51,7 @@ class SharkMesh
 		map<Vector3f, SharkVertex*, compareVect3>::iterator gVerticesEnd(){return vertices.end();}
 		void insertVec (pair< Vector3f, SharkVertex*> u ){vertices.insert(u);}
 
+
 		Quad* gFace(int index){return faces[index];}
 		int faceSize(){return faces.size();}
 		int vertSize(){return vertices.size();}
@@ -67,11 +68,15 @@ class SharkMesh
 		void sUpdateApproved(bool n){newUpdateApproved = n;}
 		void restPosition();  //resets transform vertex back to local (rest) pose
 		void linearBlendTransform(MyMat matrix, string boneName);
+		void linearBlendTransform();
+		void setSkinMatrix(string bName, MyMat rix){skinTransforms.insert(pair<string, MyMat>(bName, rix));}
 
 		void countWeights();  //prints out combined weights of all the vertices
 
 	//private:
 		map<Vector3f, SharkVertex*, compareVect3> vertices;
+		map<string, MyMat> skinTransforms;
+		MyMat gSkinMatrix(string name){return skinTransforms.find(name)->second;}
 		vector<Quad*> faces;
 		bool hasNewTransform;
 		bool newUpdateApproved;

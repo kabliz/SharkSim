@@ -169,7 +169,7 @@ void SharkBone::transformBone(MyMat *stackMatrix, bool rigidBody)
 		}
 	}
 	else {
-		sMesh->linearBlendTransform(Matrix, boneName);
+		sMesh->setSkinMatrix(boneName, Matrix);
 	}
 
 	//recursive transform downwards to child bones. 

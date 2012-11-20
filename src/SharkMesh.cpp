@@ -116,6 +116,8 @@ void SharkMesh::restPosition()
 	{
 		im->second->transformed = im->second->local;
 	}
+
+	skinTransforms = map<string, MyMat>();  //wipe out bone information
 }
 
 /*Skinning transform of a quad with a transformation and the name of the bone that created that transformation.
@@ -133,6 +135,29 @@ void SharkMesh::linearBlendTransform(MyMat matrix, string boneName)
 		}
 	}
 }
+
+/*Skinning transform of a quad with a transformation and the name of the bone that created that transformation.
+ *  * Vertex weights taken from the bone name affect the strength of the  */
+void SharkMesh::linearBlendTransform()
+{
+	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
+	for(im = vertices.begin(); im != vertices.end(); im++ )
+	{
+		string boneName;
+		map<string, MyMat>::iterator ib;
+		for(ib = skinTransforms.begin(); ib != skinTransforms.end(); ib++)
+		{
+			float weight = (*im).second->checkBone((*ib).first);
+			if(weight > 0.001)
+			{
+				MyMat matrix = gSkinMatrix(ib->first); 
+				(*im).second->transformed += 
+					matrix.multScalar(weight).multVec((*im).second->local, true);
+			}
+		}
+	}
+}
+
 
 
 void SharkMesh::countWeights()

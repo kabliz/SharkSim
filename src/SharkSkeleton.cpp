@@ -140,8 +140,6 @@ void SharkSkeleton::buildSkeletonAOBJ(string filename)
 	}
 	bones[rootNode]->buildTranslation(bones[rootNode]->gHead(), Vector3f(0,0,0), Vector3f(0,0,0));
 
-	//nmesh->countWeights();
-
 	fclose(readFile);
 
 
@@ -211,7 +209,10 @@ void SharkSkeleton::applyTransformation()
 	stackMatrix.multRight(armTranslation);	
 
 	nmesh->restPosition();   //reset all of the transformations
-	bones[rootNode]->transformBone(&stackMatrix, !isLinearBlendSkinned);
+	bones[rootNode]->transformBone(&stackMatrix, !isLinearBlendSkinned);  //transform skeleton
+	if(isLinearBlendSkinned){
+		nmesh->linearBlendTransform();   //apply skeleton to skin
+	}
 	nmesh->hasNewTransform = true; //polling for new Keyframes will succeed now.
 }
 
