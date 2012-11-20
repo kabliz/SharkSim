@@ -571,3 +571,13 @@ ostream& operator<<( ostream& os, const MyMat& m )
 	return(os);
 }
 
+float MyMat::diagonalMagnitude()
+{
+	float denom =  sqrt((m_Elem[0][0]*m_Elem[0][0]) + (m_Elem[1][1]*m_Elem[1][1]) + (m_Elem[2][2]*m_Elem[2][2]) + (m_Elem[3][3]*m_Elem[3][3]));
+	return m_Elem[0][0]/denom + m_Elem[1][1]/denom + m_Elem[2][2]/denom + m_Elem[3][3]/denom;
+}
+
+void MyMat::printDiagonalMag()
+{
+	printf("%f\n", diagonalMagnitude() );
+}

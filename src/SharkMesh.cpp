@@ -114,7 +114,8 @@ void SharkMesh::restPosition()
 	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
 	for(im = vertices.begin(); im != vertices.end(); im++ )
 	{
-		im->second->transformed = im->second->local;
+		//im->second->transformed = im->second->local;
+		im->second->transformed = Vector3f(0,0,0);//im->second->local;
 	}
 
 	skinTransforms = map<string, MyMat>();  //wipe out bone information
@@ -151,9 +152,15 @@ void SharkMesh::linearBlendTransform()
 			if(weight > 0.001)
 			{
 				MyMat matrix = gSkinMatrix(ib->first); 
+				MyMat scale = MyMat(); //weight mess ups
+				//float sk = 1.0/matrix.diagonalMagnitude();
+				//scale.makeScale(Vector3f(sk,sk,sk));
+				//matrix.multRight(scale);
 				(*im).second->transformed += 
 					matrix.multScalar(weight).multVec((*im).second->local, true);
 			}
+
+			
 		}
 	}
 }

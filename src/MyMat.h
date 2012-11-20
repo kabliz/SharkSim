@@ -9,6 +9,7 @@
 #define _MATRIX_H_
 
 #include <iostream>
+#include <cstdio>
 #include "Vector.h"
 #include <GL/glut.h>
 using namespace std;
@@ -45,7 +46,10 @@ class MyMat {
 		void makeTranslate(Vector3f trans);
 		void makeRotate(Vector3f rotation);
 		void makeScale(Vector3f scale);
-		
+	
+		void printDiagonalMag();
+		float diagonalMagnitude();
+
 		//interpolation functions
 
 		float * operator [](int i);

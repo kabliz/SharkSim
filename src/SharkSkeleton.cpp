@@ -138,7 +138,8 @@ void SharkSkeleton::buildSkeletonAOBJ(string filename)
 			gBone(boneRelationships[i][0])->addChild(gBone(boneRelationships[i][j]));	
 		}	
 	}
-	bones[rootNode]->buildTranslation(bones[rootNode]->gHead(), Vector3f(0,0,0), Vector3f(0,0,0));
+	//bones[rootNode]->buildTranslation(bones[rootNode]->gHead(), Vector3f(0,0,0), Vector3f(0,0,0));
+	bones[rootNode]->buildTranslation();
 
 	fclose(readFile);
 

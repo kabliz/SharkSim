@@ -22,7 +22,7 @@ void SharkLoco::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 
 void SharkLoco::buildSkeleton(string modelFile)
 {
-	skeleton.sRoot("Spine3");
+	skeleton.sRoot("Root");
 	skeleton.buildSkeletonAOBJ(modelFile);
 }
 
@@ -75,12 +75,12 @@ void SharkLoco::update(int dt, int railAngle, float velocity)
 {
 	elapsedTime += dt/1000.0;
 	//velocity factors
-	//swimFrequency = deriveFrequency(velocity); 
+	//swimFrequency = deriveFrequency(velocity/velocityToAmp); 
 	//propellingAmplitude = Vector3f(0.0, .967(?) , 0.0).Interpolate(Vector3f(0.1, 5.0, 0), swimFrequency); //velocity ;  
 				////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
 	//propellingAmplitude = Vector3f(0.1, 5.0, 0).Interpolate(Vector3f(.0, 0.967, 0), 
 	//						(swimFrequency > 5.0 ? 5.0 : swimFrequency)).y;
-	//propellingAmplitude = swimFrequency / velocityToAmp; // TODO amplitude scale
+	//propellingAmplitude = swimFrequency / velocityToAmp; // TODO amplitude scale. uncomment to renable movement
 
 	//check if the recalculate flag is set
 	if(skeleton.newUpdateApproved())
@@ -129,6 +129,7 @@ int SharkLoco::nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int max
 	if(finalAngle > maxAngle){finalAngle = maxAngle; }
 	if(finalAngle < -maxAngle){finalAngle = -maxAngle; }
 	finalAngle += TA;
+	//printf("%d %f %f %f\n", finalAngle, propellingAmplitude, swimFrequency, elapsedTime);
 	return finalAngle; 
 }
 

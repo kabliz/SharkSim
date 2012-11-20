@@ -23,10 +23,13 @@ class glQuaternion
 {
 	public:
 		glQuaternion operator *(glQuaternion q);
-		void CreateMatrix(float *pMatrix);
-		void CreateFromAxisAngle(float x, float y, float z, float degrees);
+		
 		glQuaternion();
 		virtual ~glQuaternion();
+		void CreateMatrix(float *pMatrix);
+		void CreateFromAxisAngle(float x, float y, float z, float degrees);
+		void Normalize();
+		float Magnitude();
 
 	private:
 		float m_w;

@@ -34,7 +34,8 @@ class SharkBone
 		void sQuad(Quad* q){return quads.push_back(q);}
 		void sLength(double len){boneLength = len;}
 		double gLength(){return boneLength;}
-		void buildTranslation(Vector3f root, Vector3f prevhead, Vector3f prevtail);
+		//void buildTranslation(Vector3f root, Vector3f prevhead, Vector3f prevtail);
+		void buildTranslation();
 		void boneLengthToTranslation(bool downStream); //for the non-general building (Cal Shark) method only  	
 		void addTranslation(MyMat trans){transMatHeir.multRight(trans);}
 		void sJointTranslation(MyMat trans){jointTrans.multRight(trans);}

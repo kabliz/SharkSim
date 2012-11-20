@@ -66,15 +66,13 @@ void SharkBone::buildBoneAOBJ(string bName, Vector3f headpt, Vector3f tailpt )
 	//Vector3f boneVec = tailpt - headpt;
 	Vector3f rot = boneVec.Normalize();
 	float theta = acos(rot.Dot(Vector3f(1,0,0)));
-	glQuaternion qr = glQuaternion(); 
-	
-	qr.CreateFromAxisAngle(0, 1, 0, theta);
-        changeAngle(qr);	
+        changeAngle(theta);	
 }
 
 
 /*creates translation matrices for this bone and all child bones */
-void SharkBone::buildTranslation(Vector3f root, Vector3f headL, Vector3f tailL)
+//void SharkBone::buildTranslation(Vector3f root, Vector3f headL, Vector3f tailL)
+void SharkBone::buildTranslation()
 {
 	Vector3f locTrans = (headPoint - (headPoint-tailPoint))*-1;
 	transMatLocal.makeTranslate(locTrans);   //skin space to joint space
@@ -86,7 +84,8 @@ void SharkBone::buildTranslation(Vector3f root, Vector3f headL, Vector3f tailL)
 	vector<SharkBone*>::iterator ic;
 	for(ic = childBones.begin(); ic != childBones.end(); ic++)
 	{
-		(*ic)->buildTranslation(root, headPoint, tailPoint);
+		//(*ic)->buildTranslation(root, headPoint, tailPoint);
+		(*ic)->buildTranslation();
 	}
 }
 
@@ -108,8 +107,8 @@ void SharkBone::changeAngle(int newAngle, bool isAheadRoot)
 	angleOfRot = newAngle;
 
 	GLfloat glm[16];
-
 	rotatQ.CreateFromAxisAngle(0,1,0, isAheadRoot ? -angleOfRot : angleOfRot);
+	//rotatQ.Normalize();
 	rotatQ.CreateMatrix(glm);
 	rotationMatrix = MyMat(glm[0], glm[4], glm[8], glm[12], glm[1], glm[5],glm[9],
 			glm[13],glm[2],glm[6],glm[10],glm[14],glm[3],glm[7],
@@ -127,10 +126,12 @@ void SharkBone::changeAngle(int newAngle)
 void SharkBone::changeAngle(glQuaternion newAngle)
 {
 	GLfloat glm[16];
+	//newAngle.Normalize();
 	newAngle.CreateMatrix(glm);	
 	rotationMatrix = MyMat(glm[0], glm[4], glm[8], glm[12], glm[1], glm[5],glm[9],
 			glm[13],glm[2],glm[6],glm[10],glm[14],glm[3],glm[7],
 			glm[11],glm[15]);
+
 }
 
 
@@ -170,6 +171,8 @@ void SharkBone::transformBone(MyMat *stackMatrix, bool rigidBody)
 	}
 	else {
 		sMesh->setSkinMatrix(boneName, Matrix);
+		//Matrix.printDiagonalMag();
+		//cout << Matrix << endl;
 	}
 
 	//recursive transform downwards to child bones. 

@@ -19,6 +19,21 @@ glQuaternion::~glQuaternion()
 
 }
 
+float glQuaternion::Magnitude()
+{
+	float denom = sqrt((m_x*m_x) + (m_y*m_y) + (m_z*m_z) + (m_w*m_w));
+	return (m_x/denom) + (m_y/denom) + (m_z/denom) + (m_w/denom); 
+}
+
+void glQuaternion::Normalize()
+{
+	float mag = Magnitude();
+	m_w = m_w / mag;
+	m_x = m_x / mag;
+	m_y = m_y / mag;
+	m_z = m_z / mag;
+}
+
 void glQuaternion::CreateFromAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat degrees)
 {
 	// First we want to convert the degrees to radians 
