@@ -13,6 +13,7 @@
 #include<GL/gl.h>
 #include<GL/glu.h>
 #include <math.h>
+#include "Vector.h"
 #define PI			3.14159265358979323846
 
 #if _MSC_VER > 1000
@@ -30,6 +31,18 @@ class glQuaternion
 		void CreateFromAxisAngle(float x, float y, float z, float degrees);
 		void Normalize();
 		float Magnitude();
+		Vector3f gVector();
+		void sVector(Vector3f vec);
+		glQuaternion multiply(glQuaternion other);
+
+		float gW(){return m_w;}
+		float sW(float w){m_w = w;}
+		float gX(){return m_x;}
+		float sX(float x){m_x = x;}
+		float gY(){return m_y;}
+		float sY(float y){m_y = y;}
+		float gZ(){return m_z;}
+		float sZ(float z){m_z = z;}
 
 	private:
 		float m_w;

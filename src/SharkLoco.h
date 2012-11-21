@@ -16,6 +16,7 @@ class SharkLoco {
 		SharkLoco(){locomotionMode = SUBCARANGIFORM; totalLength = 0;} //please set mesh 
 		SharkLoco(SharkMesh *bmesh){finalAngles = vector<int>(); 
 						curveAngles = vector<int>();
+						axialAngles = vector<int>();
 						animatedAngles = vector<vector<int> >(); 
 						skeleton = SharkSkeleton(bmesh); 
 						locomotionMode = SUBCARANGIFORM; 
@@ -52,10 +53,13 @@ class SharkLoco {
 		float segmentLength;
 
 		vector<int> angles;
+		vector<int> oldAngles;			//previous frame's angles
 		vector<int> finalAngles;  		//these are the bone angles that will be exported to the Keyframe
 		vector<int> curveAngles; 		//these represent the curvature of the spline at a point the shark will be.
 		vector<vector<int> > animatedAngles; 	//these are preset, artist driven, bone angles. 
-		
+		vector<int> axialAngles;		//rotation along the shark axis
+		int caudalLag;				//follow through on the tail fin
+
 		/*Bone names */
 		static const string spineKeys[];// = ["Spine1", "Spine2", "Spine3", "Spine4", "Spine5", "Spine6", "Spine7", "Spine8", "Spine9", "Spine10"];
 		static const string leftPec;// = "PecLeft";  	//Pectoral Fins
@@ -80,8 +84,10 @@ class SharkLoco {
 		float calcTurningAngle();
 		vector<int> getMaxAngles();  //returns the max angle for the current locomotion mode
 		int nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
+		int nextAxialAngle(int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
 		void findRailCurve(int railAngle);
 		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), relational initial angle (beta), propelling amplitude coefficent (K sub a),
+		void lowerCeratotrichia();
 
 		int gNumLocomotionBones();
 

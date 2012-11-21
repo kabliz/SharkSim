@@ -34,6 +34,28 @@ void glQuaternion::Normalize()
 	m_z = m_z / mag;
 }
 
+Vector3f glQuaternion::gVector()
+{
+	return Vector3f(m_x, m_y, m_z);
+}
+void glQuaternion::sVector(Vector3f n)
+{
+	m_x = n.x;
+	m_y = n.y;
+	m_z = n.z;
+
+}
+glQuaternion glQuaternion::multiply(glQuaternion other)
+{
+	glQuaternion result;
+	Vector3f c1 = Vector3f(m_x, m_y, m_z);
+	Vector3f c2 = Vector3f(other.gX(), other.gY(), other.gZ());
+	result.sW(m_w*other.gW() - c1.Dot(c2));
+        Vector3f mod = (c2*m_w) + (c1*other.gW()) + c1.Cross(c2);
+	result.sVector(mod);
+	return result;
+}
+
 void glQuaternion::CreateFromAxisAngle(GLfloat x, GLfloat y, GLfloat z, GLfloat degrees)
 {
 	// First we want to convert the degrees to radians 
