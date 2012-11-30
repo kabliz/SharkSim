@@ -13,7 +13,7 @@
 class SharkLoco {
 
 	public:
-		SharkLoco(){locomotionMode = SUBCARANGIFORM; totalLength = 0;} //please set mesh 
+		SharkLoco(){locomotionMode = SUBCARANGIFORM; totalLength = 0; sharkRealLength = TSEMI_LENGTH_M; } //please set mesh 
 		SharkLoco(SharkMesh *bmesh){finalAngles = vector<int>(); 
 						curveAngles = vector<int>();
 						axialAngles = vector<int>();
@@ -21,6 +21,7 @@ class SharkLoco {
 						skeleton = SharkSkeleton(bmesh); 
 						locomotionMode = SUBCARANGIFORM; 
 						swimFrequency = 8; propellingAmplitude = .15; turningAngle = 0; elapsedTime = 0; totalLength = 0;
+						sharkRealLength = TSEMI_LENGTH_M;
 						}
 		~SharkLoco(){}
 
@@ -37,6 +38,8 @@ class SharkLoco {
 		
 		void draw(){skeleton.draw();}
 
+		float scaleRatio(){return sharkRealLength / totalLength;}
+
 		//simulation related functions
 		void calcNextAngles(int railAngle);     //automatically gets next keyframe based on the speed of the animated angle rate.
 		//takes in the angle of the curve 
@@ -48,7 +51,7 @@ class SharkLoco {
 
 		int framesPerSequence;
 		int anglesPerFrame;
-		int totalLength;
+		float totalLength;
 		float sharkRealLength; //TODO incorporate into totalLength when scaled.
 		float segmentLength;
 

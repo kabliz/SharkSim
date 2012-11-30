@@ -38,6 +38,7 @@ class Shark
 		void deinitialize(){kfSys.deleteFrameHeaps();}
 		void updateVelocity(Vector3f start, Vector3f end, double dt);
 
+		float scaleRatio(){return skeleton.scaleRatio();}
 	
 		int numSegments();
 

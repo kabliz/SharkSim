@@ -442,7 +442,13 @@ void Draw ()
 			Quat.CreateMatrix(Matrix);
 			glMultMatrixf(Matrix);
 			//scale down
-			if(showWorld){ glScalef(.5,.5,.5);	}  //TODO better scale
+			//if(showWorld){ glScalef(.5,.5,.5);	}  //TODO better scale
+			if(showWorld){ 
+				float sc = Shark.scaleRatio();
+				glScalef(sc, sc, sc);	
+			}  
+			else{ 
+				glScalef(1.5,1.5,1.5); }
 			Shark.drawShark(frame, quadratic);			//draw shark		
 		}glPopMatrix();
 		

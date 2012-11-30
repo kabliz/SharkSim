@@ -173,7 +173,6 @@ void SharkMesh::countWeights()
 	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
 	for(im = vertices.begin(); im != vertices.end(); im++ )
 	{
-		float weight = 0;
 		float summ = 0;
 		for(int i = 0; i < im->second->gNumInfluences(); i++) //count weights
 		{
@@ -182,9 +181,7 @@ void SharkMesh::countWeights()
 		for(int i = 0; i < im->second->gNumInfluences(); i++) //normalize weights
 		{
 			im->second->sBoneWeight(i, im->second->gBoneWeight(i)/summ);
-			weight += im->second->gBoneWeight(i);
 		}
-		printf("%f\n",weight );
 	}
 }
 

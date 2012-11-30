@@ -35,6 +35,9 @@ class SharkSkeleton
 		void sAngle(string boneName, glQuaternion rotation);      
 		void sRoot(string newRoot){rootNode = newRoot;}
 
+		Vector3f gTail(string key){return gBone(key)->gTail();}
+		Vector3f gHead(string key){return gBone(key)->gHead();}
+
 		//transformation related functions
 		void applyTransformation();	//export sketon to the smart SharkMesh  so it can be drawn by the Keyframe
 		

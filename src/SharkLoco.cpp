@@ -24,6 +24,7 @@ void SharkLoco::buildSkeleton(string modelFile)
 {
 	skeleton.sRoot("Root");
 	skeleton.buildSkeletonAOBJ(modelFile);
+	totalLength = (skeleton.gTail(spineKeys[0]) - skeleton.gTail(spineKeys[9])).Magnitude();
 }
 
 /*copies user defined animation frames into the class. It needs the number of the current sequence, and the total number of frames. 
@@ -75,14 +76,15 @@ void SharkLoco::update(int dt, int railAngle, float velocity)
 {
 	elapsedTime += dt/1000.0;
 	//velocity factors
-	//swimFrequency = deriveFrequency(velocity/velocityToAmp); 
-	swimFrequency = (2.0*3.14159265)/12.0; 
+	//swimFrequency = deriveFrequency(velocity/velocityToAmp); //TODO wonder why this doesnt really work. 
+	swimFrequency = (2.0*3.14159265)/8.0; 
+	
 	//propellingAmplitude = Vector3f(0.0, .967(?) , 0.0).Interpolate(Vector3f(0.1, 5.0, 0), swimFrequency); //velocity ;  
 				////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
 	//propellingAmplitude = Vector3f(0.1, 5.0, 0).Interpolate(Vector3f(.0, 0.967, 0), 
 	//						(swimFrequency > 5.0 ? 5.0 : swimFrequency)).y;
 	//propellingAmplitude = swimFrequency / velocityToAmp; // TODO amplitude scale. uncomment to renable movement
-	propellingAmplitude = .16; 
+	propellingAmplitude = .21; 
 
 	//check if the recalculate flag is set
 	if(skeleton.newUpdateApproved())
@@ -242,9 +244,10 @@ void SharkLoco::lowerCeratotrichia()
 			oldAngles[oldAngles.size()-5];
 	//caudalLag = finalAngles[finalAngles.size()-1] + (curAn - oldAn) * 1.0 ;
 	//caudalLag = (finalAngles[finalAngles.size()-1]-turningAngle)* 4.0 ;
-	finalAngles[finalAngles.size()-2] = waveAngle(swimFrequency, elapsedTime+900, 1, finalAngles.size()-2, propellingAmplitude);  
-	//finalAngles[finalAngles.size()-1] *= -1.5; //caudalLag / 1.0;  
-	//finalAngles[finalAngles.size()-2] *= -1.5;  //caudalLag / 3.0; 
+	finalAngles[finalAngles.size()-2] += waveAngle(swimFrequency, elapsedTime, 2, oldAngles[oldAngles.size()-3], propellingAmplitude);  
+	finalAngles[finalAngles.size()-1] += waveAngle(swimFrequency, elapsedTime, 2, oldAngles[oldAngles.size()-2], propellingAmplitude);  
+	finalAngles[finalAngles.size()-1] *= 1.7; //caudalLag / 1.0;  
+	finalAngles[finalAngles.size()-2] *= 1.7;  //caudalLag / 3.0; 
 }
 
 /*return the maximum flexibility of shark parts depending ont he type of locomotion and the number of bone segments  */

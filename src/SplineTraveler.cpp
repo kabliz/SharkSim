@@ -237,8 +237,9 @@ double SplineTraveler::calcRotationAngle()
 	//rotationAngle = deriveRailAngle(0, .6, .3);
 	//compare rotation of traveler to an side axis vector
 	
-	calcRotation(Vector3f(1,0,0), path.splineLocation(curU, curPoint), 
-					path.getNearbyPoint(.5, curPoint, curU));
+	//calcRotation(Vector3f(1,0,0), path.splineLocation(curU, curPoint), 
+	calcRotation(Vector3f(1,0,0), path.getNearbyPoint(-.2, curPoint, curU), 
+					path.getNearbyPoint(.3, curPoint, curU));
 	return rotationAngle;
 }
 
@@ -365,8 +366,7 @@ void SplineTraveler::drawPoints()
 
 	frustum->extract();
 
-	//TODO: delete these testing spheres. 
-	glPushMatrix();
+	/*glPushMatrix();
 	{
 		glColor3f(0,.52,.86);
 		float u;
@@ -397,7 +397,7 @@ void SplineTraveler::drawPoints()
 		Vector3f testAhead = path.getNearbyPoint(.01 , curPoint, u );
 		glTranslatef(testAhead.x, testAhead.y, testAhead.z);
 		glutSolidSphere(.1, 3, 2);
-	}glPopMatrix();
+	}glPopMatrix();*/
 
 	
 	//Close future points are drawn in a gradient going from white to yellow to green to black
