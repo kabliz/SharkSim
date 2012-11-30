@@ -144,13 +144,14 @@ void SharkMesh::linearBlendTransform()
 	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
 	for(im = vertices.begin(); im != vertices.end(); im++ )
 	{
+		//float bbr = 0;
 		string boneName;
 		map<string, MyMat>::iterator ib;
 		for(ib = skinTransforms.begin(); ib != skinTransforms.end(); ib++)
 		{
 			float weight = (*im).second->checkBone((*ib).first);
-			if(weight > 0.001)
-			{
+			//if(weight > 0.0001)
+			//{
 				MyMat matrix = gSkinMatrix(ib->first); 
 				MyMat scale = MyMat(); //weight mess ups
 				//float sk = 1.0/matrix.diagonalMagnitude();
@@ -158,26 +159,32 @@ void SharkMesh::linearBlendTransform()
 				//matrix.multRight(scale);
 				(*im).second->transformed += 
 					matrix.multScalar(weight).multVec((*im).second->local, true);
-			}
-
-			
+				//bbr += weight;
+			//}
 		}
+		//printf("%f\n", bbr);
 	}
 }
 
 
-
+/*Adjusts bone weights so they always add up to one */
 void SharkMesh::countWeights()
 {
 	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
 	for(im = vertices.begin(); im != vertices.end(); im++ )
 	{
 		float weight = 0;
-		for(int i = 0; i < im->second->gNumInfluences(); i++)
+		float summ = 0;
+		for(int i = 0; i < im->second->gNumInfluences(); i++) //count weights
 		{
+			summ += im->second->gBoneWeight(i);
+		}
+		for(int i = 0; i < im->second->gNumInfluences(); i++) //normalize weights
+		{
+			im->second->sBoneWeight(i, im->second->gBoneWeight(i)/summ);
 			weight += im->second->gBoneWeight(i);
 		}
-		printf("%f\n", weight);
+		printf("%f\n",weight );
 	}
 }
 

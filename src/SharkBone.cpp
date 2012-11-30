@@ -108,7 +108,7 @@ void SharkBone::changeAngle(int newAngle, bool isAheadRoot)
 
 	GLfloat glm[16];
 	rotatQ.CreateFromAxisAngle(0,1,0, isAheadRoot ? -angleOfRot : angleOfRot);
-	//rotatQ.Normalize();
+	rotatQ.Normalize();
 	rotatQ.CreateMatrix(glm);
 	rotationMatrix = MyMat(glm[0], glm[4], glm[8], glm[12], glm[1], glm[5],glm[9],
 			glm[13],glm[2],glm[6],glm[10],glm[14],glm[3],glm[7],
@@ -126,7 +126,7 @@ void SharkBone::changeAngle(int newAngle)
 void SharkBone::changeAngle(glQuaternion newAngle)
 {
 	GLfloat glm[16];
-	//newAngle.Normalize();
+	newAngle.Normalize();
 	newAngle.CreateMatrix(glm);	
 	rotationMatrix = MyMat(glm[0], glm[4], glm[8], glm[12], glm[1], glm[5],glm[9],
 			glm[13],glm[2],glm[6],glm[10],glm[14],glm[3],glm[7],

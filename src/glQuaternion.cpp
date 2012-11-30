@@ -22,7 +22,7 @@ glQuaternion::~glQuaternion()
 float glQuaternion::Magnitude()
 {
 	float denom = sqrt((m_x*m_x) + (m_y*m_y) + (m_z*m_z) + (m_w*m_w));
-	return (m_x/denom) + (m_y/denom) + (m_z/denom) + (m_w/denom); 
+	return denom;  
 }
 
 void glQuaternion::Normalize()
