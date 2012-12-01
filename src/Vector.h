@@ -70,8 +70,13 @@ class Vector3f {
       float EuclDistance( const Vector3f & v);
       float Magnitude();
       Vector3f Normalize();
-      Vector3f Interpolate(Vector3f other, float percentage);
-      bool fEquals(Vector3f oth, float epsilon);
+      Vector3f Interpolate(Vector3f endpt, float decimalProportion);  //interpolation function between this point and a specified end point
+      Vector3f EaseIn(Vector3f endpt, float decimalProportion, float strength);
+      Vector3f EaseOut(Vector3f endpt, float decimalProportion, float strength);
+      //Vector3f EaseInOut(Vector3f endpt, float decimalProportion);
+      bool fEquals(Vector3f oth, float epsilon);   //vector equality with a specified epsilon threshold
+      float AngleCos(Vector3f pre, Vector3f post);  //find the angle created by three vectors, with this vector as the vertex
+      float AngleTan(Vector3f pre, Vector3f post);  //ignores y for now
 
       void Print();
    public:
