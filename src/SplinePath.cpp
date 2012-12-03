@@ -206,7 +206,6 @@ void SplinePath::calcRadius()
 
 void SplinePath::initTangents()
 {
-	//TODO correct aheadPoint and behindPoint index
 	if(!isCatmullMode)
 	{
 		//first value needs to be initilized 
@@ -214,66 +213,65 @@ void SplinePath::initTangents()
 		tangents.push_back(tan);
 
 		//loop over each of the middle points
-		/*for(int i = 1; i < points.size()-1; i++)
-		{
-			Vector3f edgeDiff = points[i+1]-points[i-1];
-
-			//180 degree turn case is discontinious. This is a fix
-			int j = 3;
-			while(edgeDiff.Magnitude() == 0)
-			{
-				edgeDiff = (points[i+j] - points[i-j]) * .9;
-				j++;
-			}
-
-			//tangent calculation
-			tan = (edgeDiff)* (points[i+1]-points[i]).Magnitude() / (edgeDiff).Magnitude()*.9;
-			tangents.push_back(tan);
-		}
-		*/
-
-		//loop over each of the middle points
-
 		for(int i = 1; i < points.size()-1; i++)
 		{
+			//first create the direction of the tangent. then scale it to the needed magnitude
 			Vector3f postPt = points[i-1];  //posterior
 			Vector3f antPt = points[i+1];   //anterior
 			Vector3f tarPt = points[i];     //center target
-			Vector3f before = postPt - tarPt;
-			Vector3f after = antPt - tarPt;
-			float postMag = (tarPt-postPt).Magnitude(); 
-			float antMag = (tarPt-antPt).Magnitude() ;
-			float Mag = postMag < antMag? postMag : antMag;  //magnitude of shortest distance to point
-			Mag /= 2.0;
-			float minMag = .2;   //minimum magnitude for the thing.
-			float rotationAngle = tarPt.AngleCos(before, after ); 
-			float scale = minMag + ((Mag-minMag) * (((3.14159265-rotationAngle)*(3.14159265-rotationAngle)) / 3.14159265 )); //Lerp ease scale
+			Vector3f before = tarPt - postPt;
+			Vector3f after = tarPt - antPt;
+			before /= before.Magnitude();
+			after /= after.Magnitude();
+			Vector3f edgeDiff;	
 
-			Vector3f edgeDiff = antPt-postPt;  //chord
-			//180 degree turn case is discontinious. This is a fix
-			//int j = 2;
-			//while(edgeDiff.Magnitude() == 0)  //TODO actually make the tangent perpendicular to the stuff
-			while(rotationAngle > (3.0*3.14159265)/4.0)  
-			{
+			if(before.Dot(after) >= .8 ){
+				//case: need perpendicular tangent
+				//180 degree turn case is discontinious. This is a fix
+				//correct 180 case before cross multiplying
+				int j = 2;
+				while(before.Dot(after) >= .9999) {
+					if(j >= points.size())
+					{
+						after = Vector3f(0,0,1);  //patch for broken spline case 
+						break;
+					}
+					antPt = points[i+j];
+					after = tarPt - antPt;
+					j++;
+				}
 				Vector3f axis;
-				if(before.Dot(after) == -1){
-					axis = before.Cross(points[i+2]);
-				}
-				else {
-					axis = before.Cross(after);   //axis of rotation //TODO doesn't work if before and after are parallel, dummy
-				}
+				axis = before.Cross(after);   //axis of rotate
 			        Vector3f perpen = before.Cross(axis);  //right angle turn.	
 				if(perpen.Dot(after) < 0 )
 				{
 					perpen *= -1;  //perpen should point in same general direction as the next point
 				}
 				edgeDiff = perpen;
-				//edgeDiff = (points[i+j] - points[i-j]);
-				//j++;
+				edgeDiff /= edgeDiff.Magnitude();
 			}
-			edgeDiff /= edgeDiff.Magnitude();
+			else{  //case: need a tangent that points to the next location
+				edgeDiff = antPt-postPt;  //chord
+				edgeDiff /= edgeDiff.Magnitude();	
+			}	
+			
+			float rotationAngle = tarPt.AngleCos(before, after); 
+			printf("%f\n",rotationAngle);
+		
+			//scale magnitude
+			float postMag = (tarPt-postPt).Magnitude(); 
+			float antMag = (tarPt-antPt).Magnitude() ;
+			float Mag = postMag < antMag? postMag : antMag;  //magnitude of shortest distance to point
+			Mag /= 2.0;
+			float minMag = .2;   //minimum magnitude for the thing.
+			float scale = minMag + ((Mag-minMag) * (((3.14159265-rotationAngle)*(3.14159265-rotationAngle)) / 3.14159265 )); //Lerp ease scale
+			
 			//tangent calculation
-			tan = edgeDiff * scale;  
+			tan = edgeDiff * scale; 
+		        tan.Print();
+			before.Print();
+			after.Print();
+			printf("\n");	
 			tangents.push_back(tan);
 
 		}
