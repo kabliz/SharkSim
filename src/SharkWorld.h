@@ -44,7 +44,7 @@ class SharkWorld
 		
 		string gAnimationLoop(){return animationLoop;}
 
-		float gVelocity(){return traveler.gVelocity();} //velocity the traveler is moving
+		Vector3f gVelocity(){return traveler.gVelocity();} //velocity the traveler is moving
 
 		void speedUp(){traveler.speedUp();}
 		void slowDown(){traveler.slowDown();}

@@ -31,7 +31,7 @@ class Shark
 		void drawSegment(int index, float rot, GLUquadricObj *quadratic);
 		void drawSpine(int frame, GLUquadricObj *quadratic);
 		void drawShark(int frame, GLUquadricObj *quadratic);
-		void timedUpdate(int dt, int railAngle, float velocity);  
+		void timedUpdate(int dt, int railAngle, Vector3f velociity);  
 		void materials(materialStruct materials);
 		void segUpdate();
 		KeyframeSystem genKeyframes(bool dynamicMode, SharkMesh *sharkmesh);
@@ -87,7 +87,8 @@ class Shark
 		bool showSkin;			//toggle to draw the skin
 		bool ismoving;				//toggle shark movement
 		bool play;				//toggle shark movement frame by frame
-
+		Vector3f velocity;
+		Vector3f lastpt;	//to help calculate velocity
 
 		//used to draw spine
 		double	segPercent;			//percent of the totalLength 1 segment is (used in segUpdate)

@@ -75,7 +75,7 @@ void SplineTraveler::update(float dt)
 	float prevTime = timer;
 	Vector3f prevLocation = location;
 	location = upCurrentLocation(dt);
-	velocity = location.EuclDistance(prevLocation) / (timer - prevTime); 
+	velocity = (location-prevLocation) / (timer - prevTime); 
 }
 
 /*Draws the Spline with the center set to the current location */

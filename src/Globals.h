@@ -41,6 +41,7 @@ extern bool isClicked;                   //*NEW* Clicking the mouse?
 extern bool isRClicked;                  //*NEW* Clicking the right mouse button?
 bool isLight;
 int currentButton;
+float globalWorldScale = 1.0;				//scale of world drawn
 
 //mouse trackball controls
 ArcBallT ArcBall(640.0f, 480.0f);			// NEW: ArcBall Instance

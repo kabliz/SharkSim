@@ -59,23 +59,27 @@ bool SharkLoco::buildAngles( GLfloat segmentRot[], int sequenceNum, int totalAng
 }
 
 // source http://animalcreativity.webs.com/109.pdf
-float SharkLoco::deriveFrequency(float velocity)
+float SharkLoco::deriveFrequency(void)
 {
 	//Velocity = .25(length(3freq - 4))
 	//therefore
 	//f = (4(v+L))/(3L)
 
-	return (4.0*( velocity+ TSEMI_LENGTH_M))/(3.0*TSEMI_LENGTH_M);	
+	return (4.0*( velocity.Magnitude()+ TSEMI_LENGTH_M))/(3.0*TSEMI_LENGTH_M);	
 }
 
 
 
 /*main update method for the simulation 
  * Rail angle is the angle provided from the world, showing the sharpness of the turn on the point of the rail the shark is at.*/
-void SharkLoco::update(int dt, int railAngle, float velocity)
+void SharkLoco::update(int dt, int railAngle, Vector3f velocit)
 {
 	elapsedTime += dt/1000.0;
 	//velocity factors
+	velocity = velocit;	
+
+
+
 	//swimFrequency = deriveFrequency(velocity/velocityToAmp); //TODO wonder why this doesnt really work. 
 	swimFrequency = (2.0*3.14159265)/8.0; 
 
@@ -144,6 +148,7 @@ void SharkLoco::calcNextAngles(int railAngle)
 		prevSegmentAngle = newAngle;
 	}
 	lowerCeratotrichia();   //tail fin lag
+	lateralFins();
 
 	//Next Frame Overflow calculation
 	//nextFrameNo++;   //TODO why is this here again
@@ -172,7 +177,7 @@ float SharkLoco::waveAngle(float time, int harmonic, float prevSegmentAngle)
 	for(curHarm = 1; curHarm <= harmonic; curHarm += 1.0) {
 		hFreq = swimFrequency * curHarm;
 		//result += sin((2.0*180.0*hFreq*time - prevSegmentAngle)*(3.14159265/180.0));
-		result += propellingAmplitude*cos((2.0*180.0*hFreq*time)*(3.14159265/180.0));
+		result += propellingAmplitude*sin((2.0*180.0*hFreq*time)*(3.14159265/180.0));
 		//result += propellingAmplitude*cos((hFreq*time)*(3.14159265/180.0));
 	}
 	//printf(" %f", result);
@@ -303,6 +308,39 @@ void SharkLoco::lowerCeratotrichia()
 	//finalAngles[finalAngles.size()-2] *= 1.7;  //caudalLag / 3.0; 
 }
 
+/*control for pectoral fins, pelvic fins, and shark angle of attack */
+void SharkLoco::lateralFins()
+{
+	float climbrate = velocity.y; 
+
+	if(climbrate < 0) //sinking
+	{
+		hedral = HOLD_HED + (SINK_HED-HOLD_HED)*(-climbrate/2.0);
+		alphaAng = hedral + HOLD_ANT + (SINK_ANT-HOLD_ANT)*(-climbrate/2.0);
+		betaAng = hedral + HOLD_POST + (SINK_POST-HOLD_POST)*(-climbrate/2.0);
+		bodyPitch = -10*(-climbrate/2.0) ;
+	}
+	else if(climbrate == 0) //
+	{
+		hedral = HOLD_HED;
+		alphaAng = hedral + HOLD_ANT;
+		betaAng = hedral + HOLD_POST;
+		bodyPitch = 0;
+	}
+	else //climb
+	{
+		hedral = HOLD_HED + (RISE_HED-HOLD_HED)*(climbrate/2.0);
+		alphaAng = hedral + HOLD_ANT + (RISE_ANT-HOLD_ANT)*(climbrate/2.0);
+		betaAng = hedral + HOLD_POST + (RISE_POST-HOLD_POST)*(climbrate/2.0);
+		bodyPitch = 10*(climbrate/2.0);
+	}
+
+	//pitch shark body, between 11 degrees (slowest) to zero(fastest)
+	int pitchAng = 11 + (-11)*(velocity.Magnitude()/2.0);
+	if (pitchAng < 0) { pitchAng = 0;}
+	bodyPitch += pitchAng;
+}
+
 /*return the maximum flexibility of shark parts depending ont he type of locomotion and the number of bone segments  */
 vector<int> SharkLoco::getMaxAngles()
 {
@@ -345,7 +383,34 @@ void SharkLoco::setNewAngles()
 	caudal.CreateFromAxisAngle(0,1,0, caudalLag);
 	skeleton.sAngle(lowCaudal, caudal);
 
+	//lateral fins
+	glQuaternion hedraL = glQuaternion();
+	glQuaternion hedraR = glQuaternion();
+	hedraL.CreateFromAxisAngle(1,0,0, (float) hedral );
+	hedraR.CreateFromAxisAngle(-1,0,0, (float) hedral );
+	skeleton.sAngle("PecLeft", hedraL);
+	skeleton.sAngle("PecRight", hedraR);
+	skeleton.sAngle("PelLeft", hedraL);
+	skeleton.sAngle("PelRight", hedraR);
 
+	glQuaternion alphL = glQuaternion();
+	glQuaternion alphR = glQuaternion();
+	alphL.CreateFromAxisAngle(1,0,0, alphaAng);
+	alphR.CreateFromAxisAngle(-1,0,0, alphaAng);
+	skeleton.sAngle("PecLeftAlpha", alphL);
+	skeleton.sAngle("PecRightAlpha", alphR);
+
+	glQuaternion betL = glQuaternion();
+	glQuaternion betR = glQuaternion();
+	betL.CreateFromAxisAngle(1,0,0, betaAng);
+	betR.CreateFromAxisAngle(-1,0,0, betaAng);
+	skeleton.sAngle("PecLeftBeta", betL );
+	skeleton.sAngle("PecRightBeta", betR);
+
+	//shark body pitch
+	glQuaternion pitch = glQuaternion();
+	pitch.CreateFromAxisAngle(0,0,1, bodyPitch);
+	skeleton.sAngle("Root", pitch);
 }
 
 /*Applies matrix transformations to the SharkMesh. Accomplishes this by starting the recursive chain in the armature.

@@ -91,7 +91,7 @@ KeyframeSystem Shark::genKeyframes(bool dynamicMode, SharkMesh *shm)
 		//animation sequence #1 is the slow swim. TODO, less magic nubmers
 		int numAngles = segments;
 		skeleton.buildAnimations(numAngles, *(segmentRot[1]), numAngles);
-		skeleton.update(0, 0, 0); //force one update cycle to happen before startup, initializes the system this way.
+		skeleton.update(0, 0, Vector3f(0,0,0)); //force one update cycle to happen before startup, initializes the system this way.
 		kfSys.initFrames();
 	}
 	else
@@ -239,9 +239,10 @@ void Shark::drawShark(int frame, GLUquadricObj *quadratic)
 /*The general update function that is to be called regularly and predicitibly.
  * It needs to know what the curvature of the path is. */
 //void Shark::timedUpdate(int railAngle)
-void Shark::timedUpdate(int dt, int railAngle, float velocity)
+void Shark::timedUpdate(int dt, int railAngle, Vector3f vel)
 {
 	kfSys.update();
+	velocity = vel;
 	skeleton.update(dt, railAngle, velocity); 
 }
 
@@ -261,9 +262,10 @@ double doubleLerpFrames(double input, double minx, double maxx)
 
 void Shark::updateVelocity(Vector3f start, Vector3f end, double dt)
 {
+	//velocity = start-end;
 	double dist = (end-start).Magnitude();
 	double unitTime = dt / dist;
-	int Lframe = doubleLerpFrames(unitTime, 0.1, 10.0); +1;
+	int Lframe = doubleLerpFrames(unitTime, 0.1, 10.0); //+1;
 
 	kfSys.adjNumFrames(Lframe);
 	//printf("%f\n", unitTime);

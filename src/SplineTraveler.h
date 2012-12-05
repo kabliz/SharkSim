@@ -61,7 +61,7 @@ class SplineTraveler
 
 		double gDTS(int index){return path.gDTS(index);} //time difference between points               
 		double gCurrentDTS(){return path.gDTS(curPoint);}
-		float gVelocity(){return velocity;}
+		Vector3f gVelocity(){return velocity;}
 
 
 	private:
@@ -71,7 +71,7 @@ class SplineTraveler
 		//Vector3f calcRotation();
 		double calcRotation(Vector3f pFrom, Vector3f pVertex, Vector3f pDest);
 		Vector3f interpolateRotation();
-		float velocity; //velocity of traveler down the spline. Measured in distance units per second.	
+		Vector3f velocity; //velocity of traveler down the spline. Measured in distance units per second.	
 
 
 		SplinePath path;

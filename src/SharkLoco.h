@@ -28,7 +28,7 @@ class SharkLoco {
 		void buildSkeleton(Mesh* mesh, int numSegments, float *segLength);
 		void buildSkeleton(string modelFilename);
 		int calcTimestep(); //finds the point in time where it is optimal to make a new keyframe.  //TODO
-		void update(int dt, int railAngle, float velocity); //main update call
+		void update(int dt, int railAngle, Vector3f velocity); //main update call
 		void setNewAngles(); //modifies the underlying bones
 		void applyTransformation();    //commits all recent changes to the mesh 
 		void setMesh(SharkMesh *s){skeleton.setMesh(s);}
@@ -48,6 +48,7 @@ class SharkLoco {
 
 	private:
 		SharkSkeleton skeleton;
+		Vector3f velocity;   //velocity of the shark. magnitude gets the scalar speed
 
 		int framesPerSequence;
 		int anglesPerFrame;
@@ -55,6 +56,7 @@ class SharkLoco {
 		float sharkRealLength; //TODO incorporate into totalLength when scaled.
 		float segmentLength;
 
+		int bodyPitch;
 		vector<int> angles;
 		vector<int> oldAngles;			//previous frame's angles
 		vector<int> finalAngles;  		//these are the bone angles that will be exported to the Keyframe
@@ -62,6 +64,11 @@ class SharkLoco {
 		vector<vector<int> > animatedAngles; 	//these are preset, artist driven, bone angles. 
 		vector<int> axialAngles;		//rotation along the shark axis
 		int caudalLag;				//follow through on the tail fin
+		int hedral;  				//angle lateral fins attach to the shark side.
+		int betaAng;				//angle of posterior plane of pectoral fin
+		int alphaAng;				//angle of anterior plane of pectoral fin
+		enum{ HOLD_HED = -23, RISE_HED = -35, SINK_HED = -5, HOLD_POST = -1, HOLD_ANT = -6, RISE_POST = -9, RISE_ANT = 5, SINK_POST = 10, SINK_ANT = -12};
+			//pectoral fin angles: hedral angles, plus posterior and anterior planes
 
 		/*Bone names */
 		static const string spineKeys[];// = ["Spine1", "Spine2", "Spine3", "Spine4", "Spine5", "Spine6", "Spine7", "Spine8", "Spine9", "Spine10"];
@@ -90,13 +97,14 @@ class SharkLoco {
 		int nextSegmentAngle(int index, int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
 		int nextAxialAngle(int index, int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
 		void findRailCurve(int railAngle);
+		void lateralFins();  				//changes lateral fin angles
 		float waveAngle(float time, int harmonic, float prevSegmentAngle);
 		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), relational initial angle (beta), propelling amplitude coefficent (K sub a),
 		void lowerCeratotrichia();
 
 		int gNumLocomotionBones();
 
-		float deriveFrequency(float velocity); //derives frequency of tail swish based on the speed it is moving
+		float deriveFrequency(); //derives frequency of tail swish based on the speed it is moving
 };
 
 

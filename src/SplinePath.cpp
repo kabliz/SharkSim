@@ -80,7 +80,7 @@ void SplinePath::gatherDTPoints()
 		dt += mreader.gElement(0,id);
 		runningTotts += dt;
 		p.x = mreader.gElement(1,id);
-		p.y = 0;
+		p.y = .2 * sin(id/8.0);
 		p.z = mreader.gElement(2,id);
 		
 		//printf("%f %f %f %f %f %f\n", dt, p.x, p.y, p.z, mreader.gElement(3, id), mreader.gElement(4, id) );
@@ -220,7 +220,9 @@ void SplinePath::initTangents()
 			Vector3f antPt = points[i+1];   //anterior
 			Vector3f tarPt = points[i];     //center target
 			Vector3f before = tarPt - postPt;
+			before.y = 0;
 			Vector3f after = tarPt - antPt;
+			after.y = 0;
 			before /= before.Magnitude();
 			after /= after.Magnitude();
 			Vector3f edgeDiff;	
@@ -238,6 +240,7 @@ void SplinePath::initTangents()
 					}
 					antPt = points[i+j];
 					after = tarPt - antPt;
+					after.y = 0;
 					j++;
 				}
 				Vector3f axis;

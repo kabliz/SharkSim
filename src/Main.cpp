@@ -222,7 +222,7 @@ void idle( void )
 
 
 	//update calls 	
-	Shark.timedUpdate(dt, world1.deriveRailAngle(), world1.gVelocity() );  //TODO factor in dt in Shark update  
+	Shark.timedUpdate(dt, world1.deriveRailAngle(), world1.gVelocity());  //TODO factor in dt in Shark update  
 	if(Shark.isMoving()){					//increment movement frame
 		if(showWorld) 
 		{
@@ -283,6 +283,12 @@ void keyboard(unsigned char key, int x, int y)
 		else
 			Shark.toggleSpine(true);
 		glutPostRedisplay();
+		break;
+	case 'v': case'V':
+		globalWorldScale *= 0.8;
+		break;
+	case 'b': case'B':
+		globalWorldScale *=1.2;
 		break;
 	case 'k': case 'K':
 		if(Shark.isSkin())
@@ -429,7 +435,11 @@ void Draw ()
 	{
 		if(showWorld)
 		{
-			world1.displayWorld();                  //ocean around the shark
+			glPushMatrix();
+			{
+				glScalef(globalWorldScale, globalWorldScale, globalWorldScale);
+				world1.displayWorld();                  //ocean around the shark
+			}glPopMatrix();
 		}
 		glPushMatrix();
 		{	
@@ -444,7 +454,7 @@ void Draw ()
 			//scale down
 			//if(showWorld){ glScalef(.5,.5,.5);	}  //TODO better scale
 			if(showWorld){ 
-				float sc = Shark.scaleRatio();
+				float sc = Shark.scaleRatio() * globalWorldScale;
 				glScalef(sc, sc, sc);	
 			}  
 			else{ 
