@@ -80,15 +80,17 @@ class SharkLoco {
 		int turningAngle; //amount of turning happening
 		float swimFrequency; //frequency of oscillation.  Maximum 5 beats per second
 		float elapsedTime; //time (in seconds) since the simulation began. 
+		float beatDirection;  //direction tail is swinging
 
 		static float const velocityToAmp = 15.0;  //divides velocity    by this value to determine the amplitude of a stroke
 
 		//angle calculation funcs
 		float calcTurningAngle();
 		vector<int> getMaxAngles();  //returns the max angle for the current locomotion mode
-		int nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
-		int nextAxialAngle(int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
+		int nextSegmentAngle(int index, int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
+		int nextAxialAngle(int index, int prevSegmentAngle, int prevTimeAngle, int maxAngle); //finds the individual angle of a segment.
 		void findRailCurve(int railAngle);
+		float waveAngle(float time, int harmonic, float prevSegmentAngle);
 		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), relational initial angle (beta), propelling amplitude coefficent (K sub a),
 		void lowerCeratotrichia();
 

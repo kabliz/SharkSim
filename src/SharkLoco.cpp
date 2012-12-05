@@ -1,7 +1,7 @@
 #include "SharkLoco.h"
 
 const string SharkLoco::spineKeys[10] = {string("Spine1"), string("Spine2"), string("Spine3"), string("Spine4"), 
-				      string("Spine5"), string("Spine6"), string("Spine7"), string("Spine8"), string("Spine9"), string("Spine10")};
+	string("Spine5"), string("Spine6"), string("Spine7"), string("Spine8"), string("Spine9"), string("Spine10")};
 const string SharkLoco::leftPec = "PecLeft";       //Pectoral Fins
 const string SharkLoco::rightPec = "PecRight";       
 const string SharkLoco::leftPel = "PelLeft";       //Pelvic Fins
@@ -64,23 +64,23 @@ float SharkLoco::deriveFrequency(float velocity)
 	//Velocity = .25(length(3freq - 4))
 	//therefore
 	//f = (4(v+L))/(3L)
-	
+
 	return (4.0*( velocity+ TSEMI_LENGTH_M))/(3.0*TSEMI_LENGTH_M);	
 }
 
 
 
 /*main update method for the simulation 
-* Rail angle is the angle provided from the world, showing the sharpness of the turn on the point of the rail the shark is at.*/
+ * Rail angle is the angle provided from the world, showing the sharpness of the turn on the point of the rail the shark is at.*/
 void SharkLoco::update(int dt, int railAngle, float velocity)
 {
 	elapsedTime += dt/1000.0;
 	//velocity factors
 	//swimFrequency = deriveFrequency(velocity/velocityToAmp); //TODO wonder why this doesnt really work. 
 	swimFrequency = (2.0*3.14159265)/8.0; 
-	
+
 	//propellingAmplitude = Vector3f(0.0, .967(?) , 0.0).Interpolate(Vector3f(0.1, 5.0, 0), swimFrequency); //velocity ;  
-				////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
+	////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
 	//propellingAmplitude = Vector3f(0.1, 5.0, 0).Interpolate(Vector3f(.0, 0.967, 0), 
 	//						(swimFrequency > 5.0 ? 5.0 : swimFrequency)).y;
 	//propellingAmplitude = swimFrequency / velocityToAmp; // TODO amplitude scale. uncomment to renable movement
@@ -135,9 +135,10 @@ void SharkLoco::calcNextAngles(int railAngle)
 		int newAngle = 0;
 		int axialAngle = 0;
 		if(i >= anglesPerFrame - gNumLocomotionBones()){
-			newAngle = nextSegmentAngle(prevSegmentAngle, oldAngles[i], maxAngles[i]);
-			axialAngle = nextAxialAngle(prevSegmentAngle, oldAngles[i]*.2, maxAngles[i]);  //magic
+			newAngle = nextSegmentAngle(i, prevSegmentAngle, oldAngles[i], maxAngles[i]);
+			//axialAngle = nextAxialAngle(i, prevSegmentAngle, oldAngles[i]*.2, maxAngles[i]);  //magic
 		}
+		//printf("\n");
 		finalAngles.push_back(newAngle);
 		axialAngles.push_back(axialAngle);
 		prevSegmentAngle = newAngle;
@@ -150,39 +151,77 @@ void SharkLoco::calcNextAngles(int railAngle)
 
 }
 
-float waveAngle(float frequency, float time, int harmonic, float prevSegmentAngle, float amplitude )
+float waveAngleSin(float frequency, float time, int harmonic, float prevSegmentAngle, float amplitude )
 {
-	float hFreq = frequency * harmonic;
-	float result = amplitude*sin((2.0*180.0*hFreq*time - prevSegmentAngle)*3.14159265/180.0);
+	int curHarm = 1;
+	float hFreq;
+	float result = 0;
+	for(curHarm = 1; curHarm <= harmonic; curHarm++) {
+		hFreq = frequency * curHarm;
+		result += sin((2.0*180.0*hFreq*time - prevSegmentAngle)*(3.14159265/180.0));
+	}
+	return amplitude*result;
+}
+
+float SharkLoco::waveAngle(float time, int harmonic, float prevSegmentAngle)
+{
+	float curHarm = 1;
+	float hFreq;
+	float result = 0;
+	
+	for(curHarm = 1; curHarm <= harmonic; curHarm += 1.0) {
+		hFreq = swimFrequency * curHarm;
+		//result += sin((2.0*180.0*hFreq*time - prevSegmentAngle)*(3.14159265/180.0));
+		result += propellingAmplitude*cos((2.0*180.0*hFreq*time)*(3.14159265/180.0));
+		//result += propellingAmplitude*cos((hFreq*time)*(3.14159265/180.0));
+	}
+	//printf(" %f", result);
 	return result;
 }
 
-int SharkLoco::nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int maxAngle)
+int SharkLoco::nextSegmentAngle(int index, int prevSegmentAngle, int prevTimeAngle, int maxAngle)
 {
 	//An = Ka*sin(2pi*f*t - prev) + TA
 
 	int TA = turningAngle;   //TA is the turning angle for this segment
 	//TA = TA / gNumLocomotionBones();
-	
+
 	if(prevTimeAngle != 0)
-	//if(turningAngle != 0)
-	//turningAngle /= bones.size();
+		//if(turningAngle != 0)
+		//turningAngle /= bones.size();
 	{
 		//TA = Ki*(Amax - Aactual)/Aactual   
 		//TODO find out what is wrong with this equation. It does not make sense.
 		//TODO fix the maxAngle usage. 
-		
+
 		//TA = prevTimeAngle*(maxAngle-turningAngle) / turningAngle; //turning angle
 		//TA = prevSegmentAngle*(maxAngle-prevTimeAngle)/ prevTimeAngle; //turning angle
 		//TA = turningAngle*((maxAngle-prevTimeAngle) / maxAngle);//prevTimeAngle; //turning angle
 	}
+
+	//determining harmonic from index
+	int harm = 1;
+	//if(index <= oldAngles.size()-3 && index >= oldAngles.size()-4 ) 
+	if(index == oldAngles.size()-3) 
+	{
+		harm = 2;
+	}	
+	else if( index == oldAngles.size()-2) 
+	{
+		harm = 3;
+	}
+	else if( index == oldAngles.size()-1)
+	{
+		harm = 4;
+	}	
 	int finalAngle = (
-				//waveAngle(swimFrequency, elapsedTime, 1, prevSegmentAngle, propellingAmplitude) + 
-				//waveAngle(swimFrequency, elapsedTime, 2, prevSegmentAngle, propellingAmplitude) + 
-				//waveAngle(swimFrequency, elapsedTime, 3, prevSegmentAngle, propellingAmplitude) + 
-				waveAngle(swimFrequency, elapsedTime, 1, prevSegmentAngle, propellingAmplitude)  
-				) 
-			* 180.0/3.14159265;
+			//waveAngle(swimFrequency, elapsedTime, 1, prevSegmentAngle, propellingAmplitude) + 
+			//waveAngle(swimFrequency, elapsedTime, 2, prevSegmentAngle, propellingAmplitude) + 
+			//waveAngle(swimFrequency, elapsedTime, 3, prevSegmentAngle, propellingAmplitude) + 
+			waveAngle(elapsedTime, harm, prevSegmentAngle)  
+			) 
+		* 180.0/3.14159265;
+	
 	//int finalAngle = (propellingAmplitude*sin((2.0*180.0*swimFrequency*elapsedTime - prevSegmentAngle)*3.14159265/180.0))* 180.0/3.14159265;
 	//int finalAngle = (propellingAmplitude*sin((2.0*180.0*swimFrequency*elapsedTime - prevSegmentAngle)*3.14159265/180.0) + TA)* 180.0/3.14159265;
 	//printf("%d\n", finalAngle);
@@ -193,16 +232,30 @@ int SharkLoco::nextSegmentAngle(int prevSegmentAngle, int prevTimeAngle, int max
 	return finalAngle; 
 }
 
-int SharkLoco::nextAxialAngle(int prevSegmentAngle, int prevTimeAngle, int maxAngle)
+int SharkLoco::nextAxialAngle(int index, int prevSegmentAngle, int prevTimeAngle, int maxAngle)
 {
+	int harm = 1;
+	//if(index <= oldAngles.size()-3 && index >= oldAngles.size()-4 ) 
+	if(index == oldAngles.size()-3)
+	{
+		harm = 2;
+	}
+	else if( index == oldAngles.size()-2)
+	{
+		harm = 3;
+	}
+	else if( index == oldAngles.size()-1)
+	{
+		harm = 4;
+	}
 
 	int finalAngle = (
-				//waveAngle(swimFrequency, elapsedTime, 1, prevSegmentAngle, propellingAmplitude) + 
-				//waveAngle(swimFrequency, elapsedTime, 2, prevSegmentAngle, propellingAmplitude) + 
-				//waveAngle(swimFrequency, elapsedTime, 3, prevSegmentAngle, propellingAmplitude) + 
-				waveAngle(swimFrequency, elapsedTime, 1, prevSegmentAngle, propellingAmplitude)  
-				) 
-			* 180.0/3.14159265;
+			//waveAngle(swimFrequency, elapsedTime, 1, prevSegmentAngle, propellingAmplitude) + 
+			//waveAngle(swimFrequency, elapsedTime, 2, prevSegmentAngle, propellingAmplitude) + 
+			//waveAngle(swimFrequency, elapsedTime, 3, prevSegmentAngle, propellingAmplitude) + 
+			waveAngle(elapsedTime, harm, prevSegmentAngle)  
+			) 
+		* 180.0/3.14159265;
 	if(finalAngle > maxAngle){finalAngle = maxAngle; }
 	if(finalAngle < -maxAngle){finalAngle = -maxAngle; }
 	return finalAngle ;   //magic 
@@ -233,21 +286,21 @@ int SharkLoco::gNumLocomotionBones()
 void SharkLoco::lowerCeratotrichia()
 {
 	int curAn = finalAngles[finalAngles.size()-1] + 
-			finalAngles[finalAngles.size()-2] +
-			finalAngles[finalAngles.size()-3] +
-			finalAngles[finalAngles.size()-4] +
-			finalAngles[finalAngles.size()-5];
+		finalAngles[finalAngles.size()-2] +
+		finalAngles[finalAngles.size()-3] +
+		finalAngles[finalAngles.size()-4] +
+		finalAngles[finalAngles.size()-5];
 	int oldAn = oldAngles[oldAngles.size()-1] + 
-			oldAngles[oldAngles.size()-2] +
-			oldAngles[oldAngles.size()-3] +
-			oldAngles[oldAngles.size()-4] +
-			oldAngles[oldAngles.size()-5];
-	//caudalLag = finalAngles[finalAngles.size()-1] + (curAn - oldAn) * 1.0 ;
+		oldAngles[oldAngles.size()-2] +
+		oldAngles[oldAngles.size()-3] +
+		oldAngles[oldAngles.size()-4] +
+		oldAngles[oldAngles.size()-5];
+	caudalLag = finalAngles[finalAngles.size()-1] + (curAn - oldAn) * 1.0 ;
 	//caudalLag = (finalAngles[finalAngles.size()-1]-turningAngle)* 4.0 ;
-	finalAngles[finalAngles.size()-2] += waveAngle(swimFrequency, elapsedTime, 2, oldAngles[oldAngles.size()-3], propellingAmplitude);  
-	finalAngles[finalAngles.size()-1] += waveAngle(swimFrequency, elapsedTime, 2, oldAngles[oldAngles.size()-2], propellingAmplitude);  
-	finalAngles[finalAngles.size()-1] *= 1.7; //caudalLag / 1.0;  
-	finalAngles[finalAngles.size()-2] *= 1.7;  //caudalLag / 3.0; 
+	//finalAngles[finalAngles.size()-2] += waveAngle(swimFrequency, elapsedTime, 2, oldAngles[oldAngles.size()-3], propellingAmplitude);  
+	//finalAngles[finalAngles.size()-1] += waveAngle(swimFrequency, elapsedTime, 2, oldAngles[oldAngles.size()-2], propellingAmplitude);  
+	//finalAngles[finalAngles.size()-1] *= 1.7; //caudalLag / 1.0;  
+	//finalAngles[finalAngles.size()-2] *= 1.7;  //caudalLag / 3.0; 
 }
 
 /*return the maximum flexibility of shark parts depending ont he type of locomotion and the number of bone segments  */
@@ -282,7 +335,7 @@ void SharkLoco::setNewAngles()
 		axRotat.CreateFromAxisAngle(1,0,0, i<4 ? -axialAngles[i] : axialAngles[i]);
 		glQuaternion rotation = latRotat.multiply(axRotat);
 		//glQuaternion rotation = latRotat;
-		
+
 		//skeleton.sAngle(spineKeys[i], finalAngles[i], i<4);  
 		skeleton.sAngle(spineKeys[i], rotation);  
 	}
@@ -291,7 +344,7 @@ void SharkLoco::setNewAngles()
 	glQuaternion caudal = glQuaternion();	
 	caudal.CreateFromAxisAngle(0,1,0, caudalLag);
 	skeleton.sAngle(lowCaudal, caudal);
-	
+
 
 }
 

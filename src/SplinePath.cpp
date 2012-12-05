@@ -255,8 +255,8 @@ void SplinePath::initTangents()
 				edgeDiff /= edgeDiff.Magnitude();	
 			}	
 			
-			float rotationAngle = tarPt.AngleCos(before, after); 
-			printf("%f\n",rotationAngle);
+			float rotationAngle = tarPt.AngleCos(before, after);  
+			//printf("%f\n",rotationAngle);  //TODO tehre are still NaN's in the tangent generation
 		
 			//scale magnitude
 			float postMag = (tarPt-postPt).Magnitude(); 
@@ -268,12 +268,7 @@ void SplinePath::initTangents()
 			
 			//tangent calculation
 			tan = edgeDiff * scale; 
-		        tan.Print();
-			before.Print();
-			after.Print();
-			printf("\n");	
 			tangents.push_back(tan);
-
 		}
 
 		//init the last point
@@ -326,9 +321,11 @@ double SplinePath::convertTimestampToU(float timer, int curKnot )
 	int endMark = totts.size();
 	int endLocNum; //index to the end point;
 	double historyTime;
+	double startTan;
 	double startTime;
 	double endTime;
 	double futureTime;
+	double endTan;
 
 	//Need to derive three nighboring points next to the current point (one behind, two ahead). 
 	//Array bounds need to be checked, and they wrap.   
@@ -349,6 +346,7 @@ double SplinePath::convertTimestampToU(float timer, int curKnot )
 	}
 
 	endTime = totts[endLocNum]; //provided it's not at the end of the spline, endLocation is start+1
+
 	if(endLocNum+1 >= endMark) {
 		futureTime = totts[0];
 	}
@@ -356,10 +354,20 @@ double SplinePath::convertTimestampToU(float timer, int curKnot )
 		futureTime = totts[endLocNum+1];
 	}
 
+	//startTan = endTime - historyTime; 
+	startTan = 1; 
+	//endTan = futureTime - startTime;
+	endTan = 1;
+
 	//turn the timer value into a u
 	double u = doubleLerp(timer, startTime, endTime, 0.0, 1.0);
+	float dU[4] = {u*u*u, u*u, u, 1};
+	float Bu[4] = {startTime, endTime, startTan, endTan};
+		
+	float res = HmInt(dU, Mher, Bu);
+			                
 	//Prepare the matrices used for catmull interpolation
-	float dU[4] = {u*u*u, u*u, u, 1.0};
+	/*float dU[4] = {u*u*u, u*u, u, 1.0};
 	float Bu[4] = {historyTime, startTime, endTime, futureTime};
 	double res =  HmInt(dU, Mcat, Bu); //matrix multiplcation 
 	//printf("vri %f, (%f %f %f %f )=> %f\n", u, historyTime, startTime, endTime, futureTime, res);	  
@@ -368,8 +376,9 @@ double SplinePath::convertTimestampToU(float timer, int curKnot )
 
 	//curTimeSpline = u;  //for linear interpolation 
 	curTimeSpline = res;    //for spline interpolation
-	//return u; 
+	//return u; */
 	return doubleLerp(res, startTime, endTime, 0.0, 1.0);
+	
 }
 
 /*igeneralized catmull-rom matrix multiplcation for complex interpolations

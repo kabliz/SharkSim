@@ -470,7 +470,7 @@ int main(int argc, char** argv)
 
    glutInit(&argc, argv);
    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-   glutInitWindowSize(600, 400);   //can alter initial window dimensions here 
+   glutInitWindowSize(800, 600);   //can alter initial window dimensions here 
    glutInitWindowPosition(50, 0);
    main_window = glutCreateWindow("Shark Motion: Cal Poly");
    
