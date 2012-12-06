@@ -87,7 +87,8 @@ class SharkLoco {
 		int turningAngle; //amount of turning happening
 		float swimFrequency; //frequency of oscillation.  Maximum 5 beats per second
 		float elapsedTime; //time (in seconds) since the simulation began. 
-		float beatDirection;  //direction tail is swinging
+		bool beatDirection;  //direction tail is swinging
+		bool prevBeatDirection;  //direction tail was swinging last update 
 
 		static float const velocityToAmp = 15.0;  //divides velocity    by this value to determine the amplitude of a stroke
 

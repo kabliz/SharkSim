@@ -18,6 +18,8 @@ const string SharkLoco::lowCaudal = "Caudal";
 void SharkLoco::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 {
 	skeleton.buildSkeleton(mesh, numSegments, segLength);
+	beatDirection = true;
+	prevBeatDirection = false;
 }
 
 void SharkLoco::buildSkeleton(string modelFile)
@@ -25,6 +27,8 @@ void SharkLoco::buildSkeleton(string modelFile)
 	skeleton.sRoot("Root");
 	skeleton.buildSkeletonAOBJ(modelFile);
 	totalLength = (skeleton.gTail(spineKeys[0]) - skeleton.gTail(spineKeys[9])).Magnitude();
+	beatDirection = true;
+	prevBeatDirection = false;
 }
 
 /*copies user defined animation frames into the class. It needs the number of the current sequence, and the total number of frames. 
@@ -61,11 +65,22 @@ bool SharkLoco::buildAngles( GLfloat segmentRot[], int sequenceNum, int totalAng
 // source http://animalcreativity.webs.com/109.pdf
 float SharkLoco::deriveFrequency(void)
 {
+
+	//Velocity L/s range .1 - 1.30 before exaustion
+	//high freq at 2, low freq at one
+	float sharkLVel = velocity.Magnitude() * TSEMI_LENGTH_M;
+	float lerp = 1.00 + (sharkLVel/(1.30-.1));  //value the beat should be at this velocity;
+	if(lerp > 2.1){ lerp = 2.1;}
+	if(lerp < .9){ lerp = .9;}
+	
+	return lerp;
+
+
 	//Velocity = .25(length(3freq - 4))
 	//therefore
 	//f = (4(v+L))/(3L)
 
-	return (4.0*( velocity.Magnitude()+ TSEMI_LENGTH_M))/(3.0*TSEMI_LENGTH_M);	
+	//return (4.0*( velocity.Magnitude()+ TSEMI_LENGTH_M))/(3.0*TSEMI_LENGTH_M);	
 }
 
 
@@ -76,12 +91,14 @@ void SharkLoco::update(int dt, int railAngle, Vector3f velocit)
 {
 	elapsedTime += dt/1000.0;
 	//velocity factors
-	velocity = velocit;	
+	velocity = velocit;
+	if(beatDirection != prevBeatDirection)
+	{
+		//swimFrequency = deriveFrequency();	
+		prevBeatDirection = beatDirection;
+	}
 
-
-
-	//swimFrequency = deriveFrequency(velocity/velocityToAmp); //TODO wonder why this doesnt really work. 
-	swimFrequency = (2.0*3.14159265)/8.0; 
+	swimFrequency = 1.0;
 
 	//propellingAmplitude = Vector3f(0.0, .967(?) , 0.0).Interpolate(Vector3f(0.1, 5.0, 0), swimFrequency); //velocity ;  
 	////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
@@ -140,7 +157,7 @@ void SharkLoco::calcNextAngles(int railAngle)
 		int axialAngle = 0;
 		if(i >= anglesPerFrame - gNumLocomotionBones()){
 			newAngle = nextSegmentAngle(i, prevSegmentAngle, oldAngles[i], maxAngles[i]);
-			//axialAngle = nextAxialAngle(i, prevSegmentAngle, oldAngles[i]*.2, maxAngles[i]);  //magic
+//			axialAngle = nextAxialAngle(i, prevSegmentAngle, oldAngles[i]*.2, maxAngles[i]);  //magic
 		}
 		//printf("\n");
 		finalAngles.push_back(newAngle);
@@ -168,19 +185,31 @@ float waveAngleSin(float frequency, float time, int harmonic, float prevSegmentA
 	return amplitude*result;
 }
 
+
 float SharkLoco::waveAngle(float time, int harmonic, float prevSegmentAngle)
 {
 	float curHarm = 1;
 	float hFreq;
 	float result = 0;
-	
+
+	float uPos = 0;  
+
 	for(curHarm = 1; curHarm <= harmonic; curHarm += 1.0) {
 		hFreq = swimFrequency * curHarm;
 		//result += sin((2.0*180.0*hFreq*time - prevSegmentAngle)*(3.14159265/180.0));
-		result += propellingAmplitude*sin((2.0*180.0*hFreq*time)*(3.14159265/180.0));
+		result += (propellingAmplitude)*sin(2.0*3.14159265*hFreq*time);
+		//uPos += (propellingAmplitude)*cos(2.0*3.14159265*hFreq*time );
+		
+		//if(curHarm == 1) //direction of movement
+		//{
+		//	beatDirection = sin((1.0*180.0*hFreq*time)*3.14159265/180.0 ) < 0 ;
+		//}
 		//result += propellingAmplitude*cos((hFreq*time)*(3.14159265/180.0));
 	}
-	//printf(" %f", result);
+	
+	//convert Position coordinate to angle
+	//Vector3f slop = Vector3f(1.0,0.0,uPos);
+	//result = Vector3f(0.0,0.0,0.0).AngleTan(slop, Vector3f(1.0,0.0,0.0));	
 	return result;
 }
 
@@ -241,7 +270,7 @@ int SharkLoco::nextAxialAngle(int index, int prevSegmentAngle, int prevTimeAngle
 {
 	int harm = 1;
 	//if(index <= oldAngles.size()-3 && index >= oldAngles.size()-4 ) 
-	if(index == oldAngles.size()-3)
+	/*if(index == oldAngles.size()-3)
 	{
 		harm = 2;
 	}
@@ -252,7 +281,8 @@ int SharkLoco::nextAxialAngle(int index, int prevSegmentAngle, int prevTimeAngle
 	else if( index == oldAngles.size()-1)
 	{
 		harm = 4;
-	}
+	}*/
+	harm = 2;
 
 	int finalAngle = (
 			//waveAngle(swimFrequency, elapsedTime, 1, prevSegmentAngle, propellingAmplitude) + 
