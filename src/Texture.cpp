@@ -7,7 +7,8 @@ void Texture::LoadAll()
 	//load textures
         LoadTexture("./Assets/underwater-light.bmp", 0);
         LoadTexture("./Assets/underwater.bmp", 1);
-        LoadTexture("./Assets/rocks.bmp", 2);
+        LoadTexture("./Assets/rocks.bmp", 2);  //This actually only loads one texture and its overwritten by the others TODO
+	//LoadTexture("./Assets/zubble.bmp", 3);
 }
 
 

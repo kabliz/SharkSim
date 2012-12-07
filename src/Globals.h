@@ -24,6 +24,7 @@
 #include "Texture.h"
 #include "SharkMesh.h"
 #include "Frustum.h"
+#include "BubbleStream.h"
 
 #pragma comment( lib, "opengl32.lib" )		// Search For OpenGL32.lib While Linking
 #pragma comment( lib, "glu32.lib" )		// Search For GLu32.lib While Linking
@@ -74,7 +75,7 @@ SharkMesh *universalMesh;   //a "smart mesh" that's made of SharkVertices and cl
 Shark	Shark;   //the basis for the Shark itself
 MATreader MATparser;  //parsers
 SharkWorld world1; //SharkWorld(&frustum_, "xytData.mat"); //The world in which points are drawn
-
+BubbleStream b1 = BubbleStream(3);
 
 
 //texture stuff

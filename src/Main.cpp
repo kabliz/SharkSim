@@ -171,11 +171,13 @@ void Initialize (string splineFile )					// Any GL Init Code & User Initialiazat
 	frameSpeed = frameSpeedSlow;
 	Shark.sFrameSpeed(10);
 
-
+	
 
 	//load textures
 	TexLoad = Texture();
 	TexLoad.LoadAll();
+
+	b1 = BubbleStream(3);
 
 	//Fog features here
 	GLfloat fdensity = 0.03;
@@ -230,6 +232,7 @@ void idle( void )
 			Shark.updateVelocity(world1.gCurrentPoint(), world1.gNextPoint(),  //TODO ???????? put Shark update in one call w/ dt
 						world1.gCurrentDTS());
 			Shark.prepareNextSeq(world1.gAnimationLoop());  
+			//b1.update(dt/1000.0);
 		}
 	}
 		
@@ -459,6 +462,7 @@ void Draw ()
 			}  
 			else{ 
 				glScalef(1.5,1.5,1.5); }
+			//b1.draw(Vector3f(1,0,-1));
 			Shark.drawShark(frame, quadratic);			//draw shark		
 		}glPopMatrix();
 		
