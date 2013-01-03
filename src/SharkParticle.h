@@ -36,7 +36,7 @@ class SharkParticle
 		float collisionRadius; 	//spherical collision detection
 		bool billboard;
 
-		void drawSquare(MyMat transformComplete); //drawing the texture without transformations
+		void drawSquare(MyMat transformComplete); //drawing the texture
 };
 
 

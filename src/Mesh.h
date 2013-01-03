@@ -1,8 +1,8 @@
 #ifndef _MESH_3D_OBJECT_SHARK_
 #define _MESH_3D_OBJECT_SHARK_
 //#include <GL\glui.h>
-//#include <GL/glui.h>
-#include "glui/include/GL/glui.h"
+#include <GL/glui.h>
+//#include "glui/include/GL/glui.h"
 #include <GL/glut.h>
 #include "Vector.h"
 

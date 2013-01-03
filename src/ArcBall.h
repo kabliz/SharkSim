@@ -27,8 +27,8 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-//#include <GL/glui.h>
-#include "glui/include/GL/glui.h"
+#include <GL/glui.h>
+//#include "glui/include/GL/glui.h"
 // 8<--Snip here if you have your own math types/funcs-->8 
 
 //Only support assertions in debug builds

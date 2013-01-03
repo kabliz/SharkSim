@@ -79,18 +79,19 @@ void SharkParticle::draw(Vector3f eyepos)
 	Vector3f upp = cam.Cross(right);
 	upp.Normalize();
 
-	MyMat trans = MyMat(
+	MyMat trans = MyMat();
+	/*MyMat trans = MyMat(
 			right.x, upp.x, cam.x, 0,
 			right.y, upp.y, cam.y, 0,	
 			right.z, upp.z, cam.z, 0,
 			0,0,0,1	
-			);
+			);*/
 	//apply particle scale
 	MyMat m = MyMat();
 	m.makeTranslate(Vector3f(position.x, position.y, position.z));
 	trans.multRight(m);
 	
-	m.makeScale(Vector3f(scale,scale,scale));
+	//m.makeScale(Vector3f(scale,scale,scale));
 	//trans.multRight(m);
 
 	drawSquare(trans);
@@ -103,8 +104,8 @@ void SharkParticle::draw(MyMat rotat)
 	m.makeTranslate(Vector3f(position.x,position.y,position.z));
 	rotat.multRight(m);
 	
-	m = MyMat();	
-	m.makeScale(Vector3f(scale,scale,scale));
+	//m = MyMat();	
+	//m.makeScale(Vector3f(scale,scale,scale));
 	//rotat.multRight(m);
 
 

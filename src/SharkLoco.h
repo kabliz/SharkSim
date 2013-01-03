@@ -89,6 +89,7 @@ class SharkLoco {
 		float elapsedTime; //time (in seconds) since the simulation began. 
 		bool beatDirection;  //direction tail is swinging
 		bool prevBeatDirection;  //direction tail was swinging last update 
+		float phaseOff;	//phase offset of tailbeat. (radians) 
 
 		static float const velocityToAmp = 15.0;  //divides velocity    by this value to determine the amplitude of a stroke
 
@@ -100,11 +101,12 @@ class SharkLoco {
 		void findRailCurve(int railAngle);
 		void lateralFins();  				//changes lateral fin angles
 		float waveAngle(float time, int harmonic, float prevSegmentAngle);
-		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), relational initial angle (beta), propelling amplitude coefficent (K sub a),
+		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), 
+		//relational initial angle (beta), propelling amplitude coefficent (K sub a),
+		float wave(float time, float fre);
+
 		void lowerCeratotrichia();
-
 		int gNumLocomotionBones();
-
 		float deriveFrequency(); //derives frequency of tail swish based on the speed it is moving
 };
 

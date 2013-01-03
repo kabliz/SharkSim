@@ -20,6 +20,9 @@ void SharkLoco::buildSkeleton(Mesh* mesh, int numSegments, float *segLength)
 	skeleton.buildSkeleton(mesh, numSegments, segLength);
 	beatDirection = true;
 	prevBeatDirection = false;
+	phaseOff = 0;
+	beatDirection = 0;
+	swimFrequency = 1.0;
 }
 
 void SharkLoco::buildSkeleton(string modelFile)
@@ -29,6 +32,9 @@ void SharkLoco::buildSkeleton(string modelFile)
 	totalLength = (skeleton.gTail(spineKeys[0]) - skeleton.gTail(spineKeys[9])).Magnitude();
 	beatDirection = true;
 	prevBeatDirection = false;
+	phaseOff = 0;
+	beatDirection = 0;
+	swimFrequency = 1.0;
 }
 
 /*copies user defined animation frames into the class. It needs the number of the current sequence, and the total number of frames. 
@@ -72,6 +78,28 @@ float SharkLoco::deriveFrequency(void)
 	float lerp = 1.00 + (sharkLVel/(1.30-.1));  //value the beat should be at this velocity;
 	if(lerp > 2.1){ lerp = 2.1;}
 	if(lerp < .9){ lerp = .9;}
+
+	//compute phase offset
+	float phaseDiff;
+	//float lW = 2.0*3.14159265*lerp*elapsedTime + phaseDiff;//wave(elapsedTime, lerp);
+	//float lW = lerp; //wave(elapsedTime, lerp);
+	//float lOld = 2.0*3.14159265*swimFrequency*elapsedTime + phaseDiff;//wave(elapsedTime, swimFrequency);
+	//float lOld = swimFrequency; //wave(elapsedTime, swimFrequency);
+	phaseDiff = swimFrequency + phaseOff - lerp; //lW - lOld;
+	//if((phaseDiff > 1) || (phaseDiff < -1))
+	{
+		//phaseDiff = lOld - lW;
+		//phaseOff -= asin(phaseDiff);
+	}
+	//else
+	{
+		
+		//phaseOff += asin(phaseDiff);
+		phaseOff = phaseDiff;
+	}
+	//printf("pd %f %f -> %f \n", lW, lOld, phaseDiff);
+	if(phaseOff > 2*3.14159265){ phaseOff -= 2*3.14159265; }
+	if(phaseOff < 2*(-3.14159265)){ phaseOff += 2*3.14159265; }
 	
 	return lerp;
 
@@ -94,12 +122,13 @@ void SharkLoco::update(int dt, int railAngle, Vector3f velocit)
 	velocity = velocit;
 	if(beatDirection != prevBeatDirection)
 	{
-		//swimFrequency = deriveFrequency();	
+		swimFrequency = deriveFrequency();	
 		prevBeatDirection = beatDirection;
 	}
 
-	swimFrequency = 1.0;
-
+	//swimFrequency = 1.0;
+	//printf("vv %f %f %f\n", swimFrequency, phaseOff, beatDirection );
+	
 	//propellingAmplitude = Vector3f(0.0, .967(?) , 0.0).Interpolate(Vector3f(0.1, 5.0, 0), swimFrequency); //velocity ;  
 	////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
 	//propellingAmplitude = Vector3f(0.1, 5.0, 0).Interpolate(Vector3f(.0, 0.967, 0), 
@@ -148,7 +177,11 @@ void SharkLoco::calcNextAngles(int railAngle)
 			oldAngles.push_back(0);	
 		}
 	}
-
+	
+	//figure out direction of tailbeat. Helps determine when the tail is turning around so velocity can be recalculated
+	beatDirection = wave(elapsedTime , swimFrequency ) < 0;
+	printf("vri %f %f %f -> %f\n", elapsedTime, swimFrequency, phaseOff, wave(elapsedTime , swimFrequency) );
+	
 	int prevSegmentAngle = 0;
 	turningAngle = railAngle;
 	for(int i = 0; i < anglesPerFrame; i++)  //Lateral and Axial locomotion angles
@@ -185,6 +218,10 @@ float waveAngleSin(float frequency, float time, int harmonic, float prevSegmentA
 	return amplitude*result;
 }
 
+float SharkLoco::wave(float time, float fre)
+{
+	return sin(2.0*3.14159265*fre*time + phaseOff);
+}
 
 float SharkLoco::waveAngle(float time, int harmonic, float prevSegmentAngle)
 {
@@ -192,18 +229,17 @@ float SharkLoco::waveAngle(float time, int harmonic, float prevSegmentAngle)
 	float hFreq;
 	float result = 0;
 
-	float uPos = 0;  
+	float uPos = 0; 
+ 
+	//beatDirection = wave(time, hFreq ) /*sin((1.0*180.0*hFreq*time)*3.14159265/180.0)*/  < 0 ;
 
+	//harmonic waves add up each harmonic to create the motion as a whole
 	for(curHarm = 1; curHarm <= harmonic; curHarm += 1.0) {
 		hFreq = swimFrequency * curHarm;
 		//result += sin((2.0*180.0*hFreq*time - prevSegmentAngle)*(3.14159265/180.0));
-		result += (propellingAmplitude)*sin(2.0*3.14159265*hFreq*time);
+		result += (propellingAmplitude*wave(time,hFreq));
+		//result += (propellingAmplitude)*sin(2.0*3.14159265*hFreq*time);
 		//uPos += (propellingAmplitude)*cos(2.0*3.14159265*hFreq*time );
-		
-		//if(curHarm == 1) //direction of movement
-		//{
-		//	beatDirection = sin((1.0*180.0*hFreq*time)*3.14159265/180.0 ) < 0 ;
-		//}
 		//result += propellingAmplitude*cos((hFreq*time)*(3.14159265/180.0));
 	}
 	

@@ -26,7 +26,6 @@ void BubbleStream::update(float dt)
 		bubbles[i].update(dt);
 		if(bubbles[i].gPosition().y > 10)
 		{
-			printf("bubbes %f \n", bubbles[i].gPosition().y);
 			removeIndex = i;
 		}
 	}
