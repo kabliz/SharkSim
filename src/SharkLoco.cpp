@@ -180,7 +180,7 @@ void SharkLoco::calcNextAngles(int railAngle)
 	
 	//figure out direction of tailbeat. Helps determine when the tail is turning around so velocity can be recalculated
 	beatDirection = wave(elapsedTime , swimFrequency ) < 0;
-	printf("vri %f %f %f -> %f\n", elapsedTime, swimFrequency, phaseOff, wave(elapsedTime , swimFrequency) );
+	//printf("vri %f %f %f -> %f\n", elapsedTime, swimFrequency, phaseOff, wave(elapsedTime , swimFrequency) );
 	
 	int prevSegmentAngle = 0;
 	turningAngle = railAngle;

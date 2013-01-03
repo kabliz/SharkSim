@@ -15,16 +15,23 @@
 
 /* default constructor makes an identity matrix */
 MyMat::MyMat(void) {
-	int i,j;
 
-	for (i=0;i<4;i++){
-		for (j=0;j<4;j++){
-			if (i==j)
-				m_Elem[i][j]=1.0;
-			else
-				m_Elem[i][j]=0.0;
-		}
-	}
+	m_Elem[0][0] = 1;
+	m_Elem[0][1] = 0;
+	m_Elem[0][2] = 0;
+	m_Elem[0][3] = 0;
+	m_Elem[1][0] = 0;
+	m_Elem[1][1] = 1;
+	m_Elem[1][2] = 0;
+	m_Elem[1][3] = 0;
+	m_Elem[2][0] = 0;
+	m_Elem[2][1] = 0;
+	m_Elem[2][2] = 1;
+	m_Elem[2][3] = 0;
+	m_Elem[3][0] = 0;
+	m_Elem[3][1] = 0;
+	m_Elem[3][2] = 0;
+	m_Elem[3][3] = 1;
 }
 
 /* constructor to a specific matrix */

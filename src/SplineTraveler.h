@@ -25,11 +25,9 @@ class SplineTraveler
 		void drawAndMoveCamera();
 		void drawStatic();
 		void ExtractFrustum();
-		bool pointInFrustum(Vector3f v);
+		//bool pointInFrustum(Vector3f v);
 		Vector3f upCurrentLocation(int dt);
 		void initSpline(string filename);    //reads .txt, .mat or .csv data sheets 
-		//void initSplineMAT(string matfilename);     //opens mat files
-		//void initSplineEXE(string exefilename);     //opens csv files
 		void setFrustum(Frustum *frust){frustum = frust;}   
 		int deriveRailAngle(float lead, float frontBy, float behindBy);
 		void sGhostPoints(bool b){areGhostPoints = b; resetTime();}	
@@ -49,9 +47,7 @@ class SplineTraveler
 				return path.gPoint(curPoint-1);}
 		}
 		double gRotationDegrees(){return rotationAngle * 180/3.14159265 ;}
-		//Vector3f gRotationDegrees(){return rotation * 180/3.14159265 ;}
 		double gRotationRadians(){return rotationAngle;}
-		//Vector3f gRotationRadians(){return rotation;}
 		Vector3f gRotationAxis(){return rotateAxis;}
 		Vector3f gLocation(){return location;}
 		Vector3f gNearbyPoint(float ahead, int curPoint, float u);
@@ -66,9 +62,8 @@ class SplineTraveler
 
 	private:
 
-		void drawPoints();
-		void drawPointLine(int i);
-		//Vector3f calcRotation();
+		//void drawPoints();
+		//void drawPointLine(int i);
 		double calcRotation(Vector3f pFrom, Vector3f pVertex, Vector3f pDest);
 		Vector3f interpolateRotation();
 		Vector3f velocity; //velocity of traveler down the spline. Measured in distance units per second.	

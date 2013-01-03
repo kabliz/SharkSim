@@ -676,11 +676,125 @@ double SplinePath::StoU(double sDist, int curPoint)
 	return simpleU;
 }
 
+/*Draws line between the previous line and the current one */
+void SplinePath::drawPointLine(int i, Frustum* frustum)
+{
+        glPushMatrix();
+        {
+                glTranslatef(gPoint(i).x, gPoint(i).y, gPoint(i).z);
+                if(frustum->testPoint(gPoint(i)))
+                {
+                        glutSolidSphere(.1, 3, 2);
+                }
+        }glPopMatrix();
+        if(i > 0)
+        {
+                if(frustum->testPoint(gPoint(i)) || frustum->testPoint(gPoint(i-1)))
+                {
+                        //splined points for more curvature
+                        Vector3f p1 = splineLocation(.1, i-1);
+                        Vector3f p2 = splineLocation(.2, i-1);
+                        Vector3f p3 = splineLocation(.3, i-1);
+                        Vector3f p4 = splineLocation(.4, i-1);
+                        Vector3f p5 = splineLocation(.5, i-1);
+                        Vector3f p6 = splineLocation(.6, i-1);
+                        Vector3f p7 = splineLocation(.7, i-1);
+                        Vector3f p8 = splineLocation(.8, i-1);
+                        Vector3f p9 = splineLocation(.9, i-1);
+
+			glBegin(GL_LINES);
+                        glVertex3f(gPoint(i-1).x, gPoint(i-1).y, gPoint(i-1).z);
+                        glVertex3f(p1.x, p1.y, p1.z);
+
+                        glVertex3f(p1.x, p1.y, p1.z);
+                        glVertex3f(p2.x, p2.y, p2.z);
+
+                        glVertex3f(p2.x, p2.y, p2.z);
+                        glVertex3f(p3.x, p3.y, p3.z);
+
+                        glVertex3f(p3.x, p3.y, p3.z);
+                        glVertex3f(p4.x, p4.y, p4.z);
+
+                        glVertex3f(p4.x, p4.y, p4.z);
+                        glVertex3f(p5.x, p5.y, p5.z);
+
+                        glVertex3f(p5.x, p5.y, p5.z);
+                        glVertex3f(p6.x, p6.y, p6.z);
+
+                        glVertex3f(p6.x, p6.y, p6.z);
+                        glVertex3f(p7.x, p7.y, p7.z);
+
+                        glVertex3f(p7.x, p7.y, p7.z);
+                        glVertex3f(p8.x, p8.y, p8.z);
+
+                        glVertex3f(p8.x, p8.y, p8.z);
+                        glVertex3f(p9.x, p9.y, p9.z);
+
+                        glVertex3f(p9.x, p9.y, p9.z);
+                        glVertex3f(gPoint(i).x, gPoint(i).y, gPoint(i).z);
+                        glEnd();
+                }
+        }
+}
 
 
 
+void SplinePath::drawPoints(int curPoint, bool usesGhostPoints, Frustum* frustum)
+{
+        int step = 1;
+
+        glDisable(GL_LIGHT0);
+        glDisable(GL_LIGHTING);
+        float blue = 1.0;
+        float red = 1.0;
+        float green = 1.0;
+        int i;
+        int chunk = size()*.1 / 4;
+	int endRange = limitedDrawing? curPoint + 500 : (curPoint+(size()*.1));
+	int pastRange = limitedDrawing? curPoint - 100 : (usesGhostPoints? 1 : 0 );
+
+        frustum->extract();
+
+	
+
+	for(i = curPoint+1; i < endRange; i += step)
+        {
+                glColor3f(red,green,blue);
+                drawPointLine(i, frustum);
+                if(i > curPoint+chunk) red -= .02;
+                if(i > curPoint+(3.0*chunk)){ red += .02; green -=.01; }
+                if(i < curPoint+(chunk*2)){ blue -= .02; }
+                if(i > curPoint+(chunk*2)){ blue += .02; }
+
+        }
 
 
+        //Past points drawn in red
+        glColor3f(1,0,0);
+        i = pastRange;
+	if(usesGhostPoints && pastRange < 1){
+                i = 1;
+        }
+        else if(pastRange < 0){i = 0;}
+
+        for(/*same val*/ ; i <= curPoint; i++)
+        {
+                drawPointLine(i, frustum);
+        }
+
+        //Far future points drawn in black, if not limiting Drawing
+	if(!limitedDrawing)
+	{
+		glColor3f(0,0,0);
+		for(i = (curPoint+(size()*.1)) ;i < (usesGhostPoints?size()-1: size()); i ++)
+		{
+			drawPointLine(i, frustum);
+		}
+	}
+	glColor3f(1,1,1);
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+}
 
 
 

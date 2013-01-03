@@ -9,6 +9,7 @@
 #include "SplineTable.h"
 #include "GPSconverter.h"
 #include "Vector.h"
+#include "Frustum.h"
 #include <cstdio>
 #include <vector>
 #include <string>
@@ -21,8 +22,9 @@ class SplinePath
 {
 	public:
 		//initialization functions
-		SplinePath(){Tolerance= .2; tabSet = false; isGhostPointMode = false;}
-		SplinePath(bool ghostPoints){Tolerance= .2; tabSet = false; isGhostPointMode = ghostPoints;}    //set true to make the first and 
+		SplinePath(){Tolerance= .2; tabSet = false; isGhostPointMode = false; limitedDrawing = true;}
+		SplinePath(bool ghostPoints){Tolerance= .2; tabSet = false; isGhostPointMode = ghostPoints; limitedDrawing = false;}    
+														//set true to make the first and 
 														//last points invisible
 		~SplinePath(){}
 		void initSpline(string filename);    //reads .txt or .mat or .csv data sheets 
@@ -37,6 +39,9 @@ class SplinePath
 		void calcRadius();
 		void deleteHeap();
 		int size(){return points.size();}
+		void drawPoints(int curPoint, bool usingGhostPointsAsEndpoints, Frustum* frustum);
+                bool pointInFrustum(Vector3f v);
+ 
 
 		//interpolation functions
 		double StoU(double, int);
@@ -55,6 +60,7 @@ class SplinePath
 		double gDTS(int index){return dts[index];} //time delta distance between two points
 		double gTotalDTS(int index){return totts[index];} //time delta distance between two points
 		bool sGhostPoints(bool b){isGhostPointMode = b;}
+		bool sLimitedDrawing(bool drawingStatus){ limitedDrawing = drawingStatus;}
 
 	private:	
 
@@ -76,6 +82,8 @@ class SplinePath
 		//double timeNext;
 		double curTimeSpline;
 
+		bool limitedDrawing; 	//sets the spline to consider at max 600 points when going to draw. 
+
 		MATreader mreader;
 		EXEreader ereader;
 		ZOEreader zoereader;
@@ -90,6 +98,8 @@ class SplinePath
 		
 		double HmInt(float U[4], const float M[16], float B[4]);
 		bool tabSet;
+		
+		void drawPointLine(int i, Frustum* frustum);
 
 		bool isGhostPointMode;
 		float static const Mcat[16];// = {-.5, 1.5, -1.5, .5, 1, -2.5, 2, -.5, -.5, 0, .5, 0, 0, 1, 0, 0};
