@@ -79,25 +79,11 @@ float SharkLoco::deriveFrequency(void)
 	if(lerp > 2.1){ lerp = 2.1;}
 	if(lerp < .9){ lerp = .9;}
 
-	//compute phase offset
-	float phaseDiff;
-	//float lW = 2.0*3.14159265*lerp*elapsedTime + phaseDiff;//wave(elapsedTime, lerp);
-	//float lW = lerp; //wave(elapsedTime, lerp);
-	//float lOld = 2.0*3.14159265*swimFrequency*elapsedTime + phaseDiff;//wave(elapsedTime, swimFrequency);
-	//float lOld = swimFrequency; //wave(elapsedTime, swimFrequency);
-	phaseDiff = swimFrequency + phaseOff - lerp; //lW - lOld;
-	//if((phaseDiff > 1) || (phaseDiff < -1))
-	{
-		//phaseDiff = lOld - lW;
-		//phaseOff -= asin(phaseDiff);
-	}
-	//else
-	{
-		
-		//phaseOff += asin(phaseDiff);
-		phaseOff = phaseDiff;
-	}
-	//printf("pd %f %f -> %f \n", lW, lOld, phaseDiff);
+	if(elapsedTime == 0) { elapsedTime = 1;}
+	float phase1 = (2.0*3.14159265*swimFrequency*elapsedTime + phaseOff) - (2.0*3.14159265 * lerp * elapsedTime);
+	
+	phaseOff = phase1;
+	
 	if(phaseOff > 2*3.14159265){ phaseOff -= 2*3.14159265; }
 	if(phaseOff < 2*(-3.14159265)){ phaseOff += 2*3.14159265; }
 	
@@ -117,14 +103,14 @@ float SharkLoco::deriveFrequency(void)
  * Rail angle is the angle provided from the world, showing the sharpness of the turn on the point of the rail the shark is at.*/
 void SharkLoco::update(int dt, int railAngle, Vector3f velocit)
 {
-	elapsedTime += dt/1000.0;
-	//velocity factors
-	velocity = velocit;
 	if(beatDirection != prevBeatDirection)
 	{
 		swimFrequency = deriveFrequency();	
 		prevBeatDirection = beatDirection;
 	}
+	elapsedTime += dt/1000.0;
+	//velocity factors
+	velocity = velocit;
 
 	//swimFrequency = 1.0;
 	//printf("vv %f %f %f\n", swimFrequency, phaseOff, beatDirection );
@@ -179,7 +165,8 @@ void SharkLoco::calcNextAngles(int railAngle)
 	}
 	
 	//figure out direction of tailbeat. Helps determine when the tail is turning around so velocity can be recalculated
-	beatDirection = wave(elapsedTime , swimFrequency ) < 0;
+	//the phase shift puts the check  at the end of the tail swing rather than directly in the middle
+	beatDirection = wave(elapsedTime + (3.14159265/2.0) , swimFrequency ) < 0;
 	//printf("vri %f %f %f -> %f\n", elapsedTime, swimFrequency, phaseOff, wave(elapsedTime , swimFrequency) );
 	
 	int prevSegmentAngle = 0;
