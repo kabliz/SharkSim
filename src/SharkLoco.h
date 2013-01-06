@@ -91,7 +91,7 @@ class SharkLoco {
 		bool prevBeatDirection;  //direction tail was swinging last update 
 		float phaseOff;	//phase offset of tailbeat. (radians) 
 
-		static float const velocityToAmp = 15.0;  //divides velocity    by this value to determine the amplitude of a stroke
+		static float const velocityToAmp = 14.0;  //divides velocity    by this value to determine the amplitude of a stroke
 
 		//angle calculation funcs
 		float calcTurningAngle();

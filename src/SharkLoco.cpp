@@ -112,15 +112,13 @@ void SharkLoco::update(int dt, int railAngle, Vector3f velocit)
 	//velocity factors
 	velocity = velocit;
 
-	//swimFrequency = 1.0;
 	//printf("vv %f %f %f\n", swimFrequency, phaseOff, beatDirection );
 	
-	//propellingAmplitude = Vector3f(0.0, .967(?) , 0.0).Interpolate(Vector3f(0.1, 5.0, 0), swimFrequency); //velocity ;  
-	////amplitude increases with frequency until a max is reached at 5 beats per ssecond.
-	//propellingAmplitude = Vector3f(0.1, 5.0, 0).Interpolate(Vector3f(.0, 0.967, 0), 
-	//						(swimFrequency > 5.0 ? 5.0 : swimFrequency)).y;
-	//propellingAmplitude = swimFrequency / velocityToAmp; // TODO amplitude scale. uncomment to renable movement
-	propellingAmplitude = .21; 
+	////amplitude increases with frequency until a max is reached 
+	//propellingAmplitude = Vector3f(0.9, 2.1, 0).Interpolate(Vector3f(.0, 0.967, 0), swimFrequency).y;
+	//propellingAmplitude = Vector3f(.9,.005, 0).Interpolate(Vector3f(2.1, 0.967, 0), swimFrequency).y;
+	propellingAmplitude = (.967) * ((swimFrequency - .9)/(2.1 - .9));
+	propellingAmplitude /= 3.5;						
 
 	//check if the recalculate flag is set
 	if(skeleton.newUpdateApproved())
@@ -224,7 +222,7 @@ float SharkLoco::waveAngle(float time, int harmonic, float prevSegmentAngle)
 	for(curHarm = 1; curHarm <= harmonic; curHarm += 1.0) {
 		hFreq = swimFrequency * curHarm;
 		//result += sin((2.0*180.0*hFreq*time - prevSegmentAngle)*(3.14159265/180.0));
-		result += (propellingAmplitude*wave(time,hFreq));
+		result += ((propellingAmplitude/(TSEMI_LENGTH_M))*wave(time,hFreq));
 		//result += (propellingAmplitude)*sin(2.0*3.14159265*hFreq*time);
 		//uPos += (propellingAmplitude)*cos(2.0*3.14159265*hFreq*time );
 		//result += propellingAmplitude*cos((hFreq*time)*(3.14159265/180.0));
