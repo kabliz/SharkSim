@@ -115,10 +115,9 @@ void SharkLoco::update(int dt, int railAngle, Vector3f velocit)
 	//printf("vv %f %f %f\n", swimFrequency, phaseOff, beatDirection );
 	
 	////amplitude increases with frequency until a max is reached 
-	//propellingAmplitude = Vector3f(0.9, 2.1, 0).Interpolate(Vector3f(.0, 0.967, 0), swimFrequency).y;
-	//propellingAmplitude = Vector3f(.9,.005, 0).Interpolate(Vector3f(2.1, 0.967, 0), swimFrequency).y;
-	propellingAmplitude = (.967) * ((swimFrequency - .9)/(2.1 - .9));
-	propellingAmplitude /= 3.5;						
+	//propellingAmplitude = (.967) * ((swimFrequency - .9)/(2.1 - .9));
+	propellingAmplitude = .1 + (.066*2.1 - .1) * ((swimFrequency - .9)/(2.1 - .9));
+	propellingAmplitude *= TSEMI_LENGTH_M;	//conversion from %L to meters					
 
 	//check if the recalculate flag is set
 	if(skeleton.newUpdateApproved())

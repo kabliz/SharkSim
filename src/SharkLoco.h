@@ -82,6 +82,7 @@ class SharkLoco {
 		static const string lowCaudal;// = "Caudal"; 
 
 		int locomotionMode; //the method of locomotion being used currently: anguiliform, subcarangiform, ...etc.
+		
 		float propellingAmplitude; //amount of force to put in a swim stroke. Higher for more force. 
 				//Often Never exceeds 1/4th-1/5th of the body length. Decreases as the fish gets larger.
 		int turningAngle; //amount of turning happening
