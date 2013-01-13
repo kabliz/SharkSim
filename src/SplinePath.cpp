@@ -73,20 +73,19 @@ void SplinePath::gatherDTPoints()
 	double dt = 0;
 	float runningTotts = 0; //running time totals per spot
 	float prevRT = 0;
-	printf("data width %d\n", mreader.width());
+	//printf("data width %d\n", mreader.width());
 	for(int id = 0; id < mreader.length(); id++)
 	{
 
 		dt += mreader.gElement(0,id);
 		runningTotts += dt;
 		p.x = mreader.gElement(1,id);
-		p.y = .2 * sin(id/8.0);
+		p.y = .2 * sin(id/8.0);   	//varies the height a little over each point
 		p.z = mreader.gElement(2,id);
 		
-		//printf("%f %f %f %f %f %f\n", dt, p.x, p.y, p.z, mreader.gElement(3, id), mreader.gElement(4, id) );
-		//p.Print();
 		if(!(p.x == q.x && p.z == q.z))
 		{
+			//p.Print();
 			isLargerPoint(p);
 			isSmallerPoint(p);
 			points.push_back(p);
@@ -231,8 +230,8 @@ void SplinePath::initTangents()
 				//case: need perpendicular tangent
 				//180 degree turn case is discontinious. This is a fix
 				//correct 180 case before cross multiplying
-				int j = 2;
-				while(before.Dot(after) >= .9999) {
+				int j = 3;
+				while((before.Dot(after) >= .9999)){// || (points[i].fEquals(points[i+j], 0.01))) {
 					if(j >= points.size())
 					{
 						after = Vector3f(0,0,1);  //patch for broken spline case 
@@ -259,7 +258,6 @@ void SplinePath::initTangents()
 			}	
 			
 			float rotationAngle = tarPt.AngleCos(before, after);  
-			//printf("%f\n",rotationAngle);  //TODO tehre are still NaN's in the tangent generation
 		
 			//scale magnitude
 			float postMag = (tarPt-postPt).Magnitude(); 
@@ -270,7 +268,12 @@ void SplinePath::initTangents()
 			float scale = minMag + ((Mag-minMag) * (((3.14159265-rotationAngle)*(3.14159265-rotationAngle)) / 3.14159265 )); //Lerp ease scale
 			
 			//tangent calculation
-			tan = edgeDiff * scale; 
+			tan = edgeDiff * scale;
+			if(!tan.fEquals(tan, 0.1))  //NaN bandAid TODO
+			{
+				tan = Vector3f(0,0,2);
+			}
+			//tan.Print(); 
 			tangents.push_back(tan);
 		}
 

@@ -63,6 +63,9 @@ void SplineTraveler::update(float dt)
 	if(timer - prevTime > 0){
 		velocity = (location-prevLocation) / (timer - prevTime); 
 	}
+
+	//printf("%d <%f, %f, %f>\n", curPoint, location.x, location.y, location.z ); 
+	//printf("%d ", curPoint); 
 }
 
 /*Draws the Spline with the center set to the current location */
