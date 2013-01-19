@@ -350,7 +350,7 @@ void SharkLoco::lowerCeratotrichia()
 		oldAngles[oldAngles.size()-3] +
 		oldAngles[oldAngles.size()-4] +
 		oldAngles[oldAngles.size()-5];
-	caudalLag = finalAngles[finalAngles.size()-1] + (curAn - oldAn) * 1.0 ;
+	//caudalLag = finalAngles[finalAngles.size()-1] + (curAn - oldAn) * 1.0 ;
 	//caudalLag = (finalAngles[finalAngles.size()-1]-turningAngle)* 4.0 ;
 	//finalAngles[finalAngles.size()-2] += waveAngle(swimFrequency, elapsedTime, 2, oldAngles[oldAngles.size()-3], propellingAmplitude);  
 	//finalAngles[finalAngles.size()-1] += waveAngle(swimFrequency, elapsedTime, 2, oldAngles[oldAngles.size()-2], propellingAmplitude);  
