@@ -388,9 +388,9 @@ void mouseClickMove(int x, int y)
 
 }
 
-void gluiUpdate() {
-	Shark.segUpdate();
-}
+//void gluiUpdate() {
+	//Shark.segUpdate();
+//}
 
 
 /* A timed update system, that is called a few times per second. the paramater is required by glutTimerFunc. it doesnt matter what is in it

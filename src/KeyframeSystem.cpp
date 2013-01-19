@@ -4,9 +4,9 @@ void KeyframeSystem::initFrames()
 {
 	if(isDynamicMode)
 	{
-		Keyframe initialFrame = Keyframe(&(sMesh->vertices), &(sMesh->faces));
-		Keyframe initialFrame2 = Keyframe(&(sMesh->vertices), &(sMesh->faces));
-		Keyframe initialFrame3 = Keyframe(&(sMesh->vertices), &(sMesh->faces));
+		Keyframe * initialFrame = new Keyframe(&(sMesh->vertices), &(sMesh->faces));
+		Keyframe * initialFrame2 = new Keyframe(&(sMesh->vertices), &(sMesh->faces));
+		Keyframe * initialFrame3 = new Keyframe(&(sMesh->vertices), &(sMesh->faces));
 		sequences.push_back(FrameSequence(isDynamicMode)); //initial (and only) sequence of frames	
 		sequences[0].sFrame(initialFrame); //First three frames are pushed in.
 		sequences[0].sFrame(initialFrame2);

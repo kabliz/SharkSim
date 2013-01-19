@@ -16,13 +16,14 @@ class FrameSequence
 		void sNumInBetweens(int d){numInBetweens = d;}
 		int gNumInBetweens(){return numInBetweens;}
 		bool inDynamicMode(){return isDynamicMode;}
-		Keyframe gFrame(int index){return frames[index];}
-		void sFrame(Keyframe frame){frames.push_back(frame);}
+		Keyframe gFrame(int index){return *frames[index];}
+		void sFrame(Keyframe frame){frames.push_back(&frame);}
+		void sFrame(Keyframe *frame){frames.push_back(frame);}
 		size_t size(){return frames.size();}
 
 	private:	
 
-		vector<Keyframe> frames;
+		vector<Keyframe*> frames;
 		int numInBetweens;
 		bool isDynamicMode;	
 };

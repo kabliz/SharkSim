@@ -26,14 +26,14 @@ class Shark
 {
 	public:
 		Shark();
-		void drawSharkSeg(float rotate, float start, float end, int index, float length);
+		//void drawSharkSeg(float rotate, float start, float end, int index, float length);
 		void drawSkin(int frame);
-		void drawSegment(int index, float rot, GLUquadricObj *quadratic);
-		void drawSpine(int frame, GLUquadricObj *quadratic);
+		//void drawSegment(int index, float rot, GLUquadricObj *quadratic);
+		//void drawSpine(int frame, GLUquadricObj *quadratic);
 		void drawShark(int frame, GLUquadricObj *quadratic);
 		void timedUpdate(int dt, int railAngle, Vector3f velociity);  
 		void materials(materialStruct materials);
-		void segUpdate();
+		//void segUpdate();
 		KeyframeSystem genKeyframes(bool dynamicMode, SharkMesh *sharkmesh);
 		void deinitialize(){kfSys.deleteFrameHeaps();}
 		void updateVelocity(Vector3f start, Vector3f end, double dt);

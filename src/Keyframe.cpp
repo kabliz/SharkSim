@@ -2,12 +2,29 @@
 
 Keyframe::Keyframe(map<Vector3f, SharkVertex*, compareVect3> *rawVerts, vector<Quad*> *rawFaces)
 {
-	//TODO. shallow copy is probably not what I want.
-	//copy verts over.
-	uVertices = *rawVerts;
+	//deep copy verts over.
+	map<Vector3f, SharkVertex*, compareVect3>::iterator im;
+	for(im = rawVerts->begin(); im != rawVerts->end(); im++)
+	{
+		pair<Vector3f, SharkVertex*> serk = *im;
+		SharkVertex * d = new SharkVertex();
+		d->sNormal(serk.second->gNormal());
+		d->sTransformed(serk.second->gTransformed());
+		d->sLocal(serk.second->gLocal());
+		uVertices.insert(pair<Vector3f, SharkVertex*>(serk.first, d));
+	}
 
 	//create faces.
-	faces = *rawFaces;
+	vector<Quad*>::iterator iq;
+        for(iq = rawFaces->begin(); iq != rawFaces->end(); iq++)
+        {
+		Quad * nRect = new Quad();
+		for(int i = 0; i < 4; i++)
+		{
+			nRect->sVert(i, uVertices.find((*iq)->gLocalVert(i))->second);
+		}
+		faces.push_back(nRect);
+	}
 
 	//setNormals
 	createQuads();
@@ -170,7 +187,6 @@ void Keyframe::gatherTransformData(GLfloat segmentRot[], GLfloat segLength[], Me
 			glQuat, startingPoint, stackMatrix, start, end);
 	 
 	createQuads();                    
-	//multiBoneAttenuate();   //TODO phase out Attenuate in favor of conventional Skinning
 }
 
 
@@ -202,7 +218,6 @@ void Keyframe::createQuads(void)
 }
 
 /*Rigging: Slightly adjusts quads to make sections where gaps were closed in more smooted out */
-//TODO replace with Skinning. Deprecated.
 void Keyframe::multiBoneAttenuate(void)
 {
 	//find all the quads whose front quadrant has a different bone number, 
@@ -272,17 +287,11 @@ void Keyframe::drawInBetween(Keyframe end, int step, int max)
 		newCorn[1] = interpolateVertices((faces[i]->gTransformedVert(1)), (end.faces[i]->gTransformedVert(1)), step, max);
 		newCorn[2] = interpolateVertices((faces[i]->gTransformedVert(2)), (end.faces[i]->gTransformedVert(2)), step, max);
 		newCorn[3] = interpolateVertices((faces[i]->gTransformedVert(3)), (end.faces[i]->gTransformedVert(3)), step, max);
-		//newCorn[1] = interpolateVertices((faces[i]->verts[1]->transformed), (end.faces[i]->verts[1]->transformed), step, max);
-		//newCorn[2] = interpolateVertices((faces[i]->verts[2]->transformed), (end.faces[i]->verts[2]->transformed), step, max);
-		//newCorn[3] = interpolateVertices((faces[i]->verts[3]->transformed), (end.faces[i]->verts[3]->transformed), step, max);
 		
 		newNorm[0] = interpolateVertices((faces[i]->gNormalVert(0)), (end.faces[i]->gNormalVert(0)), step, max);
 		newNorm[1] = interpolateVertices((faces[i]->gNormalVert(1)), (end.faces[i]->gNormalVert(1)), step, max);
 		newNorm[2] = interpolateVertices((faces[i]->gNormalVert(2)), (end.faces[i]->gNormalVert(2)), step, max);
 		newNorm[3] = interpolateVertices((faces[i]->gNormalVert(3)), (end.faces[i]->gNormalVert(3)), step, max);
-		//newNorm[1] = interpolateVertices((faces[i]->verts[1]->normal), (end.faces[i]->verts[1]->normal), step, max);
-		//newNorm[2] = interpolateVertices((faces[i]->verts[2]->normal), (end.faces[i]->verts[2]->normal), step, max);
-		//newNorm[3] = interpolateVertices((faces[i]->verts[3]->normal), (end.faces[i]->verts[3]->normal), step, max);
 
 		glColor3f(faces[i]->gBoneNo()*.1, 1.0-(((float) (i%3))/10.0), 1.0-(faces[i]->gBoneNo()*.1));
 		
