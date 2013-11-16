@@ -166,7 +166,11 @@ void Initialize (string splineFile )					// Any GL Init Code & User Initialiazat
 	Shark.sMesh(universalMesh);
 	int tSegments = Shark.segments;
 	//Shark.buildSkeleton(&mesh, tSegments);
+	#ifdef VAR_NOSEG
 	Shark.buildSkeleton("Model/LeopardShark.aobj");
+	#else
+	Shark.buildSkeleton("Model/triakisMoreSpine.aobj");
+	#endif
 	Shark.genKeyframes(dynaMode, universalMesh);
 	frameSpeed = frameSpeedSlow;
 	Shark.sFrameSpeed(10);
@@ -397,30 +401,15 @@ void mouseClickMove(int x, int y)
  * */
 void TUpdate(int timed)
 {
-	//FutureFeature: rotate worlds around?
-	//Shark.timedUpdate(world1.deriveRailAngle());
-	//
-	/*if(Shark.isMoving()){					//increment movement frame
-		//frame += frameSpeed;
-		//Shark.kfSys.curFrame++;
-		//Shark.kfSys.checkLoop();
-		
-		if(showWorld) 
-		{ 
-			//world1.updateWorld(); 
-			Shark.updateVelocity(world1.gCurrentPoint(), world1.gNextPoint(), 
-						world1.gCurrentDTS());
-			Shark.prepareNextSeq(world1.gAnimationLoop());  
-		}
-	}
-		
-	glutTimerFunc(16.6666, TUpdate, 1);*/
-	glutPostRedisplay();
+	printf("framerate %d\n", FPScount);
+	FPScount = 0;
+	glutTimerFunc(1000, TUpdate, 1);
 }
 
 void Draw ()
 {
-	
+
+	FPScount++;	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
 	glLoadIdentity();					// Reset The Current Modelview Matrix
 
@@ -492,7 +481,7 @@ int main(int argc, char** argv)
 
    //register glut callback functions
    glutDisplayFunc(Draw); 
-   //glutTimerFunc(33.3333 , TUpdate, 1) ;
+   glutTimerFunc(1000, TUpdate, 1) ;
    glutVisibilityFunc(visible);
    glutReshapeFunc(reshape);
    glutMotionFunc(mouseClickMove);

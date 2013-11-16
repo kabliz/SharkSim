@@ -89,6 +89,7 @@ double	frame = 0;   //deprecated, for manually skimming through frames
 double	frameSpeed = 0;  //deprecated
 double	frameSpeedSlow = 0.001; //deprecated
 double	frameSpeedFast = 0.01; //deprecated
+int FPScount = 0;
 
 //shark external files
 static const int numArtistAnimations = 5;

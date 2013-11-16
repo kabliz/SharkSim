@@ -74,11 +74,15 @@ class Shark
 		void prepareNextSeq(string seqName){kfSys.prepareNextSeq(seqName);}
 
 		//used to draw spine	
+		#ifdef VAR_NOSEG
 		static const int segments = 10;	//hardcode number of segments for how many segments we have data for
+		#else
+		static const int segments = 30;
+		#endif
 		static const int sequences = 10;                  //number of sequences  (animation loops) the shark has
 		/* GLUI Globals */
 		static const int segMin = 6;	//minimum amount of segments allowed
-		static const int segMax = 20;	//maximum amount of segments allowed
+		static const int segMax = 30;	//maximum amount of segments allowed
 
 
 	private:

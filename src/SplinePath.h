@@ -22,7 +22,7 @@ class SplinePath
 {
 	public:
 		//initialization functions
-		SplinePath(){Tolerance= .2; tabSet = false; isGhostPointMode = false; limitedDrawing = true;}
+		SplinePath(){Tolerance= .2; tabSet = false; isGhostPointMode = false; limitedDrawing = false;}
 		SplinePath(bool ghostPoints){Tolerance= .2; tabSet = false; isGhostPointMode = ghostPoints; limitedDrawing = false;}    
 														//set true to make the first and 
 														//last points invisible
@@ -70,6 +70,7 @@ class SplinePath
 		//original data read
 		vector<Vector3f> points;   //vector stores x, y, z(where z is water depth, unlike rendering)
 		vector<Vector3f> tangents; //tangents for the curve as it hits each point
+		vector<Vector3f> tTangents; //tangents for the time curve as it hits each point
 		vector<double> dts; //difference in time (seconds) between one point and the next
 		vector<double> totts; //total running time at each point 
 		Vector3f maxPt; //records the maximum point the shark traveled
@@ -106,7 +107,11 @@ class SplinePath
 		float static const Mher[16];// = {2, -2, 1, 1, -3, 3, -2, -1, 0, 0, 1, 0, 1, 0, 0, 0};
 		double Tolerance;
 		int static const totalSlices = 100; //determines how finely to sample the curve
+		#ifdef VAR_CATMULL	
+		bool static const isCatmullMode = true;
+		#else
 		bool static const isCatmullMode = false;
+		#endif
 };
 
 #endif

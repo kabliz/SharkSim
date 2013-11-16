@@ -8,6 +8,10 @@ runshark:
 	cd $(SRC_DIR); make runshark 
 	make deploy
 
+catmull:
+	cd $(SRC_DIR); make catmull 
+	make deploy
+
 runshark64:
 	cd $(SRC_DIR); make runshark64 
 	make deploy

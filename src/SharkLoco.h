@@ -104,7 +104,8 @@ class SharkLoco {
 		float waveAngle(float time, int harmonic, float prevSegmentAngle);
 		//need frequency (f), time (t), turning angle (TA),turning coefficeint (K sub i), 
 		//relational initial angle (beta), propelling amplitude coefficent (K sub a),
-		float wave(float time, float fre);
+		//float wave(float time, float fre);
+		float wave(float time, float fre, float prevSegmentAngle);
 
 		void lowerCeratotrichia();
 		int gNumLocomotionBones();

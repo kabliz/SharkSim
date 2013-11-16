@@ -1,7 +1,41 @@
 #include "SharkLoco.h"
-
+#ifdef VAR_NOSEG
 const string SharkLoco::spineKeys[10] = {string("Spine1"), string("Spine2"), string("Spine3"), string("Spine4"), 
 	string("Spine5"), string("Spine6"), string("Spine7"), string("Spine8"), string("Spine9"), string("Spine10")};
+#else
+const string SharkLoco::spineKeys[30] = {
+string("Spine1"),
+string("Spine2"),
+string("Spine3"),
+string("Spine4"),
+string("Spine5"),
+string("Spine6"),
+string("Spine7"),
+string("Spine8"),
+string("Spine9"),
+string("Spine10"),
+string("Spine11"),
+string("Spine12"),
+string("Spine13"),
+string("Spine14"),
+string("Spine15"),
+string("Spine16"),
+string("Spine17"),
+string("Spine18"),
+string("Spine19"),
+string("Spine20"),
+string("Spine21"),
+string("Spine22"),
+string("Spine23"),
+string("Spine24"),
+string("Spine25"),
+string("Spine26"),
+string("Spine27"),
+string("Spine28"),
+string("Spine29"),
+string("Spine30") };
+
+#endif
 const string SharkLoco::leftPec = "PecLeft";       //Pectoral Fins
 const string SharkLoco::rightPec = "PecRight";       
 const string SharkLoco::leftPel = "PelLeft";       //Pelvic Fins
@@ -163,7 +197,7 @@ void SharkLoco::calcNextAngles(int railAngle)
 	
 	//figure out direction of tailbeat. Helps determine when the tail is turning around so velocity can be recalculated
 	//the phase shift puts the check  at the end of the tail swing rather than directly in the middle
-	beatDirection = wave(elapsedTime + (3.14159265/2.0) , swimFrequency ) < 0;
+	beatDirection = wave(elapsedTime + (3.14159265/2.0) , swimFrequency, 0 ) < 0;
 	//printf("vri %f %f %f -> %f\n", elapsedTime, swimFrequency, phaseOff, wave(elapsedTime , swimFrequency) );
 	
 	int prevSegmentAngle = 0;
@@ -202,9 +236,11 @@ float waveAngleSin(float frequency, float time, int harmonic, float prevSegmentA
 	return amplitude*result;
 }
 
-float SharkLoco::wave(float time, float fre)
+//float SharkLoco::wave(float time, float fre)
+float SharkLoco::wave(float time, float fre, float prevSegmentAngle)
 {
-	return sin(2.0*3.14159265*fre*time + phaseOff);
+	float segmentOff = 0;//((3.0*3.14159265) / (oldAngles.size()*1.0)) + prevSegmentAngle;
+	return sin(2.0*3.14159265*fre*time + phaseOff + segmentOff);
 }
 
 float SharkLoco::waveAngle(float time, int harmonic, float prevSegmentAngle)
@@ -221,7 +257,12 @@ float SharkLoco::waveAngle(float time, int harmonic, float prevSegmentAngle)
 	for(curHarm = 1; curHarm <= harmonic; curHarm += 1.0) {
 		hFreq = swimFrequency * curHarm;
 		//result += sin((2.0*180.0*hFreq*time - prevSegmentAngle)*(3.14159265/180.0));
-		result += ((propellingAmplitude/(TSEMI_LENGTH_M))*wave(time,hFreq));
+		
+		//result += ((propellingAmplitude/(TSEMI_LENGTH_M+.3))*wave(time,hFreq,prevSegmentAngle));  //measured in L not meters
+		result += ((propellingAmplitude/(curHarm*TSEMI_LENGTH_M))*wave(time,hFreq,prevSegmentAngle));
+		
+
+
 		//result += (propellingAmplitude)*sin(2.0*3.14159265*hFreq*time);
 		//uPos += (propellingAmplitude)*cos(2.0*3.14159265*hFreq*time );
 		//result += propellingAmplitude*cos((hFreq*time)*(3.14159265/180.0));
@@ -260,7 +301,7 @@ int SharkLoco::nextSegmentAngle(int index, int prevSegmentAngle, int prevTimeAng
 	{
 		harm = 2;
 	}	
-	else if( index == oldAngles.size()-2) 
+	else if( index == oldAngles.size()-2)  //TODO tempory comment
 	{
 		harm = 3;
 	}

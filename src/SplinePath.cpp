@@ -82,7 +82,7 @@ void SplinePath::gatherDTPoints()
 		p.x = mreader.gElement(1,id);
 		p.y = .2 * sin(id/8.0);   	//varies the height a little over each point
 		p.z = mreader.gElement(2,id);
-		
+
 		if(!(p.x == q.x && p.z == q.z))
 		{
 			//p.Print();
@@ -102,6 +102,7 @@ void SplinePath::gatherDTPoints()
 	initTangents();
 }
 
+//csv
 void SplinePath::gatherEXPoints()
 {
 	float runningTotts = 0;  //running time total
@@ -120,6 +121,8 @@ void SplinePath::gatherEXPoints()
 		//p.x = doubleLerp(ereader.gCoordinate(id).x, ereader.gMinLatitude(), ereader.gMaxLatitude(), 0, 100);
 		//p.y = doubleLerp(ereader.gCoordinate(id).y, ereader.gMinLongitude(), ereader.gMinLongitude(), 0 , 100) ;
 		//p.z = ereader.gCoordinate(id).z;
+		//p.Print();
+		//printf("\n");
 
 		if(p.fEquals(points[points.size()-1], .00001 * scale)) {
 			isLargerPoint(p);
@@ -158,7 +161,7 @@ void SplinePath::gatherZOEPoints()
 	}
 	calcRadius();
 
-	
+
 	initTangents();
 }
 
@@ -205,6 +208,9 @@ void SplinePath::calcRadius()
 
 void SplinePath::initTangents()
 {
+	tTangents = vector<Vector3f>();
+	tangents = vector<Vector3f>();
+
 	if(!isCatmullMode)
 	{
 		//first value needs to be initilized 
@@ -226,7 +232,8 @@ void SplinePath::initTangents()
 			after /= after.Magnitude();
 			Vector3f edgeDiff;	
 
-			if(before.Dot(after) >= .8 ){
+			if(before.Dot(after) >= .8 )
+			{
 				//case: need perpendicular tangent
 				//180 degree turn case is discontinious. This is a fix
 				//correct 180 case before cross multiplying
@@ -244,7 +251,7 @@ void SplinePath::initTangents()
 				}
 				Vector3f axis;
 				axis = before.Cross(after);   //axis of rotate
-			        Vector3f perpen = before.Cross(axis);  //right angle turn.	
+				Vector3f perpen = before.Cross(axis);  //right angle turn.	
 				if(perpen.Dot(after) < 0 )
 				{
 					perpen *= -1;  //perpen should point in same general direction as the next point
@@ -256,9 +263,9 @@ void SplinePath::initTangents()
 				edgeDiff = antPt-postPt;  //chord
 				edgeDiff /= edgeDiff.Magnitude();	
 			}	
-			
+
 			float rotationAngle = tarPt.AngleCos(before, after);  
-		
+
 			//scale magnitude
 			float postMag = (tarPt-postPt).Magnitude(); 
 			float antMag = (tarPt-antPt).Magnitude() ;
@@ -266,7 +273,7 @@ void SplinePath::initTangents()
 			Mag /= 2.0;
 			float minMag = .2;   //minimum magnitude for the thing.
 			float scale = minMag + ((Mag-minMag) * (((3.14159265-rotationAngle)*(3.14159265-rotationAngle)) / 3.14159265 )); //Lerp ease scale
-			
+
 			//tangent calculation
 			tan = edgeDiff * scale;
 			if(!tan.fEquals(tan, 0.1))  //NaN bandAid TODO
@@ -281,7 +288,67 @@ void SplinePath::initTangents()
 		tan = points[points.size()-1] - points[points.size()-2];
 		tangents.push_back(tan);
 	}
+
+	//Fritsch-Carlson
+	float hm1 = 0.0;  //d_{i-1}
+	float hm1x = 0.0;  //d_{i-1}
+	float dm1 = 0.0; //h_{i-1}
+	float dm1x = 0.0; //h_{i-1}
+
+	Vector3f endTangent = Vector3f(0, 0, 0);
+
+	tTangents.push_back( endTangent );  //tangent at first point
+	//Time-space tangent generation
+	for(int i = 1; i < points.size()-1; i++)
+	{
+		Vector3f ttan;
+		//first create the direction of the tangent. then scale it to the needed magnitude
+		Vector3f antPt = Vector3f(totts[i+1], 0, i+1);   //anterior
+		Vector3f tarPt = Vector3f(totts[i],   0, i);   //center target
+
+		float hi = antPt.x - tarPt.x;
+		float di = (antPt.z - tarPt.z)/hi;
+
+		float yTan;
+		if((dm1 > 0 && di > 0) || (dm1 < 0 && di < 0) || (dm1 == 0 && dm1 == di) )  //same sign
+		{
+			yTan = 3.0*(hm1 + hi);
+			yTan *= (1.0 / (((2.0*hi+hm1)/dm1) + ((2.0*hm1+hi)/di) ));
+		}
+		else
+		{
+			yTan = 0;
+		}
+
+		float hix = antPt.z - tarPt.z;
+		float dix = (antPt.x - tarPt.x)/hix;
+
+		float xTan;
+		if((dm1x > 0 && dix > 0) || (dm1x < 0 && dix < 0) || (dm1x == 0 && dm1x == dix) )  //same sign
+		{
+			xTan = 3.0*(hm1x + hix);
+			xTan *= (1.0 / (((2.0*hix+hm1x)/dm1x) + ((2.0*hm1x+hix)/dix) ));
+		}
+		else
+		{
+			xTan = 0;
+		}
+
+		ttan = Vector3f(xTan, 0, yTan);
+		//ttan.Print(); 
+		tTangents.push_back(ttan);
+		hm1 = hi;
+		hm1x = hix;
+		dm1 = di;
+		dm1x = dix;
+	}
+
+	//init the last point
+	tTangents.push_back(endTangent);
+
+
 }
+
 
 /*Interpolation helper function. Computs the matrix multiplcation between a u matrix, M (spline matrix) and B (points)
  * returns a single result. Run three times to get x, y, and z (full vertex) */
@@ -319,31 +386,20 @@ Vector3f SplinePath::splineLocation(float curLocation, int startPoint)
 	}
 }
 
-// Catmull interpolation for the time of movement (time-space curve, rather than the space curve of the other function)
+// interpolation for the time of movement (time-space curve, rather than the space curve of the other function)
 // Returns a double value representing the new U value to input into the space curve
 // takes in the amount of time (seconds) since program start, and the current Knot.
 double SplinePath::convertTimestampToU(float timer, int curKnot )
 {
 	int endMark = totts.size();
 	int endLocNum; //index to the end point;
-	double historyTime;
-	double startTan;
-	double startTime;
-	double endTime;
-	double futureTime;
-	double endTan;
+	Vector3f startTan;
+	Vector3f startTime;
+	Vector3f endTime;
+	Vector3f endTan;
 
-	//Need to derive three nighboring points next to the current point (one behind, two ahead). 
-	//Array bounds need to be checked, and they wrap.   
-	if(curKnot > 0) {
-
-		historyTime = totts[curKnot-1];  //not at beginning of spline
-	}
-	else {
-		historyTime = (totts[curKnot+1]*.5) - (totts[curKnot+2]-totts[curKnot+1]) - totts[curKnot]; //initial tangent at beginning of spline
-	}
-
-	startTime = totts[curKnot];
+	startTime = Vector3f(totts[curKnot], 0, curKnot);
+	startTan = tTangents[curKnot];
 	if(curKnot+1 >= endMark) {
 		endLocNum = 0;
 	}
@@ -351,40 +407,15 @@ double SplinePath::convertTimestampToU(float timer, int curKnot )
 		endLocNum = curKnot+1;
 	}
 
-	endTime = totts[endLocNum]; //provided it's not at the end of the spline, endLocation is start+1
+	endTime = Vector3f(totts[endLocNum], 0, endLocNum); //provided it's not at the end of the spline, endLocation is start+1
+	endTan = tTangents[endLocNum];
 
-	if(endLocNum+1 >= endMark) {
-		futureTime = totts[0];
-	}
-	else {
-		futureTime = totts[endLocNum+1];
-	}
-
-	//startTan = endTime - historyTime; 
-	startTan = 1; 
-	//endTan = futureTime - startTime;
-	endTan = 1;
-
-	//turn the timer value into a u
-	double u = doubleLerp(timer, startTime, endTime, 0.0, 1.0);
-	float dU[4] = {u*u*u, u*u, u, 1};
-	float Bu[4] = {startTime, endTime, startTan, endTan};
-		
-	float res = HmInt(dU, Mher, Bu);
-			                
-	//Prepare the matrices used for catmull interpolation
-	/*float dU[4] = {u*u*u, u*u, u, 1.0};
-	float Bu[4] = {historyTime, startTime, endTime, futureTime};
-	double res =  HmInt(dU, Mcat, Bu); //matrix multiplcation 
-	//printf("vri %f, (%f %f %f %f )=> %f\n", u, historyTime, startTime, endTime, futureTime, res);	  
-	//counting backwards. u is okay?
-	//TODO spline curves double back on themselves ._.
-
-	//curTimeSpline = u;  //for linear interpolation 
-	curTimeSpline = res;    //for spline interpolation
-	//return u; */
-	return doubleLerp(res, startTime, endTime, 0.0, 1.0);
 	
+	float timeU = doubleLerp(timer, totts[curKnot], totts[endLocNum], 0.0, 1.0);
+	float interpolated =  hermiteMatrix(timeU, startTime, endTime, startTan, endTan).z;
+	return doubleLerp(interpolated, curKnot, endLocNum, 0.0, 1.0);  //convert interpolated between zero and one.
+	//return doubleLerp(res, startTime, endTime, 0.0, 1.0);
+
 }
 
 /*igeneralized catmull-rom matrix multiplcation for complex interpolations
@@ -682,110 +713,110 @@ double SplinePath::StoU(double sDist, int curPoint)
 /*Draws line between the previous line and the current one */
 void SplinePath::drawPointLine(int i, Frustum* frustum)
 {
-        glPushMatrix();
-        {
-                glTranslatef(gPoint(i).x, gPoint(i).y, gPoint(i).z);
-                if(frustum->testPoint(gPoint(i)))
-                {
-                        glutSolidSphere(.1, 3, 2);
-                }
-        }glPopMatrix();
-        if(i > 0)
-        {
-                if(frustum->testPoint(gPoint(i)) || frustum->testPoint(gPoint(i-1)))
-                {
-                        //splined points for more curvature
-                        Vector3f p1 = splineLocation(.1, i-1);
-                        Vector3f p2 = splineLocation(.2, i-1);
-                        Vector3f p3 = splineLocation(.3, i-1);
-                        Vector3f p4 = splineLocation(.4, i-1);
-                        Vector3f p5 = splineLocation(.5, i-1);
-                        Vector3f p6 = splineLocation(.6, i-1);
-                        Vector3f p7 = splineLocation(.7, i-1);
-                        Vector3f p8 = splineLocation(.8, i-1);
-                        Vector3f p9 = splineLocation(.9, i-1);
+	glPushMatrix();
+	{
+		glTranslatef(gPoint(i).x, gPoint(i).y, gPoint(i).z);
+		if(frustum->testPoint(gPoint(i)))
+		{
+			glutSolidSphere(.1, 3, 2);
+		}
+	}glPopMatrix();
+	if(i > 0)
+	{
+		if(frustum->testPoint(gPoint(i)) || frustum->testPoint(gPoint(i-1)))
+		{
+			//splined points for more curvature
+			Vector3f p1 = splineLocation(.1, i-1);
+			Vector3f p2 = splineLocation(.2, i-1);
+			Vector3f p3 = splineLocation(.3, i-1);
+			Vector3f p4 = splineLocation(.4, i-1);
+			Vector3f p5 = splineLocation(.5, i-1);
+			Vector3f p6 = splineLocation(.6, i-1);
+			Vector3f p7 = splineLocation(.7, i-1);
+			Vector3f p8 = splineLocation(.8, i-1);
+			Vector3f p9 = splineLocation(.9, i-1);
 
 			glBegin(GL_LINES);
-                        glVertex3f(gPoint(i-1).x, gPoint(i-1).y, gPoint(i-1).z);
-                        glVertex3f(p1.x, p1.y, p1.z);
+			glVertex3f(gPoint(i-1).x, gPoint(i-1).y, gPoint(i-1).z);
+			glVertex3f(p1.x, p1.y, p1.z);
 
-                        glVertex3f(p1.x, p1.y, p1.z);
-                        glVertex3f(p2.x, p2.y, p2.z);
+			glVertex3f(p1.x, p1.y, p1.z);
+			glVertex3f(p2.x, p2.y, p2.z);
 
-                        glVertex3f(p2.x, p2.y, p2.z);
-                        glVertex3f(p3.x, p3.y, p3.z);
+			glVertex3f(p2.x, p2.y, p2.z);
+			glVertex3f(p3.x, p3.y, p3.z);
 
-                        glVertex3f(p3.x, p3.y, p3.z);
-                        glVertex3f(p4.x, p4.y, p4.z);
+			glVertex3f(p3.x, p3.y, p3.z);
+			glVertex3f(p4.x, p4.y, p4.z);
 
-                        glVertex3f(p4.x, p4.y, p4.z);
-                        glVertex3f(p5.x, p5.y, p5.z);
+			glVertex3f(p4.x, p4.y, p4.z);
+			glVertex3f(p5.x, p5.y, p5.z);
 
-                        glVertex3f(p5.x, p5.y, p5.z);
-                        glVertex3f(p6.x, p6.y, p6.z);
+			glVertex3f(p5.x, p5.y, p5.z);
+			glVertex3f(p6.x, p6.y, p6.z);
 
-                        glVertex3f(p6.x, p6.y, p6.z);
-                        glVertex3f(p7.x, p7.y, p7.z);
+			glVertex3f(p6.x, p6.y, p6.z);
+			glVertex3f(p7.x, p7.y, p7.z);
 
-                        glVertex3f(p7.x, p7.y, p7.z);
-                        glVertex3f(p8.x, p8.y, p8.z);
+			glVertex3f(p7.x, p7.y, p7.z);
+			glVertex3f(p8.x, p8.y, p8.z);
 
-                        glVertex3f(p8.x, p8.y, p8.z);
-                        glVertex3f(p9.x, p9.y, p9.z);
+			glVertex3f(p8.x, p8.y, p8.z);
+			glVertex3f(p9.x, p9.y, p9.z);
 
-                        glVertex3f(p9.x, p9.y, p9.z);
-                        glVertex3f(gPoint(i).x, gPoint(i).y, gPoint(i).z);
-                        glEnd();
-                }
-        }
+			glVertex3f(p9.x, p9.y, p9.z);
+			glVertex3f(gPoint(i).x, gPoint(i).y, gPoint(i).z);
+			glEnd();
+		}
+	}
 }
 
 
 
 void SplinePath::drawPoints(int curPoint, bool usesGhostPoints, Frustum* frustum)
 {
-        int step = 1;
+	int step = 1;
 
-        glDisable(GL_LIGHT0);
-        glDisable(GL_LIGHTING);
-        float blue = 1.0;
-        float red = 1.0;
-        float green = 1.0;
-        int i;
-        int chunk = size()*.1 / 4;
+	glDisable(GL_LIGHT0);
+	glDisable(GL_LIGHTING);
+	float blue = 1.0;
+	float red = 1.0;
+	float green = 1.0;
+	int i;
+	int chunk = size()*.1 / 4;
 	int endRange = limitedDrawing? curPoint + 500 : (curPoint+(size()*.1));
 	int pastRange = limitedDrawing? curPoint - 100 : (usesGhostPoints? 1 : 0 );
 
-        frustum->extract();
+	frustum->extract();
 
-	
+
 
 	for(i = curPoint+1; i < endRange; i += step)
-        {
-                glColor3f(red,green,blue);
-                drawPointLine(i, frustum);
-                if(i > curPoint+chunk) red -= .02;
-                if(i > curPoint+(3.0*chunk)){ red += .02; green -=.01; }
-                if(i < curPoint+(chunk*2)){ blue -= .02; }
-                if(i > curPoint+(chunk*2)){ blue += .02; }
+	{
+		glColor3f(red,green,blue);
+		drawPointLine(i, frustum);
+		if(i > curPoint+chunk) red -= .02;
+		if(i > curPoint+(3.0*chunk)){ red += .02; green -=.01; }
+		if(i < curPoint+(chunk*2)){ blue -= .02; }
+		if(i > curPoint+(chunk*2)){ blue += .02; }
 
-        }
+	}
 
 
-        //Past points drawn in red
-        glColor3f(1,0,0);
-        i = pastRange;
+	//Past points drawn in red
+	glColor3f(1,0,0);
+	i = pastRange;
 	if(usesGhostPoints && pastRange < 1){
-                i = 1;
-        }
-        else if(pastRange < 0){i = 0;}
+		i = 1;
+	}
+	else if(pastRange < 0){i = 0;}
 
-        for(/*same val*/ ; i <= curPoint; i++)
-        {
-                drawPointLine(i, frustum);
-        }
+	for(/*same val*/ ; i <= curPoint; i++)
+	{
+		drawPointLine(i, frustum);
+	}
 
-        //Far future points drawn in black, if not limiting Drawing
+	//Far future points drawn in black, if not limiting Drawing
 	if(!limitedDrawing)
 	{
 		glColor3f(0,0,0);
@@ -795,8 +826,8 @@ void SplinePath::drawPoints(int curPoint, bool usesGhostPoints, Frustum* frustum
 		}
 	}
 	glColor3f(1,1,1);
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
 }
 
 
